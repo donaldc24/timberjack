@@ -16,6 +16,12 @@ pub struct AnalysisResult {
     pub unique_messages: HashSet<String>,
 }
 
+impl Default for LogAnalyzer {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl LogAnalyzer {
     pub fn new() -> Self {
         LogAnalyzer {
@@ -44,12 +50,12 @@ impl LogAnalyzer {
         }
 
         // Check if we need to filter by level
-        let level_matches = level_filter.map_or(true, |filter_level| {
+        let level_matches = level_filter.is_none_or(|filter_level| {
             !found_level.is_empty() && found_level == filter_level.to_uppercase()
         });
 
         // Check if pattern matches (if we have a pattern)
-        let pattern_matches = pattern.map_or(true, |re| re.is_match(line));
+        let pattern_matches = pattern.is_none_or(|re| re.is_match(line));
 
         // Only process if both conditions match
         if level_matches && pattern_matches {
@@ -95,7 +101,7 @@ impl LogAnalyzer {
             let parts: Vec<&str> = line.split("Failed to ").collect();
             if parts.len() > 1 {
                 let action_parts: Vec<&str> = parts[1].split(":").collect();
-                if action_parts.len() > 0 {
+                if !action_parts.is_empty() {
                     let action = action_parts[0].trim();
                     return Some(format!("Failed to {}", action));
                 }

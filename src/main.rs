@@ -36,7 +36,7 @@ fn main() -> std::io::Result<()> {
     let result = analyzer.analyze_lines(lines, pattern.as_ref(), level, args.trend, args.stats);
 
     // Print the results
-    print!("\n");
+    println!();
     print_results(&result, args.trend, args.stats);
 
     Ok(())
