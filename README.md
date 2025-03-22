@@ -1,5 +1,8 @@
 # Timber 🪓
 
+[![Rust CI](https://github.com/donaldcalhoun/timber/workflows/Rust%20CI/badge.svg)](https://github.com/donaldcalhoun/timber/actions)
+[![Crates.io](https://img.shields.io/crates/v/timber.svg)](https://crates.io/crates/timber)
+
 **Timber: Fell Your Logs Fast** - A lightning-fast CLI log analysis tool built in Rust.
 
 ## 📋 Overview
@@ -115,11 +118,26 @@ Timber finished chopping the log! 🪵
 
 ## 📝 Roadmap
 
+### Short-term Goals
+- [x] Basic log file analysis
+- [x] Pattern searching
+- [x] Log level filtering
+- [x] Time-based trend analysis
+- [x] Statistical summaries
+
+### Upcoming Features
 - JSON output support
-- Format auto-detection
+- Advanced format auto-detection
 - Multi-file analysis
+- Performance optimization
 - IDE integrations (VS Code, IntelliJ)
 - Interactive TUI mode
+
+### Long-term Vision
+- Machine learning-based log insights
+- Cloud log aggregation support
+- Advanced error correlation
+- Distributed log analysis
 
 ## 🤝 Contributing
 
