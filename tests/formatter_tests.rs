@@ -1,5 +1,5 @@
-use timber::analyzer::AnalysisResult;
 use std::collections::{HashMap, HashSet};
+use timber::analyzer::AnalysisResult;
 
 #[cfg(test)]
 use timber::formatter::print_results_to_writer;
@@ -84,13 +84,23 @@ fn test_print_stats_results() {
     result.levels_count.insert("WARN".to_string(), 1);
 
     // Add error types
-    result.error_types.insert("NullPointerException".to_string(), 1);
-    result.error_types.insert("Connection timeout".to_string(), 1);
+    result
+        .error_types
+        .insert("NullPointerException".to_string(), 1);
+    result
+        .error_types
+        .insert("Connection timeout".to_string(), 1);
 
     // Add unique messages
-    result.unique_messages.insert("NullPointerException".to_string());
-    result.unique_messages.insert("Slow database query".to_string());
-    result.unique_messages.insert("Connection timeout".to_string());
+    result
+        .unique_messages
+        .insert("NullPointerException".to_string());
+    result
+        .unique_messages
+        .insert("Slow database query".to_string());
+    result
+        .unique_messages
+        .insert("Connection timeout".to_string());
 
     // Capture the output to test
     let mut output = Vec::new();

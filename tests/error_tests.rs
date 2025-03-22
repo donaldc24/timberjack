@@ -22,11 +22,10 @@ fn test_empty_file() {
     let file_path = temp_file.path().to_str().unwrap();
 
     let mut cmd = Command::cargo_bin("timber").unwrap();
-    let assert = cmd
-        .arg(file_path)
-        .assert();
+    let assert = cmd.arg(file_path).assert();
 
-    assert.success()
+    assert
+        .success()
         .stdout(predicates::str::contains("Felled: 0 logs"));
 }
 
@@ -37,11 +36,10 @@ fn test_malformed_log() {
     let file_path = temp_file.path().to_str().unwrap();
 
     let mut cmd = Command::cargo_bin("timber").unwrap();
-    let assert = cmd
-        .arg(file_path)
-        .assert();
+    let assert = cmd.arg(file_path).assert();
 
     // Should still process the file, just won't extract much information
-    assert.success()
+    assert
+        .success()
         .stdout(predicates::str::contains("Felled: 1 logs"));
 }

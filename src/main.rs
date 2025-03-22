@@ -1,10 +1,10 @@
+use clap::Parser;
+use regex::Regex;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
-use regex::Regex;
-use clap::Parser;
 
+use timber::analyzer::LogAnalyzer;
 use timber::cli::Args;
-use timber::analyzer::{LogAnalyzer};
 use timber::formatter::print_results;
 
 fn main() -> std::io::Result<()> {
@@ -16,7 +16,7 @@ fn main() -> std::io::Result<()> {
         Some(pattern) => {
             println!("Searching for pattern: {}", pattern);
             Some(Regex::new(pattern).expect("Invalid regex pattern"))
-        },
+        }
         None => None,
     };
 
@@ -33,13 +33,7 @@ fn main() -> std::io::Result<()> {
 
     // Create analyzer and analyze the file
     let analyzer = LogAnalyzer::new();
-    let result = analyzer.analyze_lines(
-        lines,
-        pattern.as_ref(),
-        level,
-        args.trend,
-        args.stats
-    );
+    let result = analyzer.analyze_lines(lines, pattern.as_ref(), level, args.trend, args.stats);
 
     // Print the results
     print!("\n");
