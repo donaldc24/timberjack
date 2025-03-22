@@ -7,3 +7,4 @@ authors = ["Donald Calhoun donaldcalhouncs@gmail.com"]
 
 [dependencies]
 clap = { version = "4.4", features = ["derive"] }
+regex = "1.10"
