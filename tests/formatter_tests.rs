@@ -1,8 +1,8 @@
 use std::collections::{HashMap, HashSet};
-use timber::analyzer::AnalysisResult;
+use timber_rs::analyzer::AnalysisResult;
 
 #[cfg(test)]
-use timber::formatter::print_results_to_writer;
+use timber_rs::formatter::print_results_to_writer;
 
 #[test]
 fn test_print_basic_results() {

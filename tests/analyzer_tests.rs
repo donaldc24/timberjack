@@ -1,5 +1,5 @@
 use regex::Regex;
-use timber::analyzer::LogAnalyzer;
+use timber_rs::analyzer::LogAnalyzer;
 
 #[test]
 fn test_analyze_line_with_pattern() {

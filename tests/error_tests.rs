@@ -4,7 +4,7 @@ use tempfile::NamedTempFile;
 
 #[test]
 fn test_nonexistent_file() {
-    let mut cmd = Command::cargo_bin("timber").unwrap();
+    let mut cmd = Command::cargo_bin("timber-rs").unwrap();
     let assert = cmd
         .arg("--chop")
         .arg("ERROR")
@@ -21,7 +21,7 @@ fn test_empty_file() {
     let temp_file = NamedTempFile::new().unwrap();
     let file_path = temp_file.path().to_str().unwrap();
 
-    let mut cmd = Command::cargo_bin("timber").unwrap();
+    let mut cmd = Command::cargo_bin("timber-rs").unwrap();
     let assert = cmd.arg(file_path).assert();
 
     assert
@@ -35,7 +35,7 @@ fn test_malformed_log() {
     writeln!(temp_file, "This is not a properly formatted log line").unwrap();
     let file_path = temp_file.path().to_str().unwrap();
 
-    let mut cmd = Command::cargo_bin("timber").unwrap();
+    let mut cmd = Command::cargo_bin("timber-rs").unwrap();
     let assert = cmd.arg(file_path).assert();
 
     // Should still process the file, just won't extract much information

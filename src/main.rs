@@ -3,9 +3,9 @@ use regex::Regex;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
-use timber::analyzer::LogAnalyzer;
-use timber::cli::Args;
-use timber::formatter::print_results;
+use timber_rs::analyzer::LogAnalyzer;
+use timber_rs::cli::Args;
+use timber_rs::formatter::print_results;
 
 fn main() -> std::io::Result<()> {
     let args = Args::parse();

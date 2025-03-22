@@ -15,7 +15,7 @@ fn test_small_log_pattern_search() {
         return;
     }
 
-    let mut cmd = Command::cargo_bin("timber").unwrap();
+    let mut cmd = Command::cargo_bin("timber-rs").unwrap();
     let assert = cmd.arg("--chop").arg("ERROR").arg(log_path).assert();
 
     assert.success();
@@ -29,7 +29,7 @@ fn test_small_log_stats() {
         return;
     }
 
-    let mut cmd = Command::cargo_bin("timber").unwrap();
+    let mut cmd = Command::cargo_bin("timber-rs").unwrap();
     let assert = cmd.arg("--stats").arg(log_path).assert();
 
     assert
@@ -46,7 +46,7 @@ fn test_medium_log_level_filtering() {
         return;
     }
 
-    let mut cmd = Command::cargo_bin("timber").unwrap();
+    let mut cmd = Command::cargo_bin("timber-rs").unwrap();
     let assert = cmd.arg("--level").arg("ERROR").arg(log_path).assert();
 
     assert.success();
@@ -61,7 +61,7 @@ fn test_large_log_trend_analysis() {
         return;
     }
 
-    let mut cmd = Command::cargo_bin("timber").unwrap();
+    let mut cmd = Command::cargo_bin("timber-rs").unwrap();
     let assert = cmd.arg("--trend").arg(log_path).assert();
 
     assert
@@ -77,7 +77,7 @@ fn test_large_log_error_spike_detection() {
         return;
     }
 
-    let mut cmd = Command::cargo_bin("timber").unwrap();
+    let mut cmd = Command::cargo_bin("timber-rs").unwrap();
     let assert = cmd
         .arg("--level")
         .arg("ERROR")
@@ -100,7 +100,7 @@ fn test_combined_features() {
         return;
     }
 
-    let mut cmd = Command::cargo_bin("timber").unwrap();
+    let mut cmd = Command::cargo_bin("timber-rs").unwrap();
     let assert = cmd
         .arg("--chop")
         .arg("Connection")
