@@ -1,6 +1,6 @@
 [package]
 name = "timber"
-version = "0.1.0"
+version = "0.1.0-alpha.1"
 edition = "2024"
 description = "A CLI tool that fells log files with speed and insight"
 authors = ["Donald Calhoun donaldcalhouncs@gmail.com"]
