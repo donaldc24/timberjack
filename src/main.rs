@@ -37,7 +37,12 @@ fn main() -> std::io::Result<()> {
 
     // Print the results
     println!();
-    print_results(&result, args.trend, args.stats);
+    print_results(
+        &result,
+        args.trend,
+        args.stats,
+        args.json
+    );
 
     Ok(())
 }

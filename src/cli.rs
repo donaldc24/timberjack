@@ -3,6 +3,7 @@ use clap::Parser;
 #[derive(Parser, Debug)]
 #[clap(name = "timber")]
 #[clap(about = "Timber: Fell Your Logs Fast", long_about = None)]
+#[clap(version = env!("CARGO_PKG_VERSION"))]
 pub struct Args {
     /// Log file to analyze
     pub file: String,
@@ -22,4 +23,8 @@ pub struct Args {
     /// Show summary statistics
     #[clap(long)]
     pub stats: bool,
+
+    /// Output results in JSON format
+    #[clap(long)]
+    pub json: bool,
 }

@@ -3,7 +3,15 @@ use std::cmp::Reverse;
 use std::io::{self, Write};
 
 // Main production function - prints directly to stdout for maximum performance
-pub fn print_results(result: &AnalysisResult, show_trends: bool, show_stats: bool) {
+pub fn print_results(result: &AnalysisResult, show_trends: bool, show_stats: bool, json_output: bool) {
+    if json_output {
+        // Serialize the entire result to JSON
+        let json_output = serde_json::to_string_pretty(result)
+            .unwrap_or_else(|_| "Failed to serialize results".to_string());
+        println!("{}", json_output);
+        return;
+    }
+
     // Print matching lines
     for line in &result.matched_lines {
         println!("{}", line);

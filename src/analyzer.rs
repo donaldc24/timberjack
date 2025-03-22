@@ -1,12 +1,8 @@
 use regex::Regex;
 use std::collections::{HashMap, HashSet};
+use serde::{Serialize, Deserialize};
 
-pub struct LogAnalyzer {
-    level_regex: Regex,
-    timestamp_regex: Regex,
-    error_type_regex: Regex,
-}
-
+#[derive(Debug, Serialize, Deserialize)]
 pub struct AnalysisResult {
     pub matched_lines: Vec<String>,
     pub count: usize,
@@ -14,6 +10,12 @@ pub struct AnalysisResult {
     pub levels_count: HashMap<String, usize>,
     pub error_types: HashMap<String, usize>,
     pub unique_messages: HashSet<String>,
+}
+
+pub struct LogAnalyzer {
+    level_regex: Regex,
+    timestamp_regex: Regex,
+    error_type_regex: Regex,
 }
 
 impl Default for LogAnalyzer {
