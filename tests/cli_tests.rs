@@ -17,7 +17,7 @@ fn test_basic_chop() {
     let file_path = temp_file.path().to_str().unwrap();
 
     // Run the timber command
-    let mut cmd = Command::cargo_bin("timber-rs").unwrap();
+    let mut cmd = Command::cargo_bin("timber").unwrap();
     let assert = cmd.arg("--chop").arg("ERROR").arg(file_path).assert();
 
     // Check that the output is successful and contains expected text
@@ -46,7 +46,7 @@ fn test_level_filtering() {
     let file_path = temp_file.path().to_str().unwrap();
 
     // Run the timber command with level filtering
-    let mut cmd = Command::cargo_bin("timber-rs").unwrap();
+    let mut cmd = Command::cargo_bin("timber").unwrap();
     let assert = cmd.arg("--level").arg("WARN").arg(file_path).assert();
 
     // Check that the output is successful and contains expected text
@@ -72,7 +72,7 @@ fn test_stats_option() {
     let file_path = temp_file.path().to_str().unwrap();
 
     // Run the timber command with stats
-    let mut cmd = Command::cargo_bin("timber-rs").unwrap();
+    let mut cmd = Command::cargo_bin("timber").unwrap();
     let assert = cmd.arg("--stats").arg(file_path).assert();
 
     // Check that the output contains stats
@@ -97,7 +97,7 @@ fn test_trend_option() {
     let file_path = temp_file.path().to_str().unwrap();
 
     // Run the timber command with trend
-    let mut cmd = Command::cargo_bin("timber-rs").unwrap();
+    let mut cmd = Command::cargo_bin("timber").unwrap();
     let assert = cmd.arg("--trend").arg(file_path).assert();
 
     // Check that the output contains trends
@@ -127,7 +127,7 @@ fn test_combined_options() {
     let file_path = temp_file.path().to_str().unwrap();
 
     // Run the timber command with multiple options
-    let mut cmd = Command::cargo_bin("timber-rs").unwrap();
+    let mut cmd = Command::cargo_bin("timber").unwrap();
     let assert = cmd
         .arg("--chop")
         .arg("Exception")
