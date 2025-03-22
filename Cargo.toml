@@ -11,6 +11,10 @@ readme = "README.md"
 keywords = ["log", "analysis", "cli", "logging"]
 categories = ["command-line-utilities", "development-tools"]
 
+[[bin]]
+name = "timber"  # This keeps your CLI command as `timber`
+path = "src/main.rs"
+
 [dependencies]
 clap = { version = "4.4", features = ["derive"] }
 regex = "1.10"
