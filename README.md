@@ -1,6 +1,6 @@
 # Timber 🪓
 
-[![Rust CI](https://github.com/donaldcalhoun/timber/workflows/Rust%20CI/badge.svg)](https://github.com/donaldcalhoun/timber/actions)
+[![Rust CI](https://github.com/donaldc24/timber/workflows/Rust%20CI/badge.svg)](https://github.com/donaldc24/timber/actions)
 [![Crates.io](https://img.shields.io/crates/v/timber.svg)](https://crates.io/crates/timber)
 
 **Timber: Fell Your Logs Fast** - A lightning-fast CLI log analysis tool built in Rust.
