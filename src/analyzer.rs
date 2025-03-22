@@ -186,3 +186,22 @@ impl LogAnalyzer {
         result
     }
 }
+
+// Extension trait to add is_none_or method
+trait OptionExt<T> {
+    fn is_none_or<F>(&self, f: F) -> bool
+    where
+        F: FnOnce(&T) -> bool;
+}
+
+impl<T> OptionExt<T> for Option<T> {
+    fn is_none_or<F>(&self, f: F) -> bool
+    where
+        F: FnOnce(&T) -> bool,
+    {
+        match self {
+            None => true,
+            Some(value) => f(value),
+        }
+    }
+}
