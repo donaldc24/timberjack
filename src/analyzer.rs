@@ -1,5 +1,5 @@
-use std::collections::{HashMap, HashSet};
 use regex::Regex;
+use std::collections::{HashMap, HashSet};
 
 pub struct LogAnalyzer {
     level_regex: Regex,
@@ -16,6 +16,12 @@ pub struct AnalysisResult {
     pub unique_messages: HashSet<String>,
 }
 
+impl Default for LogAnalyzer {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl LogAnalyzer {
     pub fn new() -> Self {
         LogAnalyzer {
@@ -26,29 +32,30 @@ impl LogAnalyzer {
         }
     }
 
-    pub fn analyze_line(&self,
-                        line: &str,
-                        pattern: Option<&Regex>,
-                        level_filter: Option<&str>,
-                        collect_trends: bool,
-                        _collect_stats: bool) -> Option<(String, String, Option<String>)> {
+    pub fn analyze_line(
+        &self,
+        line: &str,
+        pattern: Option<&Regex>,
+        level_filter: Option<&str>,
+        collect_trends: bool,
+        _collect_stats: bool,
+    ) -> Option<(String, String, Option<String>)> {
         // Extract log level if present
         let mut found_level = String::new();
         if let Some(caps) = self.level_regex.captures(line) {
-            found_level = caps.get(1)
-                .map_or_else(
-                    || caps.get(0).map_or("", |m| m.as_str()),
-                    |m| m.as_str()
-                ).to_uppercase();
+            found_level = caps
+                .get(1)
+                .map_or_else(|| caps.get(0).map_or("", |m| m.as_str()), |m| m.as_str())
+                .to_uppercase();
         }
 
         // Check if we need to filter by level
-        let level_matches = level_filter.map_or(true, |filter_level|
+        let level_matches = level_filter.is_none_or(|filter_level| {
             !found_level.is_empty() && found_level == filter_level.to_uppercase()
-        );
+        });
 
         // Check if pattern matches (if we have a pattern)
-        let pattern_matches = pattern.map_or(true, |re| re.is_match(line));
+        let pattern_matches = pattern.is_none_or(|re| re.is_match(line));
 
         // Only process if both conditions match
         if level_matches && pattern_matches {
@@ -94,7 +101,7 @@ impl LogAnalyzer {
             let parts: Vec<&str> = line.split("Failed to ").collect();
             if parts.len() > 1 {
                 let action_parts: Vec<&str> = parts[1].split(":").collect();
-                if action_parts.len() > 0 {
+                if !action_parts.is_empty() {
                     let action = action_parts[0].trim();
                     return Some(format!("Failed to {}", action));
                 }
@@ -120,13 +127,17 @@ impl LogAnalyzer {
         line.to_string()
     }
 
-    pub fn analyze_lines<I>(&self,
-                            lines: I,
-                            pattern: Option<&Regex>,
-                            level_filter: Option<&str>,
-                            collect_trends: bool,
-                            collect_stats: bool) -> AnalysisResult
-    where I: Iterator<Item = String> {
+    pub fn analyze_lines<I>(
+        &self,
+        lines: I,
+        pattern: Option<&Regex>,
+        level_filter: Option<&str>,
+        collect_trends: bool,
+        collect_stats: bool,
+    ) -> AnalysisResult
+    where
+        I: Iterator<Item = String>,
+    {
         let mut result = AnalysisResult {
             matched_lines: Vec::new(),
             count: 0,
@@ -137,9 +148,9 @@ impl LogAnalyzer {
         };
 
         for line in lines {
-            if let Some((matched_line, level, timestamp)) = self.analyze_line(
-                &line, pattern, level_filter, collect_trends, collect_stats
-            ) {
+            if let Some((matched_line, level, timestamp)) =
+                self.analyze_line(&line, pattern, level_filter, collect_trends, collect_stats)
+            {
                 // Store matched line
                 result.matched_lines.push(matched_line.clone());
                 result.count += 1;

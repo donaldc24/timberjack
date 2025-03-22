@@ -1,5 +1,5 @@
-use timber::analyzer::{LogAnalyzer};
 use regex::Regex;
+use timber::analyzer::LogAnalyzer;
 
 #[test]
 fn test_analyze_line_with_pattern() {
@@ -49,20 +49,15 @@ fn test_analyze_lines_with_pattern() {
     let analyzer = LogAnalyzer::new();
     let lines = vec![
         "2025-03-21 14:00:00,123 [ERROR] NullPointerException in WebController.java:42".to_string(),
-        "2025-03-21 14:01:00,456 [WARN] Slow database query (2.3s) in DatabaseService.java:128".to_string(),
+        "2025-03-21 14:01:00,456 [WARN] Slow database query (2.3s) in DatabaseService.java:128"
+            .to_string(),
         "2025-03-21 14:02:00,789 [INFO] Application started successfully".to_string(),
         "2025-03-21 14:03:00,012 [ERROR] Connection timeout in NetworkClient.java:86".to_string(),
     ];
 
     // Search for ERROR pattern
     let pattern = Some(Regex::new("ERROR").unwrap());
-    let result = analyzer.analyze_lines(
-        lines.into_iter(),
-        pattern.as_ref(),
-        None,
-        false,
-        false
-    );
+    let result = analyzer.analyze_lines(lines.into_iter(), pattern.as_ref(), None, false, false);
 
     assert_eq!(result.count, 2);
     assert_eq!(result.matched_lines.len(), 2);
@@ -75,19 +70,14 @@ fn test_analyze_lines_with_level_filter() {
     let analyzer = LogAnalyzer::new();
     let lines = vec![
         "2025-03-21 14:00:00,123 [ERROR] NullPointerException in WebController.java:42".to_string(),
-        "2025-03-21 14:01:00,456 [WARN] Slow database query (2.3s) in DatabaseService.java:128".to_string(),
+        "2025-03-21 14:01:00,456 [WARN] Slow database query (2.3s) in DatabaseService.java:128"
+            .to_string(),
         "2025-03-21 14:02:00,789 [INFO] Application started successfully".to_string(),
         "2025-03-21 14:03:00,012 [ERROR] Connection timeout in NetworkClient.java:86".to_string(),
     ];
 
     // Filter by WARN level
-    let result = analyzer.analyze_lines(
-        lines.into_iter(),
-        None,
-        Some("WARN"),
-        false,
-        false
-    );
+    let result = analyzer.analyze_lines(lines.into_iter(), None, Some("WARN"), false, false);
 
     assert_eq!(result.count, 1);
     assert_eq!(result.matched_lines.len(), 1);
@@ -99,19 +89,14 @@ fn test_time_trends() {
     let analyzer = LogAnalyzer::new();
     let lines = vec![
         "2025-03-21 14:00:00,123 [ERROR] NullPointerException in WebController.java:42".to_string(),
-        "2025-03-21 14:01:00,456 [WARN] Slow database query (2.3s) in DatabaseService.java:128".to_string(),
+        "2025-03-21 14:01:00,456 [WARN] Slow database query (2.3s) in DatabaseService.java:128"
+            .to_string(),
         "2025-03-21 14:02:00,789 [INFO] Application started successfully".to_string(),
         "2025-03-21 15:03:00,012 [ERROR] Connection timeout in NetworkClient.java:86".to_string(),
     ];
 
     // Collect time trends
-    let result = analyzer.analyze_lines(
-        lines.into_iter(),
-        None,
-        None,
-        true,
-        false
-    );
+    let result = analyzer.analyze_lines(lines.into_iter(), None, None, true, false);
 
     assert_eq!(result.time_trends.len(), 2);
     assert_eq!(*result.time_trends.get("2025-03-21 14").unwrap_or(&0), 3);
@@ -123,19 +108,14 @@ fn test_stats_collection() {
     let analyzer = LogAnalyzer::new();
     let lines = vec![
         "2025-03-21 14:00:00,123 [ERROR] NullPointerException in WebController.java:42".to_string(),
-        "2025-03-21 14:01:00,456 [WARN] Slow database query (2.3s) in DatabaseService.java:128".to_string(),
+        "2025-03-21 14:01:00,456 [WARN] Slow database query (2.3s) in DatabaseService.java:128"
+            .to_string(),
         "2025-03-21 14:02:00,789 [INFO] Application started successfully".to_string(),
         "2025-03-21 14:03:00,012 [ERROR] Connection timeout in NetworkClient.java:86".to_string(),
     ];
 
     // Collect stats
-    let result = analyzer.analyze_lines(
-        lines.into_iter(),
-        None,
-        None,
-        false,
-        true
-    );
+    let result = analyzer.analyze_lines(lines.into_iter(), None, None, false, true);
 
     // Check level counts
     assert_eq!(result.levels_count.len(), 3);
@@ -145,8 +125,14 @@ fn test_stats_collection() {
 
     // Check error types
     assert_eq!(result.error_types.len(), 2);
-    assert_eq!(*result.error_types.get("NullPointerException").unwrap_or(&0), 1);
-    assert_eq!(*result.error_types.get("Connection timeout").unwrap_or(&0), 1);
+    assert_eq!(
+        *result.error_types.get("NullPointerException").unwrap_or(&0),
+        1
+    );
+    assert_eq!(
+        *result.error_types.get("Connection timeout").unwrap_or(&0),
+        1
+    );
 
     // Check uniqueness
     assert_eq!(result.unique_messages.len(), 4);
@@ -157,7 +143,8 @@ fn test_combined_filters() {
     let analyzer = LogAnalyzer::new();
     let lines = vec![
         "2025-03-21 14:00:00,123 [ERROR] NullPointerException in WebController.java:42".to_string(),
-        "2025-03-21 14:01:00,456 [WARN] Slow database query (2.3s) in DatabaseService.java:128".to_string(),
+        "2025-03-21 14:01:00,456 [WARN] Slow database query (2.3s) in DatabaseService.java:128"
+            .to_string(),
         "2025-03-21 14:02:00,789 [INFO] Application started successfully".to_string(),
         "2025-03-21 14:03:00,012 [ERROR] Connection timeout in NetworkClient.java:86".to_string(),
     ];
@@ -169,7 +156,7 @@ fn test_combined_filters() {
         pattern.as_ref(),
         Some("ERROR"),
         false,
-        false
+        false,
     );
 
     assert_eq!(result.count, 1);
@@ -181,18 +168,13 @@ fn test_empty_results() {
     let analyzer = LogAnalyzer::new();
     let lines = vec![
         "2025-03-21 14:00:00,123 [ERROR] NullPointerException in WebController.java:42".to_string(),
-        "2025-03-21 14:01:00,456 [WARN] Slow database query (2.3s) in DatabaseService.java:128".to_string(),
+        "2025-03-21 14:01:00,456 [WARN] Slow database query (2.3s) in DatabaseService.java:128"
+            .to_string(),
     ];
 
     // Pattern that doesn't match anything
     let pattern = Some(Regex::new("ThisDoesNotExist").unwrap());
-    let result = analyzer.analyze_lines(
-        lines.into_iter(),
-        pattern.as_ref(),
-        None,
-        false,
-        false
-    );
+    let result = analyzer.analyze_lines(lines.into_iter(), pattern.as_ref(), None, false, false);
 
     assert_eq!(result.count, 0);
     assert!(result.matched_lines.is_empty());
