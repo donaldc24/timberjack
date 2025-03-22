@@ -52,12 +52,16 @@ impl LogAnalyzer {
         }
 
         // Check if we need to filter by level
-        let level_matches = level_filter.is_none_or(|filter_level| {
-            !found_level.is_empty() && found_level == filter_level.to_uppercase()
-        });
+        let level_matches = match level_filter {
+            None => true,
+            Some(filter_level) => !found_level.is_empty() && found_level == filter_level.to_uppercase()
+        };
 
         // Check if pattern matches (if we have a pattern)
-        let pattern_matches = pattern.is_none_or(|re| re.is_match(line));
+        let pattern_matches = match pattern {
+            None => true,
+            Some(re) => re.is_match(line)
+        };
 
         // Only process if both conditions match
         if level_matches && pattern_matches {
@@ -184,24 +188,5 @@ impl LogAnalyzer {
         }
 
         result
-    }
-}
-
-// Extension trait to add is_none_or method
-trait OptionExt<T> {
-    fn is_none_or<F>(&self, f: F) -> bool
-    where
-        F: FnOnce(&T) -> bool;
-}
-
-impl<T> OptionExt<T> for Option<T> {
-    fn is_none_or<F>(&self, f: F) -> bool
-    where
-        F: FnOnce(&T) -> bool,
-    {
-        match self {
-            None => true,
-            Some(value) => f(value),
-        }
     }
 }

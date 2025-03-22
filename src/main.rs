@@ -52,7 +52,9 @@ fn main() -> std::io::Result<()> {
         &result,
         args.trend,
         args.stats,
-        args.json
+        args.json,
+        args.top_errors,
+        args.show_unique
     );
 
     Ok(())

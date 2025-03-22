@@ -27,4 +27,12 @@ pub struct Args {
     /// Output results in JSON format
     #[clap(long)]
     pub json: bool,
+
+    /// Number of top error types to show (default: 5)
+    #[clap(long, default_value = "5")]
+    pub top_errors: usize,
+
+    /// Show unique messages in the output
+    #[clap(long)]
+    pub show_unique: bool,
 }
