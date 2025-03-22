@@ -1,7 +1,7 @@
 # Timber 🪓
 
 [![Rust CI](https://github.com/donaldc24/timber/workflows/Rust%20CI/badge.svg)](https://github.com/donaldc24/timber/actions)
-[![Crates.io](https://img.shields.io/crates/v/timber.svg)](https://crates.io/crates/timber)
+[![Crates.io](https://img.shields.io/crates/v/timber-rs.svg)](https://crates.io/crates/timber-rs)
 
 **Timber: Fell Your Logs Fast** - A lightning-fast CLI log analysis tool built in Rust.
 
@@ -19,17 +19,22 @@ Timber is a log-agnostic CLI tool that chops through noise to deliver patterns, 
 
 ## 🚀 Installation
 
-### From Source
+### Cargo (Recommended)
+```bash
+cargo install timber-rs
+```
 
+### From Source
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/timber.git
+git clone https://github.com/donaldc24/timber.git
 cd timber
 
 # Build with Cargo
 cargo build --release
 
-# The binary will be in target/release/timber
+# Install locally
+cargo install --path .
 ```
 
 ## 🔨 Usage
@@ -141,8 +146,16 @@ Timber finished chopping the log! 🪵
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Please read our [Contributing Guidelines](CONTRIBUTING.md) before getting started.
+
+## 🐛 Reporting Issues
+
+Found a bug or have a feature request? Please open an issue on our [GitHub Issues](https://github.com/donaldc24/timber/issues) page.
 
 ## 📜 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🌟 Acknowledgments
+
+Inspired by the need for fast, efficient log analysis in modern software development.
