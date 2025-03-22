@@ -16,11 +16,7 @@ fn test_small_log_pattern_search() {
     }
 
     let mut cmd = Command::cargo_bin("timber").unwrap();
-    let assert = cmd
-        .arg("--chop")
-        .arg("ERROR")
-        .arg(log_path)
-        .assert();
+    let assert = cmd.arg("--chop").arg("ERROR").arg(log_path).assert();
 
     assert.success();
 }
@@ -34,12 +30,10 @@ fn test_small_log_stats() {
     }
 
     let mut cmd = Command::cargo_bin("timber").unwrap();
-    let assert = cmd
-        .arg("--stats")
-        .arg(log_path)
-        .assert();
+    let assert = cmd.arg("--stats").arg(log_path).assert();
 
-    assert.success()
+    assert
+        .success()
         .stdout(predicates::str::contains("Stats summary:"));
 }
 
@@ -53,11 +47,7 @@ fn test_medium_log_level_filtering() {
     }
 
     let mut cmd = Command::cargo_bin("timber").unwrap();
-    let assert = cmd
-        .arg("--level")
-        .arg("ERROR")
-        .arg(log_path)
-        .assert();
+    let assert = cmd.arg("--level").arg("ERROR").arg(log_path).assert();
 
     assert.success();
 }
@@ -72,12 +62,10 @@ fn test_large_log_trend_analysis() {
     }
 
     let mut cmd = Command::cargo_bin("timber").unwrap();
-    let assert = cmd
-        .arg("--trend")
-        .arg(log_path)
-        .assert();
+    let assert = cmd.arg("--trend").arg(log_path).assert();
 
-    assert.success()
+    assert
+        .success()
         .stdout(predicates::str::contains("Time trends:"));
 }
 
@@ -98,7 +86,8 @@ fn test_large_log_error_spike_detection() {
         .assert();
 
     // We know from previous runs that there's an error spike at 4:00 AM
-    assert.success()
+    assert
+        .success()
         .stdout(predicates::str::contains("2025-03-21 04"))
         .stdout(predicates::str::contains("logs occurred during this hour"));
 }
@@ -122,7 +111,8 @@ fn test_combined_features() {
         .arg(log_path)
         .assert();
 
-    assert.success()
+    assert
+        .success()
         .stdout(predicates::str::contains("Time trends:"))
         .stdout(predicates::str::contains("Stats summary:"))
         .stdout(predicates::str::contains("Connection timeout"));
