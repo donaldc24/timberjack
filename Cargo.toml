@@ -3,7 +3,13 @@ name = "timber"
 version = "0.1.0-alpha.1"
 edition = "2024"
 description = "A CLI tool that fells log files with speed and insight"
+license = "MIT"
 authors = ["Donald Calhoun donaldcalhouncs@gmail.com"]
+repository = "https://github.com/donaldc24/timber"
+homepage = "https://github.com/donaldc24/timber"
+readme = "README.md"
+keywords = ["log", "analysis", "cli", "logging"]
+categories = ["command-line-utilities", "development-tools"]
 
 [dependencies]
 clap = { version = "4.4", features = ["derive"] }
