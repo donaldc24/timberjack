@@ -1,0 +1,913 @@
+2025-03-21 00:00:00,123 [INFO] ApplicationServer - Daily maintenance starting
+2025-03-21 00:00:05,234 [INFO] MaintenanceService - Checking system health
+2025-03-21 00:00:10,345 [INFO] DatabaseService - Running database vacuum
+2025-03-21 00:00:15,456 [INFO] CacheService - Clearing expired cache entries
+2025-03-21 00:00:20,567 [INFO] LogRotationService - Rotating logs
+2025-03-21 00:00:25,678 [INFO] MaintenanceService - System health check complete
+2025-03-21 00:00:30,789 [INFO] ApplicationServer - Daily maintenance completed
+2025-03-21 01:00:00,890 [INFO] MonitoringService - Hourly metrics collection
+2025-03-21 01:00:05,901 [INFO] PerformanceMonitor - CPU usage: 15%
+2025-03-21 01:00:10,012 [INFO] PerformanceMonitor - Memory usage: 45%
+2025-03-21 01:00:15,123 [INFO] PerformanceMonitor - Disk usage: 62%
+2025-03-21 01:00:20,234 [INFO] PerformanceMonitor - Network throughput: 25MB/s
+2025-03-21 01:00:25,345 [INFO] MonitoringService - Metrics collection complete
+2025-03-21 01:15:00,456 [INFO] UserService - User login: user_123
+2025-03-21 01:15:05,567 [INFO] SessionManager - Session created: sess_456
+2025-03-21 01:15:10,678 [INFO] UserService - Profile accessed: user_123
+2025-03-21 01:15:15,789 [INFO] ProductService - Product search: "smartphone"
+2025-03-21 01:15:20,890 [INFO] ProductService - Product view: prod_789
+2025-03-21 01:15:25,901 [INFO] CartService - Product added to cart: prod_789
+2025-03-21 01:15:30,012 [INFO] CartService - Cart checkout initiated
+2025-03-21 01:15:35,123 [INFO] PaymentService - Payment processing: order_234
+2025-03-21 01:15:40,234 [INFO] PaymentService - Payment successful: order_234
+2025-03-21 01:15:45,345 [INFO] NotificationService - Order confirmation sent: order_234
+2025-03-21 01:16:00,456 [INFO] UserService - User logout: user_123
+2025-03-21 01:16:05,567 [INFO] SessionManager - Session terminated: sess_456
+2025-03-21 01:30:00,678 [INFO] UserService - User login: user_456
+2025-03-21 01:30:05,789 [INFO] SessionManager - Session created: sess_789
+2025-03-21 01:30:10,890 [INFO] UserService - Profile accessed: user_456
+2025-03-21 01:30:15,901 [INFO] ProductService - Product search: "laptop"
+2025-03-21 01:30:20,012 [INFO] ProductService - Product view: prod_123
+2025-03-21 01:30:25,123 [WARN] ProductService - Low inventory alert: prod_123 (5 remaining)
+2025-03-21 01:30:30,234 [INFO] CartService - Product added to cart: prod_123
+2025-03-21 01:30:35,345 [INFO] CartService - Cart checkout initiated
+2025-03-21 01:30:40,456 [INFO] PaymentService - Payment processing: order_567
+2025-03-21 01:30:45,567 [WARN] PaymentService - Credit card authorization delay
+2025-03-21 01:30:50,678 [INFO] PaymentService - Payment successful: order_567
+2025-03-21 01:30:55,789 [INFO] NotificationService - Order confirmation sent: order_567
+2025-03-21 01:31:00,890 [INFO] UserService - User logout: user_456
+2025-03-21 01:31:05,901 [INFO] SessionManager - Session terminated: sess_789
+2025-03-21 02:00:00,012 [INFO] MonitoringService - Hourly metrics collection
+2025-03-21 02:00:05,123 [INFO] PerformanceMonitor - CPU usage: 18%
+2025-03-21 02:00:10,234 [INFO] PerformanceMonitor - Memory usage: 47%
+2025-03-21 02:00:15,345 [INFO] PerformanceMonitor - Disk usage: 62%
+2025-03-21 02:00:20,456 [INFO] PerformanceMonitor - Network throughput: 28MB/s
+2025-03-21 02:00:25,567 [INFO] MonitoringService - Metrics collection complete
+2025-03-21 02:15:00,678 [INFO] UserService - User login: user_789
+2025-03-21 02:15:05,789 [INFO] SessionManager - Session created: sess_012
+2025-03-21 02:15:10,890 [INFO] UserService - Password change requested: user_789
+2025-03-21 02:15:15,901 [INFO] SecurityService - Password reset email sent: user_789
+2025-03-21 02:15:20,012 [INFO] SecurityService - Password changed successfully: user_789
+2025-03-21 02:15:25,123 [INFO] UserService - Profile updated: user_789
+2025-03-21 02:15:30,234 [INFO] UserService - User logout: user_789
+2025-03-21 02:15:35,345 [INFO] SessionManager - Session terminated: sess_012
+2025-03-21 02:30:00,456 [INFO] UserService - User login: user_234
+2025-03-21 02:30:05,567 [INFO] SessionManager - Session created: sess_345
+2025-03-21 02:30:10,678 [INFO] UserService - Profile accessed: user_234
+2025-03-21 02:30:15,789 [INFO] ProductService - Product search: "headphones"
+2025-03-21 02:30:20,890 [INFO] ProductService - Product view: prod_456
+2025-03-21 02:30:25,901 [INFO] CartService - Product added to cart: prod_456
+2025-03-21 02:30:30,012 [INFO] CartService - Cart checkout initiated
+2025-03-21 02:30:35,123 [ERROR] PaymentService - Payment declined: insufficient funds
+2025-03-21 02:30:40,234 [INFO] CartService - Checkout abandoned
+2025-03-21 02:30:45,345 [INFO] UserService - User logout: user_234
+2025-03-21 02:30:50,456 [INFO] SessionManager - Session terminated: sess_345
+2025-03-21 03:00:00,567 [INFO] MonitoringService - Hourly metrics collection
+2025-03-21 03:00:05,678 [INFO] PerformanceMonitor - CPU usage: 22%
+2025-03-21 03:00:10,789 [INFO] PerformanceMonitor - Memory usage: 51%
+2025-03-21 03:00:15,890 [WARN] PerformanceMonitor - Memory usage above threshold (50%)
+2025-03-21 03:00:20,901 [INFO] PerformanceMonitor - Disk usage: 62%
+2025-03-21 03:00:25,012 [INFO] PerformanceMonitor - Network throughput: 32MB/s
+2025-03-21 03:00:30,123 [INFO] MonitoringService - Metrics collection complete
+2025-03-21 03:15:00,234 [INFO] UserService - User login: user_567
+2025-03-21 03:15:05,345 [INFO] SessionManager - Session created: sess_678
+2025-03-21 03:15:10,456 [INFO] UserService - Profile accessed: user_567
+2025-03-21 03:15:15,567 [INFO] ProductService - Product search: "tablet"
+2025-03-21 03:15:20,678 [INFO] ProductService - Product view: prod_901
+2025-03-21 03:15:25,789 [INFO] CartService - Product added to cart: prod_901
+2025-03-21 03:15:30,890 [INFO] CartService - Cart checkout initiated
+2025-03-21 03:15:35,901 [INFO] PaymentService - Payment processing: order_890
+2025-03-21 03:15:40,012 [INFO] PaymentService - Payment successful: order_890
+2025-03-21 03:15:45,123 [INFO] NotificationService - Order confirmation sent: order_890
+2025-03-21 03:16:00,234 [INFO] UserService - User logout: user_567
+2025-03-21 03:16:05,345 [INFO] SessionManager - Session terminated: sess_678
+2025-03-21 03:30:00,456 [INFO] UserService - User login: user_890
+2025-03-21 03:30:05,567 [ERROR] SecurityService - Failed login attempt: user_890 (invalid password)
+2025-03-21 03:30:10,678 [ERROR] SecurityService - Failed login attempt: user_890 (invalid password)
+2025-03-21 03:30:15,789 [ERROR] SecurityService - Failed login attempt: user_890 (invalid password)
+2025-03-21 03:30:20,890 [WARN] SecurityService - Account locked: user_890 (multiple failed attempts)
+2025-03-21 03:30:25,901 [INFO] NotificationService - Account lock notification sent: user_890
+
+2025-03-21 04:00:00,012 [INFO] MonitoringService - Hourly metrics collection
+2025-03-21 04:00:05,123 [INFO] PerformanceMonitor - CPU usage: 65%
+2025-03-21 04:00:10,234 [WARN] PerformanceMonitor - CPU usage above threshold (50%)
+2025-03-21 04:00:15,345 [INFO] PerformanceMonitor - Memory usage: 78%
+2025-03-21 04:00:20,456 [WARN] PerformanceMonitor - Memory usage above threshold (50%)
+2025-03-21 04:00:25,567 [INFO] PerformanceMonitor - Disk usage: 62%
+2025-03-21 04:00:30,678 [INFO] PerformanceMonitor - Network throughput: 85MB/s
+2025-03-21 04:00:35,789 [WARN] PerformanceMonitor - Network throughput above threshold (50MB/s)
+2025-03-21 04:00:40,890 [INFO] MonitoringService - Metrics collection complete
+2025-03-21 04:01:00,901 [ERROR] DatabaseService - Connection timeout after 30s
+2025-03-21 04:01:05,012 [WARN] ConnectionPool - Database connection pool exhausted
+2025-03-21 04:01:10,123 [ERROR] UserService - Failed to authenticate user: database error
+2025-03-21 04:01:15,234 [ERROR] OrderService - Failed to process order #12345: database error
+2025-03-21 04:01:20,345 [ERROR] ApiController - 500 Internal Server Error: POST /api/orders
+2025-03-21 04:01:25,456 [ERROR] DatabaseService - Connection timeout after 30s
+2025-03-21 04:01:30,567 [WARN] ConnectionPool - Attempting to increase connection pool size
+2025-03-21 04:01:35,678 [ERROR] PaymentService - Failed to process payment: service unavailable
+2025-03-21 04:01:40,789 [ERROR] ApiController - 500 Internal Server Error: POST /api/payments
+2025-03-21 04:01:45,890 [ERROR] DatabaseService - Connection timeout after 30s
+2025-03-21 04:01:50,901 [ERROR] UserService - Failed to retrieve user profile: database error
+2025-03-21 04:01:55,012 [ERROR] ApiController - 500 Internal Server Error: GET /api/users/profile
+2025-03-21 04:02:00,123 [ERROR] ProductService - Failed to retrieve product catalog: database error
+2025-03-21 04:02:05,234 [ERROR] ApiController - 500 Internal Server Error: GET /api/products
+2025-03-21 04:02:10,345 [ERROR] SearchService - Search index update failed: database error
+2025-03-21 04:02:15,456 [ERROR] CartService - Failed to retrieve cart: database error
+2025-03-21 04:02:20,567 [ERROR] ApiController - 500 Internal Server Error: GET /api/cart
+2025-03-21 04:02:25,678 [ERROR] NotificationService - Failed to send notifications: service unavailable
+2025-03-21 04:02:30,789 [WARN] SystemMonitor - Multiple service failures detected
+2025-03-21 04:02:35,890 [ERROR] DatabaseService - Connection timeout after 30s
+2025-03-21 04:02:40,901 [WARN] ConnectionPool - Connection pool at critical capacity
+2025-03-21 04:02:45,012 [ERROR] OrderService - Failed to update order status: database error
+2025-03-21 04:02:50,123 [ERROR] ApiController - 500 Internal Server Error: PUT /api/orders/status
+2025-03-21 04:02:55,234 [ERROR] AuthenticationService - Failed to validate session: database error
+2025-03-21 04:03:00,345 [ERROR] ApiController - 401 Unauthorized: GET /api/secure-resource
+2025-03-21 04:03:05,456 [ERROR] DatabaseService - Connection timeout after 30s
+2025-03-21 04:03:10,567 [WARN] DatabaseService - Database server not responding to health checks
+2025-03-21 04:03:15,678 [ERROR] SystemMonitor - Critical service failure: Database
+2025-03-21 04:03:20,789 [WARN] ApplicationServer - Entering degraded operation mode
+2025-03-21 04:03:25,890 [ERROR] ApiController - 503 Service Unavailable: All API endpoints
+2025-03-21 04:03:30,901 [INFO] NotificationService - Admin alert sent: Database failure
+2025-03-21 04:03:35,012 [INFO] MaintenanceService - Automated recovery procedure initiated
+2025-03-21 04:03:40,123 [INFO] DatabaseService - Database server restart requested
+2025-03-21 04:03:45,234 [INFO] DatabaseService - Waiting for database to come online
+2025-03-21 04:03:50,345 [INFO] DatabaseService - Database server restarting
+2025-03-21 04:03:55,456 [INFO] DatabaseService - Database server online
+2025-03-21 04:04:00,567 [INFO] ConnectionPool - Reinitializing connection pool
+2025-03-21 04:04:05,678 [INFO] ConnectionPool - Connection pool reinitialized successfully
+2025-03-21 04:04:10,789 [INFO] ApplicationServer - Exiting degraded operation mode
+2025-03-21 04:04:15,890 [INFO] ApiController - API services available
+2025-03-21 04:04:20,901 [INFO] NotificationService - Admin alert sent: System recovered
+2025-03-21 04:04:25,012 [INFO] SystemMonitor - All services operational
+2025-03-21 04:04:30,123 [INFO] MaintenanceService - Creating incident report
+2025-03-21 04:04:35,234 [INFO] MaintenanceService - Incident report created: INC-20250321-001
+2025-03-21 04:15:00,345 [INFO] UserService - User login: user_012
+2025-03-21 04:15:05,456 [INFO] SessionManager - Session created: sess_123
+2025-03-21 04:15:10,567 [INFO] UserService - Profile accessed: user_012
+2025-03-21 04:15:15,678 [INFO] ProductService - Product search: "camera"
+2025-03-21 04:15:20,789 [INFO] ProductService - Product view: prod_234
+2025-03-21 04:15:25,890 [INFO] CartService - Product added to cart: prod_234
+2025-03-21 04:15:30,901 [INFO] CartService - Cart checkout initiated
+2025-03-21 04:15:35,012 [INFO] PaymentService - Payment processing: order_901
+2025-03-21 04:15:40,123 [INFO] PaymentService - Payment successful: order_901
+2025-03-21 04:15:45,234 [INFO] NotificationService - Order confirmation sent: order_901
+2025-03-21 04:16:00,345 [INFO] UserService - User logout: user_012
+2025-03-21 04:16:05,456 [INFO] SessionManager - Session terminated: sess_123
+2025-03-21 05:00:00,567 [INFO] MonitoringService - Hourly metrics collection
+2025-03-21 05:00:05,678 [INFO] PerformanceMonitor - CPU usage: 25%
+2025-03-21 05:00:10,789 [INFO] PerformanceMonitor - Memory usage: 48%
+2025-03-21 05:00:15,890 [INFO] PerformanceMonitor - Disk usage: 62%
+2025-03-21 05:00:20,901 [INFO] PerformanceMonitor - Network throughput: 30MB/s
+2025-03-21 05:00:25,012 [INFO] MonitoringService - Metrics collection complete
+2025-03-21 05:15:00,123 [INFO] UserService - User login: user_345
+2025-03-21 05:15:05,234 [INFO] SessionManager - Session created: sess_456
+2025-03-21 05:15:10,345 [INFO] UserService - Profile accessed: user_345
+2025-03-21 05:15:15,456 [INFO] ProductService - Product search: "monitor"
+2025-03-21 05:15:20,567 [INFO] ProductService - Product view: prod_567
+2025-03-21 05:15:25,678 [INFO] CartService - Product added to cart: prod_567
+2025-03-21 05:15:30,789 [INFO] CartService - Cart checkout initiated
+2025-03-21 05:15:35,890 [INFO] PaymentService - Payment processing: order_012
+2025-03-21 05:15:40,901 [INFO] PaymentService - Payment successful: order_012
+2025-03-21 05:15:45,012 [INFO] NotificationService - Order confirmation sent: order_012
+2025-03-21 05:16:00,123 [INFO] UserService - User logout: user_345
+2025-03-21 05:16:05,234 [INFO] SessionManager - Session terminated: sess_456
+2025-03-21 06:00:00,345 [INFO] MonitoringService - Hourly metrics collection
+2025-03-21 06:00:05,456 [INFO] PerformanceMonitor - CPU usage: 28%
+2025-03-21 06:00:10,567 [INFO] PerformanceMonitor - Memory usage: 50%
+2025-03-21 06:00:15,678 [INFO] PerformanceMonitor - Disk usage: 63%
+2025-03-21 06:00:20,789 [INFO] PerformanceMonitor - Network throughput: 35MB/s
+2025-03-21 06:00:25,890 [INFO] MonitoringService - Metrics collection complete
+2025-03-21 06:15:00,901 [INFO] UserService - User login: user_678
+2025-03-21 06:15:05,012 [INFO] SessionManager - Session created: sess_789
+2025-03-21 06:15:10,123 [INFO] UserService - Profile accessed: user_678
+2025-03-21 06:15:15,234 [INFO] ProductService - Product search: "keyboard"
+2025-03-21 06:15:20,345 [INFO] ProductService - Product view: prod_890
+2025-03-21 06:15:25,456 [INFO] CartService - Product added to cart: prod_890
+2025-03-21 06:15:30,567 [INFO] CartService - Cart checkout initiated
+2025-03-21 06:15:35,678 [INFO] PaymentService - Payment processing: order_345
+2025-03-21 06:15:40,789 [INFO] PaymentService - Payment successful: order_345
+2025-03-21 06:15:45,890 [INFO] NotificationService - Order confirmation sent: order_345
+2025-03-21 06:16:00,901 [INFO] UserService - User logout: user_678
+2025-03-21 06:16:05,012 [INFO] SessionManager - Session terminated: sess_789
+2025-03-21 07:00:00,123 [INFO] MonitoringService - Hourly metrics collection
+2025-03-21 07:00:05,234 [INFO] PerformanceMonitor - CPU usage: 32%
+2025-03-21 07:00:10,345 [INFO] PerformanceMonitor - Memory usage: 52%
+2025-03-21 07:00:15,456 [WARN] PerformanceMonitor - Memory usage above threshold (50%)
+2025-03-21 07:00:20,567 [INFO] PerformanceMonitor - Disk usage: 63%
+2025-03-21 07:00:25,678 [INFO] PerformanceMonitor - Network throughput: 40MB/s
+2025-03-21 07:00:30,789 [INFO] MonitoringService - Metrics collection complete
+2025-03-21 07:15:00,890 [INFO] UserService - User login: user_901
+2025-03-21 07:15:05,901 [INFO] SessionManager - Session created: sess_012
+2025-03-21 07:15:10,012 [INFO] UserService - Profile accessed: user_901
+2025-03-21 07:15:15,123 [INFO] ProductService - Product search: "mouse"
+2025-03-21 07:15:20,234 [INFO] ProductService - Product view: prod_123
+2025-03-21 07:15:25,345 [INFO] CartService - Product added to cart: prod_123
+2025-03-21 07:15:30,456 [INFO] CartService - Cart checkout initiated
+2025-03-21 07:15:35,567 [ERROR] PaymentService - Payment gateway timeout
+2025-03-21 07:15:40,678 [WARN] PaymentService - Retrying payment
+2025-03-21 07:15:45,789 [INFO] PaymentService - Payment processing: order_678
+2025-03-21 07:15:50,890 [INFO] PaymentService - Payment successful: order_678
+2025-03-21 07:15:55,901 [INFO] NotificationService - Order confirmation sent: order_678
+2025-03-21 07:16:00,012 [INFO] UserService - User logout: user_901
+2025-03-21 07:16:05,123 [INFO] SessionManager - Session terminated: sess_012
+2025-03-21 08:00:00,234 [INFO] MonitoringService - Hourly metrics collection
+2025-03-21 08:00:05,345 [INFO] PerformanceMonitor - CPU usage: 35%
+2025-03-21 08:00:10,456 [INFO] PerformanceMonitor - Memory usage: 55%
+2025-03-21 08:00:15,567 [WARN] PerformanceMonitor - Memory usage above threshold (50%)
+2025-03-21 08:00:20,678 [INFO] PerformanceMonitor - Disk usage: 63%
+2025-03-21 08:00:25,789 [INFO] PerformanceMonitor - Network throughput: 45MB/s
+2025-03-21 08:00:30,890 [INFO] MonitoringService - Metrics collection complete
+2025-03-21 08:15:00,901 [INFO] UserService - User login: user_234
+2025-03-21 08:15:05,012 [INFO] SessionManager - Session created: sess_345
+2025-03-21 08:15:10,123 [INFO] UserService - Profile accessed: user_234
+2025-03-21 08:15:15,234 [INFO] ProductService - Product search: "printer"
+2025-03-21 08:15:20,345 [INFO] ProductService - Product view: prod_456
+2025-03-21 08:15:25,456 [INFO] CartService - Product added to cart: prod_456
+2025-03-21 08:15:30,567 [INFO] CartService - Cart checkout initiated
+2025-03-21 08:15:35,678 [INFO] PaymentService - Payment processing: order_901
+2025-03-21 08:15:40,789 [INFO] PaymentService - Payment successful: order_901
+2025-03-21 08:15:45,890 [INFO] NotificationService - Order confirmation sent: order_901
+2025-03-21 08:16:00,901 [INFO] UserService - User logout: user_234
+2025-03-21 08:16:05,012 [INFO] SessionManager - Session terminated: sess_345
+2025-03-21 09:00:00,123 [INFO] MonitoringService - Hourly metrics collection
+2025-03-21 09:00:05,234 [INFO] PerformanceMonitor - CPU usage: 40%
+2025-03-21 09:00:10,345 [INFO] PerformanceMonitor - Memory usage: 58%
+2025-03-21 09:00:15,456 [WARN] PerformanceMonitor - Memory usage above threshold (50%)
+2025-03-21 09:00:20,567 [INFO] PerformanceMonitor - Disk usage: 64%
+2025-03-21 09:00:25,678 [INFO] PerformanceMonitor - Network throughput: 50MB/s
+2025-03-21 09:00:30,789 [WARN] PerformanceMonitor - Network throughput at threshold (50MB/s)
+2025-03-21 09:00:35,890 [INFO] MonitoringService - Metrics collection complete
+
+2025-03-21 10:00:00,901 [INFO] MonitoringService - Hourly metrics collection
+2025-03-21 10:00:05,012 [INFO] PerformanceMonitor - CPU usage: 75%
+2025-03-21 10:00:10,123 [WARN] PerformanceMonitor - CPU usage above threshold (50%)
+2025-03-21 10:00:15,234 [INFO] PerformanceMonitor - Memory usage: 82%
+2025-03-21 10:00:20,345 [WARN] PerformanceMonitor - Memory usage critically high (>80%)
+2025-03-21 10:00:25,456 [INFO] PerformanceMonitor - Disk usage: 64%
+2025-03-21 10:00:30,567 [INFO] PerformanceMonitor - Network throughput: 90MB/s
+2025-03-21 10:00:35,678 [WARN] PerformanceMonitor - Network throughput above threshold (50MB/s)
+2025-03-21 10:00:40,789 [INFO] MonitoringService - Metrics collection complete
+2025-03-21 10:01:00,890 [WARN] MemoryManager - Memory leak detected in ProductService
+2025-03-21 10:01:05,901 [ERROR] ProductService - OutOfMemoryError in product catalog indexing
+2025-03-21 10:01:10,012 [ERROR] SearchService - Search indexing failed: out of memory
+2025-03-21 10:01:15,123 [ERROR] ApiController - 500 Internal Server Error: GET /api/products/search
+2025-03-21 10:01:20,234 [ERROR] ProductService - OutOfMemoryError in recommendation engine
+2025-03-21 10:01:25,345 [ERROR] ApiController - 500 Internal Server Error: GET /api/recommendations
+2025-03-21 10:01:30,456 [WARN] SystemMonitor - Memory utilization critical: 92%
+2025-03-21 10:01:35,567 [ERROR] CacheService - Cache eviction failed: out of memory
+2025-03-21 10:01:40,678 [ERROR] UserService - Session management failed: out of memory
+2025-03-21 10:01:45,789 [ERROR] ApiController - 500 Internal Server Error: GET /api/user/session
+2025-03-21 10:01:50,890 [ERROR] CartService - Cart operation failed: out of memory
+2025-03-21 10:01:55,901 [ERROR] ApiController - 500 Internal Server Error: POST /api/cart/update
+2025-03-21 10:02:00,012 [WARN] ApplicationServer - Critical memory condition detected
+2025-03-21 10:02:05,123 [INFO] MaintenanceService - Emergency garbage collection triggered
+2025-03-21 10:02:10,234 [INFO] MemoryManager - Clearing non-essential caches
+2025-03-21 10:02:15,345 [INFO] SystemMonitor - Memory utilization: 85%
+2025-03-21 10:02:20,456 [INFO] SystemMonitor - Memory utilization: 75%
+2025-03-21 10:02:25,567 [INFO] SystemMonitor - Memory utilization: 65%
+2025-03-21 10:02:30,678 [INFO] SystemMonitor - Memory stabilized
+2025-03-21 10:02:35,789 [INFO] ProductService - Restarting product catalog indexing
+2025-03-21 10:02:40,890 [INFO] SearchService - Search indexing resumed
+2025-03-21 10:02:45,901 [INFO] CacheService - Cache service restored
+2025-03-21 10:02:50,012 [INFO] UserService - Session management restored
+2025-03-21 10:02:55,123 [INFO] CartService - Cart service restored
+2025-03-21 10:03:00,234 [INFO] ApiController - All API endpoints operational
+2025-03-21 10:03:05,345 [INFO] NotificationService - Admin alert sent: Memory issue resolved
+2025-03-21 10:03:10,456 [INFO] MaintenanceService - Creating incident report
+2025-03-21 10:03:15,567 [INFO] MaintenanceService - Incident report created: INC-20250321-002
+2025-03-21 10:15:00,678 [INFO] UserService - User login: user_567
+2025-03-21 10:15:05,789 [INFO] SessionManager - Session created: sess_678
+2025-03-21 10:15:10,890 [INFO] UserService - Profile accessed: user_567
+2025-03-21 10:15:15,901 [INFO] ProductService - Product search: "speaker"
+2025-03-21 10:15:20,012 [INFO] ProductService - Product view: prod_789
+2025-03-21 10:15:25,123 [INFO] CartService - Product added to cart: prod_789
+2025-03-21 10:15:30,234 [INFO] CartService - Cart checkout initiated
+2025-03-21 10:15:35,345 [INFO] PaymentService - Payment processing: order_234
+2025-03-21 10:15:40,456 [INFO] PaymentService - Payment successful: order_234
+2025-03-21 10:15:45,567 [INFO] NotificationService - Order confirmation sent: order_234
+2025-03-21 10:16:00,678 [INFO] UserService - User logout: user_567
+2025-03-21 10:16:05,789 [INFO] SessionManager - Session terminated: sess_678
+2025-03-21 11:00:00,890 [INFO] MonitoringService - Hourly metrics collection
+2025-03-21 11:00:05,901 [INFO] PerformanceMonitor - CPU usage: 42%
+2025-03-21 11:00:10,012 [INFO] PerformanceMonitor - Memory usage: 60%
+2025-03-21 11:00:15,123 [WARN] PerformanceMonitor - Memory usage above threshold (50%)
+2025-03-21 11:00:20,234 [INFO] PerformanceMonitor - Disk usage: 64%
+2025-03-21 11:00:25,345 [INFO] PerformanceMonitor - Network throughput: 48MB/s
+2025-03-21 11:00:30,456 [INFO] MonitoringService - Metrics collection complete
+2025-03-21 11:15:00,567 [INFO] UserService - User login: user_890
+2025-03-21 11:15:05,678 [INFO] SessionManager - Session created: sess_901
+2025-03-21 11:15:10,789 [INFO] UserService - Profile accessed: user_890
+2025-03-21 11:15:15,890 [INFO] ProductService - Product search: "router"
+2025-03-21 11:15:20,901 [INFO] ProductService - Product view: prod_012
+2025-03-21 11:15:25,012 [INFO] CartService - Product added to cart: prod_012
+2025-03-21 11:15:30,123 [INFO] CartService - Cart checkout initiated
+2025-03-21 11:15:35,234 [INFO] PaymentService - Payment processing: order_567
+2025-03-21 11:15:40,345 [INFO] PaymentService - Payment successful: order_567
+2025-03-21 11:15:45,456 [INFO] NotificationService - Order confirmation sent: order_567
+2025-03-21 11:16:00,567 [INFO] UserService - User logout: user_890
+2025-03-21 11:16:05,678 [INFO] SessionManager - Session terminated: sess_901
+2025-03-21 12:00:00,789 [INFO] MonitoringService - Hourly metrics collection
+2025-03-21 12:00:05,890 [INFO] PerformanceMonitor - CPU usage: 45%
+2025-03-21 12:00:10,901 [INFO] PerformanceMonitor - Memory usage: 62%
+2025-03-21 12:00:15,012 [WARN] PerformanceMonitor - Memory usage above threshold (50%)
+2025-03-21 12:00:20,123 [INFO] PerformanceMonitor - Disk usage: 65%
+2025-03-21 12:00:25,234 [INFO] PerformanceMonitor - Network throughput: 52MB/s
+2025-03-21 12:00:30,345 [WARN] PerformanceMonitor - Network throughput above threshold (50MB/s)
+2025-03-21 12:00:35,456 [INFO] MonitoringService - Metrics collection complete
+2025-03-21 12:15:00,567 [INFO] UserService - User login: user_123
+2025-03-21 12:15:05,678 [INFO] SessionManager - Session created: sess_234
+2025-03-21 12:15:10,789 [INFO] UserService - Profile accessed: user_123
+2025-03-21 12:15:15,890 [INFO] ProductService - Product search: "charger"
+2025-03-21 12:15:20,901 [INFO] ProductService - Product view: prod_345
+2025-03-21 12:15:25,012 [INFO] CartService - Product added to cart: prod_345
+2025-03-21 12:15:30,123 [INFO] CartService - Cart checkout initiated
+2025-03-21 12:15:35,234 [INFO] PaymentService - Payment processing: order_890
+2025-03-21 12:15:40,345 [INFO] PaymentService - Payment successful: order_890
+2025-03-21 12:15:45,456 [INFO] NotificationService - Order confirmation sent: order_890
+2025-03-21 12:16:00,567 [INFO] UserService - User logout: user_123
+2025-03-21 12:16:05,678 [INFO] SessionManager - Session terminated: sess_234
+2025-03-21 13:00:00,789 [INFO] MonitoringService - Hourly metrics collection
+2025-03-21 13:00:05,890 [INFO] PerformanceMonitor - CPU usage: 48%
+2025-03-21 13:00:10,901 [INFO] PerformanceMonitor - Memory usage: 65%
+2025-03-21 13:00:15,012 [WARN] PerformanceMonitor - Memory usage above threshold (50%)
+2025-03-21 13:00:20,123 [INFO] PerformanceMonitor - Disk usage: 65%
+2025-03-21 13:00:25,234 [INFO] PerformanceMonitor - Network throughput: 55MB/s
+2025-03-21 13:00:30,345 [WARN] PerformanceMonitor - Network throughput above threshold (50MB/s)
+2025-03-21 13:00:35,456 [INFO] MonitoringService - Metrics collection complete
+2025-03-21 13:15:00,567 [INFO] UserService - User login: user_456
+2025-03-21 13:15:05,678 [INFO] SessionManager - Session created: sess_567
+2025-03-21 13:15:10,789 [INFO] UserService - Profile accessed: user_456
+2025-03-21 13:15:15,890 [INFO] ProductService - Product search: "cable"
+2025-03-21 13:15:20,901 [INFO] ProductService - Product view: prod_678
+2025-03-21 13:15:25,012 [INFO] CartService - Product added to cart: prod_678
+2025-03-21 13:15:30,123 [INFO] CartService - Cart checkout initiated
+2025-03-21 13:15:35,234 [INFO] PaymentService - Payment processing: order_123
+2025-03-21 13:15:40,345 [INFO] PaymentService - Payment successful: order_123
+2025-03-21 13:15:45,456 [INFO] NotificationService - Order confirmation sent: order_123
+2025-03-21 13:16:00,567 [INFO] UserService - User logout: user_456
+2025-03-21 13:16:05,678 [INFO] SessionManager - Session terminated: sess_567
+2025-03-21 14:00:00,789 [INFO] MonitoringService - Hourly metrics collection
+2025-03-21 14:00:05,890 [INFO] PerformanceMonitor - CPU usage: 50%
+2025-03-21 14:00:10,901 [WARN] PerformanceMonitor - CPU usage at threshold (50%)
+2025-03-21 14:00:15,012 [INFO] PerformanceMonitor - Memory usage: 68%
+2025-03-21 14:00:20,123 [WARN] PerformanceMonitor - Memory usage above threshold (50%)
+2025-03-21 14:00:25,234 [INFO] PerformanceMonitor - Disk usage: 66%
+2025-03-21 14:00:30,345 [INFO] PerformanceMonitor - Network throughput: 58MB/s
+2025-03-21 14:00:35,456 [WARN] PerformanceMonitor - Network throughput above threshold (50MB/s)
+2025-03-21 14:00:40,567 [INFO] MonitoringService - Metrics collection complete
+2025-03-21 14:15:00,678 [INFO] UserService - User login: user_789
+2025-03-21 14:15:05,789 [INFO] SessionManager - Session created: sess_890
+2025-03-21 14:15:10,890 [INFO] UserService - Profile accessed: user_789
+2025-03-21 14:15:15,901 [INFO] ProductService - Product search: "adapter"
+2025-03-21 14:15:20,012 [INFO] ProductService - Product view: prod_901
+2025-03-21 14:15:25,123 [INFO] CartService - Product added to cart: prod_901
+2025-03-21 14:15:30,234 [INFO] CartService - Cart checkout initiated
+2025-03-21 14:15:35,345 [INFO] PaymentService - Payment processing: order_456
+2025-03-21 14:15:40,456 [WARN] PaymentService - Payment gateway slow response
+2025-03-21 14:15:45,567 [INFO] PaymentService - Payment successful: order_456
+2025-03-21 14:15:50,678 [INFO] NotificationService - Order confirmation sent: order_456
+2025-03-21 14:16:00,789 [INFO] UserService - User logout: user_789
+2025-03-21 14:16:05,890 [INFO] SessionManager - Session terminated: sess_890
+2025-03-21 15:00:00,901 [INFO] MonitoringService - Hourly metrics collection
+2025-03-21 15:00:05,012 [INFO] PerformanceMonitor - CPU usage: 52%
+2025-03-21 15:00:10,123 [WARN] PerformanceMonitor - CPU usage above threshold (50%)
+2025-03-21 15:00:15,234 [INFO] PerformanceMonitor - Memory usage: 70%
+2025-03-21 15:00:20,345 [WARN] PerformanceMonitor - Memory usage above threshold (50%)
+2025-03-21 15:00:25,456 [INFO] PerformanceMonitor - Disk usage: 66%
+2025-03-21 15:00:30,567 [INFO] PerformanceMonitor - Network throughput: 60MB/s
+2025-03-21 15:00:35,678 [WARN] PerformanceMonitor - Network throughput above threshold (50MB/s)
+2025-03-21 15:00:40,789 [INFO] MonitoringService - Metrics collection complete
+2025-03-21 15:15:00,890 [INFO] UserService - User login: user_012
+2025-03-21 15:15:05,901 [INFO] SessionManager - Session created: sess_123
+2025-03-21 15:15:10,012 [INFO] UserService - Profile accessed: user_012
+2025-03-21 15:15:15,123 [INFO] ProductService - Product search: "case"
+2025-03-21 15:15:20,234 [INFO] ProductService - Product view: prod_234
+2025-03-21 15:15:25,345 [INFO] CartService - Product added to cart: prod_234
+2025-03-21 15:15:30,456 [INFO] CartService - Cart checkout initiated
+2025-03-21 15:15:35,567 [INFO] PaymentService - Payment processing: order_789
+2025-03-21 15:15:40,678 [INFO] PaymentService - Payment successful: order_789
+2025-03-21 15:15:45,789 [INFO] NotificationService - Order confirmation sent: order_789
+2025-03-21 15:16:00,890 [INFO] UserService - User logout: user_012
+2025-03-21 15:16:05,901 [INFO] SessionManager - Session terminated: sess_123
+2025-03-21 16:00:00,012 [INFO] MonitoringService - Hourly metrics collection
+2025-03-21 16:00:05,123 [INFO] PerformanceMonitor - CPU usage: 55%
+2025-03-21 16:00:10,234 [WARN] PerformanceMonitor - CPU usage above threshold (50%)
+2025-03-21 16:00:15,345 [INFO] PerformanceMonitor - Memory usage: 72%
+2025-03-21 16:00:20,456 [WARN] PerformanceMonitor - Memory usage above threshold (50%)
+2025-03-21 16:00:25,567 [INFO] PerformanceMonitor - Disk usage: 67%
+2025-03-21 16:00:30,678 [INFO] PerformanceMonitor - Network throughput: 62MB/s
+2025-03-21 16:00:35,789 [WARN] PerformanceMonitor - Network throughput above threshold (50MB/s)
+2025-03-21 16:00:40,890 [INFO] MonitoringService - Metrics collection complete
+2025-03-21 16:15:00,901 [INFO] UserService - User login: user_345
+2025-03-21 16:15:05,012 [INFO] SessionManager - Session created: sess_456
+2025-03-21 16:15:10,123 [INFO] UserService - Profile accessed: user_345
+2025-03-21 16:15:15,234 [INFO] ProductService - Product search: "drive"
+2025-03-21 16:15:20,345 [INFO] ProductService - Product view: prod_567
+2025-03-21 16:15:25,456 [INFO] CartService - Product added to cart: prod_567
+2025-03-21 16:15:30,567 [INFO] CartService - Cart checkout initiated
+2025-03-21 16:15:35,678 [INFO] PaymentService - Payment processing: order_012
+2025-03-21 16:15:40,789 [INFO] PaymentService - Payment successful: order_012
+2025-03-21 16:15:45,890 [INFO] NotificationService - Order confirmation sent: order_012
+2025-03-21 16:16:00,901 [INFO] UserService - User logout: user_345
+2025-03-21 16:16:05,012 [INFO] SessionManager - Session terminated: sess_456
+2025-03-21 17:00:00,123 [INFO] MonitoringService - Hourly metrics collection
+2025-03-21 17:00:05,234 [INFO] PerformanceMonitor - CPU usage: 58%
+2025-03-21 17:00:10,345 [WARN] PerformanceMonitor - CPU usage above threshold (50%)
+2025-03-21 17:00:15,456 [INFO] PerformanceMonitor - Memory usage: 74%
+2025-03-21 17:00:20,567 [WARN] PerformanceMonitor - Memory usage above threshold (50%)
+2025-03-21 17:00:25,678 [INFO] PerformanceMonitor - Disk usage: 67%
+2025-03-21 17:00:30,789 [INFO] PerformanceMonitor - Network throughput: 65MB/s
+2025-03-21 17:00:35,890 [WARN] PerformanceMonitor - Network throughput above threshold (50MB/s)
+2025-03-21 17:00:40,901 [INFO] MonitoringService - Metrics collection complete
+2025-03-21 17:15:00,012 [INFO] UserService - User login: user_678
+2025-03-21 17:15:05,123 [INFO] SessionManager - Session created: sess_789
+2025-03-21 17:15:10,234 [INFO] UserService - Profile accessed: user_678
+2025-03-21 17:15:15,345 [INFO] ProductService - Product search: "battery"
+2025-03-21 17:15:20,456 [INFO] ProductService - Product view: prod_890
+2025-03-21 17:15:25,567 [INFO] CartService - Product added to cart: prod_890
+2025-03-21 17:15:30,678 [INFO] CartService - Cart checkout initiated
+2025-03-21 17:15:35,789 [INFO] PaymentService - Payment processing: order_345
+2025-03-21 17:15:40,890 [INFO] PaymentService - Payment successful: order_345
+2025-03-21 17:15:45,901 [INFO] NotificationService - Order confirmation sent: order_345
+2025-03-21 17:16:00,012 [INFO] UserService - User logout: user_678
+2025-03-21 17:16:05,123 [INFO] SessionManager - Session terminated: sess_789
+2025-03-21 18:00:00,234 [INFO] MonitoringService - Hourly metrics collection
+2025-03-21 18:00:05,345 [INFO] PerformanceMonitor - CPU usage: 60%
+2025-03-21 18:00:10,456 [WARN] PerformanceMonitor - CPU usage above threshold (50%)
+2025-03-21 18:00:15,567 [INFO] PerformanceMonitor - Memory usage: 76%
+2025-03-21 18:00:20,678 [WARN] PerformanceMonitor - Memory usage above threshold (50%)
+2025-03-21 18:00:25,789 [INFO] PerformanceMonitor - Disk usage: 68%
+2025-03-21 18:00:30,890 [INFO] PerformanceMonitor - Network throughput: 68MB/s
+2025-03-21 18:00:35,901 [WARN] PerformanceMonitor - Network throughput above threshold (50MB/s)
+2025-03-21 18:00:40,012 [INFO] MonitoringService - Metrics collection complete
+2025-03-21 18:15:00,123 [INFO] UserService - User login: user_901
+2025-03-21 18:15:05,234 [INFO] SessionManager - Session created: sess_012
+2025-03-21 18:15:10,345 [INFO] UserService - Profile accessed: user_901
+2025-03-21 18:15:15,456 [INFO] ProductService - Product search: "stand"
+2025-03-21 18:15:20,567 [INFO] ProductService - Product view: prod_123
+2025-03-21 18:15:25,678 [INFO] CartService - Product added to cart: prod_123
+2025-03-21 18:15:30,789 [INFO] CartService - Cart checkout initiated
+2025-03-21 18:15:35,890 [INFO] PaymentService - Payment processing: order_678
+2025-03-21 18:15:40,901 [INFO] PaymentService - Payment successful: order_678
+2025-03-21 18:15:45,012 [INFO] NotificationService - Order confirmation sent: order_678
+2025-03-21 18:16:00,123 [INFO] UserService - User logout: user_901
+2025-03-21 18:16:05,234 [INFO] SessionManager - Session terminated: sess_012
+2025-03-21 19:00:00,345 [INFO] MonitoringService - Hourly metrics collection
+2025-03-21 19:00:05,456 [INFO] PerformanceMonitor - CPU usage: 62%
+2025-03-21 19:00:10,567 [WARN] PerformanceMonitor - CPU usage above threshold (50%)
+2025-03-21 19:00:15,678 [INFO] PerformanceMonitor - Memory usage: 78%
+2025-03-21 19:00:20,789 [WARN] PerformanceMonitor - Memory usage above threshold (50%)
+2025-03-21 19:00:25,890 [INFO] PerformanceMonitor - Disk usage: 68%
+2025-03-21 19:00:30,901 [INFO] PerformanceMonitor - Network throughput: 70MB/s
+2025-03-21 19:00:35,012 [WARN] PerformanceMonitor - Network throughput above threshold (50MB/s)
+2025-03-21 19:00:40,123 [INFO] MonitoringService - Metrics collection complete
+2025-03-21 19:15:00,234 [INFO] UserService - User login: user_234
+2025-03-21 19:15:05,345 [INFO] SessionManager - Session created: sess_345
+2025-03-21 19:15:10,456 [INFO] UserService - Profile accessed: user_234
+2025-03-21 19:15:15,567 [INFO] ProductService - Product search: "dock"
+2025-03-21 19:15:20,678 [INFO] ProductService - Product view: prod_456
+2025-03-21 19:15:25,789 [INFO] CartService - Product added to cart: prod_456
+2025-03-21 19:15:30,890 [INFO] CartService - Cart checkout initiated
+2025-03-21 19:15:35,901 [INFO] PaymentService - Payment processing: order_901
+2025-03-21 19:15:40,012 [INFO] PaymentService - Payment successful: order_901
+2025-03-21 19:15:45,123 [INFO] NotificationService - Order confirmation sent: order_901
+2025-03-21 19:16:00,234 [INFO] UserService - User logout: user_234
+2025-03-21 19:16:05,345 [INFO] SessionManager - Session terminated: sess_345
+2025-03-21 20:00:00,456 [INFO] MonitoringService - Hourly metrics collection
+2025-03-21 20:00:05,567 [INFO] PerformanceMonitor - CPU usage: 58%
+2025-03-21 20:00:10,678 [WARN] PerformanceMonitor - CPU usage above threshold (50%)
+2025-03-21 20:00:15,789 [INFO] PerformanceMonitor - Memory usage: 75%
+2025-03-21 20:00:20,890 [WARN] PerformanceMonitor - Memory usage above threshold (50%)
+2025-03-21 20:00:25,901 [INFO] PerformanceMonitor - Disk usage: 68%
+2025-03-21 20:00:30,012 [INFO] PerformanceMonitor - Network throughput: 65MB/s
+2025-03-21 20:00:35,123 [WARN] PerformanceMonitor - Network throughput above threshold (50MB/s)
+2025-03-21 20:00:40,234 [INFO] MonitoringService - Metrics collection complete
+2025-03-21 20:15:00,345 [INFO] UserService - User login: user_567
+2025-03-21 20:15:05,456 [INFO] SessionManager - Session created: sess_678
+2025-03-21 20:15:10,567 [INFO] UserService - Profile accessed: user_567
+2025-03-21 20:15:15,678 [INFO] ProductService - Product search: "memory"
+2025-03-21 20:15:20,789 [INFO] ProductService - Product view: prod_789
+2025-03-21 20:15:25,890 [INFO] CartService - Product added to cart: prod_789
+2025-03-21 20:15:30,901 [INFO] CartService - Cart checkout initiated
+2025-03-21 20:15:35,012 [INFO] PaymentService - Payment processing: order_234
+2025-03-21 20:15:40,123 [INFO] PaymentService - Payment successful: order_234
+2025-03-21 20:15:45,234 [INFO] NotificationService - Order confirmation sent: order_234
+2025-03-21 20:16:00,345 [INFO] UserService - User logout: user_567
+2025-03-21 20:16:05,456 [INFO] SessionManager - Session terminated: sess_678
+2025-03-21 20:30:00,567 [INFO] BackupService - Scheduled database backup starting
+2025-03-21 20:30:05,678 [INFO] BackupService - Creating database snapshot
+2025-03-21 20:30:15,789 [INFO] BackupService - Compressing backup files
+2025-03-21 20:30:25,890 [INFO] BackupService - Transferring backup to storage
+2025-03-21 20:30:35,901 [INFO] BackupService - Backup complete: backup_20250321_2030.zip (1.2GB)
+2025-03-21 20:30:40,012 [INFO] BackupService - Removing backups older than 30 days
+2025-03-21 20:30:45,123 [INFO] BackupService - Removed 3 old backups
+2025-03-21 20:30:50,234 [INFO] BackupService - Backup process completed successfully
+2025-03-21 20:45:00,345 [INFO] UserService - User login: user_890
+2025-03-21 20:45:05,456 [INFO] SessionManager - Session created: sess_901
+2025-03-21 20:45:10,567 [INFO] UserService - Profile accessed: user_890
+2025-03-21 20:45:15,678 [INFO] ProductService - Product search: "cooler"
+2025-03-21 20:45:20,789 [INFO] ProductService - Product view: prod_012
+2025-03-21 20:45:25,890 [INFO] CartService - Product added to cart: prod_012
+2025-03-21 20:45:30,901 [INFO] CartService - Cart checkout initiated
+2025-03-21 20:45:35,012 [INFO] PaymentService - Payment processing: order_567
+2025-03-21 20:45:40,123 [INFO] PaymentService - Payment successful: order_567
+2025-03-21 20:45:45,234 [INFO] NotificationService - Order confirmation sent: order_567
+2025-03-21 20:46:00,345 [INFO] UserService - User logout: user_890
+2025-03-21 20:46:05,456 [INFO] SessionManager - Session terminated: sess_901
+2025-03-21 21:00:00,567 [INFO] MonitoringService - Hourly metrics collection
+2025-03-21 21:00:05,678 [INFO] PerformanceMonitor - CPU usage: 54%
+2025-03-21 21:00:10,789 [WARN] PerformanceMonitor - CPU usage above threshold (50%)
+2025-03-21 21:00:15,890 [INFO] PerformanceMonitor - Memory usage: 72%
+2025-03-21 21:00:20,901 [WARN] PerformanceMonitor - Memory usage above threshold (50%)
+2025-03-21 21:00:25,012 [INFO] PerformanceMonitor - Disk usage: 68%
+2025-03-21 21:00:30,123 [INFO] PerformanceMonitor - Network throughput: 60MB/s
+2025-03-21 21:00:35,234 [WARN] PerformanceMonitor - Network throughput above threshold (50MB/s)
+2025-03-21 21:00:40,345 [INFO] MonitoringService - Metrics collection complete
+2025-03-21 21:15:00,456 [INFO] UserService - User login: user_123
+2025-03-21 21:15:05,567 [INFO] SessionManager - Session created: sess_234
+2025-03-21 21:15:10,678 [INFO] UserService - Profile accessed: user_123
+2025-03-21 21:15:15,789 [INFO] ProductService - Product search: "graphics card"
+2025-03-21 21:15:20,890 [INFO] ProductService - Product view: prod_345
+2025-03-21 21:15:25,901 [INFO] CartService - Product added to cart: prod_345
+2025-03-21 21:15:30,012 [INFO] CartService - Cart checkout initiated
+2025-03-21 21:15:35,123 [INFO] PaymentService - Payment processing: order_890
+2025-03-21 21:15:40,234 [WARN] PaymentService - Fraud detection triggered additional verification
+2025-03-21 21:15:45,345 [INFO] SecurityService - Manual review required: order_890
+2025-03-21 21:15:50,456 [INFO] NotificationService - Customer verification email sent: user_123
+2025-03-21 21:16:00,567 [INFO] UserService - User logout: user_123
+2025-03-21 21:16:05,678 [INFO] SessionManager - Session terminated: sess_234
+2025-03-21 21:30:00,789 [INFO] IndexService - Product search index rebuild scheduled
+2025-03-21 21:30:05,890 [INFO] IndexService - Building product search index
+2025-03-21 21:30:10,901 [INFO] IndexService - Indexing 12,543 products
+2025-03-21 21:30:15,012 [INFO] IndexService - Processing product attributes
+2025-03-21 21:30:20,123 [INFO] IndexService - Processing product categories
+2025-03-21 21:30:25,234 [INFO] IndexService - Processing product descriptions
+2025-03-21 21:30:30,345 [INFO] IndexService - Optimizing index
+2025-03-21 21:30:35,456 [INFO] IndexService - Search index rebuild complete
+2025-03-21 21:30:40,567 [INFO] IndexService - Swapping active index
+2025-03-21 21:30:45,678 [INFO] IndexService - Index swap complete
+2025-03-21 21:45:00,789 [INFO] UserService - User login: user_456
+2025-03-21 21:45:05,890 [INFO] SessionManager - Session created: sess_567
+2025-03-21 21:45:10,901 [INFO] UserService - Profile accessed: user_456
+2025-03-21 21:45:15,012 [INFO] ProductService - Product search: "monitor"
+2025-03-21 21:45:20,123 [INFO] ProductService - Product view: prod_678
+2025-03-21 21:45:25,234 [INFO] CartService - Product added to cart: prod_678
+2025-03-21 21:45:30,345 [INFO] CartService - Cart checkout initiated
+2025-03-21 21:45:35,456 [INFO] PaymentService - Payment processing: order_123
+2025-03-21 21:45:40,567 [INFO] PaymentService - Payment successful: order_123
+2025-03-21 21:45:45,678 [INFO] NotificationService - Order confirmation sent: order_123
+2025-03-21 21:46:00,789 [INFO] UserService - User logout: user_456
+2025-03-21 21:46:05,890 [INFO] SessionManager - Session terminated: sess_567
+2025-03-21 22:00:00,901 [INFO] MonitoringService - Hourly metrics collection
+2025-03-21 22:00:05,012 [INFO] PerformanceMonitor - CPU usage: 45%
+2025-03-21 22:00:10,123 [INFO] PerformanceMonitor - Memory usage: 68%
+2025-03-21 22:00:15,234 [WARN] PerformanceMonitor - Memory usage above threshold (50%)
+2025-03-21 22:00:20,345 [INFO] PerformanceMonitor - Disk usage: 68%
+2025-03-21 22:00:25,456 [INFO] PerformanceMonitor - Network throughput: 50MB/s
+2025-03-21 22:00:30,567 [WARN] PerformanceMonitor - Network throughput at threshold (50MB/s)
+2025-03-21 22:00:35,678 [INFO] MonitoringService - Metrics collection complete
+2025-03-21 22:15:00,789 [INFO] UserService - User login: user_789
+2025-03-21 22:15:05,890 [INFO] SessionManager - Session created: sess_890
+2025-03-21 22:15:10,901 [INFO] UserService - Profile accessed: user_789
+2025-03-21 22:15:15,012 [INFO] ProductService - Product search: "keyboard"
+2025-03-21 22:15:20,123 [INFO] ProductService - Product view: prod_901
+2025-03-21 22:15:25,234 [INFO] CartService - Product added to cart: prod_901
+2025-03-21 22:15:30,345 [INFO] CartService - Product added to wishlist: prod_234
+2025-03-21 22:15:35,456 [INFO] CartService - Product added to wishlist: prod_567
+2025-03-21 22:15:40,567 [INFO] UserService - Profile updated: user_789
+2025-03-21 22:15:45,678 [INFO] UserService - User logout: user_789
+2025-03-21 22:15:50,789 [INFO] SessionManager - Session terminated: sess_890
+2025-03-21 22:30:00,890 [WARN] SecurityService - Multiple failed login attempts detected from IP 192.168.1.105
+2025-03-21 22:30:05,901 [WARN] SecurityService - Multiple failed login attempts detected from IP 192.168.1.105
+2025-03-21 22:30:10,012 [WARN] SecurityService - IP temporarily blocked: 192.168.1.105 (5 failed attempts)
+2025-03-21 22:30:15,123 [INFO] NotificationService - Security alert sent to administrators
+2025-03-21 22:45:00,234 [INFO] UserService - User login: user_012
+2025-03-21 22:45:05,345 [INFO] SessionManager - Session created: sess_123
+2025-03-21 22:45:10,456 [INFO] UserService - Profile accessed: user_012
+2025-03-21 22:45:15,567 [INFO] ProductService - Product search: "mouse"
+2025-03-21 22:45:20,678 [INFO] ProductService - Product view: prod_234
+2025-03-21 22:45:25,789 [INFO] CartService - Product added to cart: prod_234
+2025-03-21 22:45:30,890 [INFO] CartService - Cart checkout initiated
+2025-03-21 22:45:35,901 [INFO] PaymentService - Payment processing: order_456
+2025-03-21 22:45:40,012 [INFO] PaymentService - Payment successful: order_456
+2025-03-21 22:45:45,123 [INFO] NotificationService - Order confirmation sent: order_456
+2025-03-21 22:46:00,234 [INFO] UserService - User logout: user_012
+2025-03-21 22:46:05,345 [INFO] SessionManager - Session terminated: sess_123
+2025-03-21 23:00:00,456 [INFO] MonitoringService - Hourly metrics collection
+2025-03-21 23:00:05,567 [INFO] PerformanceMonitor - CPU usage: 38%
+2025-03-21 23:00:10,678 [INFO] PerformanceMonitor - Memory usage: 65%
+2025-03-21 23:00:15,789 [WARN] PerformanceMonitor - Memory usage above threshold (50%)
+2025-03-21 23:00:20,890 [INFO] PerformanceMonitor - Disk usage: 68%
+2025-03-21 23:00:25,901 [INFO] PerformanceMonitor - Network throughput: 42MB/s
+2025-03-21 23:00:30,012 [INFO] MonitoringService - Metrics collection complete
+2025-03-21 23:15:00,123 [INFO] UserService - User login: user_345
+2025-03-21 23:15:05,234 [INFO] SessionManager - Session created: sess_456
+2025-03-21 23:15:10,345 [INFO] UserService - Profile accessed: user_345
+2025-03-21 23:15:15,456 [INFO] UserService - Address updated: user_345
+2025-03-21 23:15:20,567 [INFO] UserService - Payment method added: user_345
+2025-03-21 23:15:25,678 [INFO] UserService - Settings updated: user_345
+2025-03-21 23:15:30,789 [INFO] UserService - User logout: user_345
+2025-03-21 23:15:35,890 [INFO] SessionManager - Session terminated: sess_456
+2025-03-21 23:30:00,901 [INFO] MarketingService - Email campaign scheduled: Spring Sale 2025
+2025-03-21 23:30:05,012 [INFO] MarketingService - Target audience: 45,678 users
+2025-03-21 23:30:10,123 [INFO] MarketingService - Email template prepared
+2025-03-21 23:30:15,234 [INFO] MarketingService - Campaign scheduled for 2025-03-22 09:00:00
+2025-03-21 23:45:00,345 [INFO] UserService - User login: user_678
+2025-03-21 23:45:05,456 [INFO] SessionManager - Session created: sess_789
+2025-03-21 23:45:10,567 [INFO] UserService - Profile accessed: user_678
+2025-03-21 23:45:15,678 [INFO] OrderService - Order history viewed: user_678
+2025-03-21 23:45:20,789 [INFO] OrderService - Order details viewed: order_345
+2025-03-21 23:45:25,890 [INFO] OrderService - Order tracking viewed: order_345
+2025-03-21 23:45:30,901 [INFO] ReviewService - Product review submitted: prod_567
+2025-03-21 23:45:35,012 [INFO] NotificationService - Review approval notification sent: admin team
+2025-03-21 23:45:40,123 [INFO] UserService - User logout: user_678
+2025-03-21 23:45:45,234 [INFO] SessionManager - Session terminated: sess_789
+2025-03-22 00:00:00,345 [INFO] ApplicationServer - Daily maintenance starting
+2025-03-22 00:00:05,456 [INFO] MaintenanceService - Checking system health
+2025-03-22 00:00:10,567 [INFO] DatabaseService - Running database vacuum
+2025-03-22 00:00:15,678 [INFO] CacheService - Clearing expired cache entries
+2025-03-22 00:00:20,789 [INFO] LogRotationService - Rotating logs
+2025-03-22 00:00:25,890 [INFO] MaintenanceService - System health check complete
+2025-03-22 00:00:30,901 [INFO] ApplicationServer - Daily maintenance completed
+2025-03-22 00:30:00,012 [INFO] ReportService - Generating daily sales report
+2025-03-22 00:30:05,123 [INFO] ReportService - Processing sales data: 2025-03-21
+2025-03-22 00:30:10,234 [INFO] ReportService - Total orders: 432
+2025-03-22 00:30:15,345 [INFO] ReportService - Total revenue: $56,789.42
+2025-03-22 00:30:20,456 [INFO] ReportService - Average order value: $131.46
+2025-03-22 00:30:25,567 [INFO] ReportService - Top selling product: prod_567 (28 units)
+2025-03-22 00:30:30,678 [INFO] ReportService - Report generated: daily_sales_20250321.pdf
+2025-03-22 00:30:35,789 [INFO] NotificationService - Report notification sent: finance team
+2025-03-22 01:00:00,890 [INFO] MonitoringService - Hourly metrics collection
+2025-03-22 01:00:05,901 [INFO] PerformanceMonitor - CPU usage: 18%
+2025-03-22 01:00:10,012 [INFO] PerformanceMonitor - Memory usage: 45%
+2025-03-22 01:00:15,123 [INFO] PerformanceMonitor - Disk usage: 68%
+2025-03-22 01:00:20,234 [INFO] PerformanceMonitor - Network throughput: 22MB/s
+2025-03-22 01:00:25,345 [INFO] MonitoringService - Metrics collection complete
+2025-03-22 01:30:00,456 [INFO] InventoryService - Running inventory reconciliation
+2025-03-22 01:30:05,567 [INFO] InventoryService - Processing 5,234 product SKUs
+2025-03-22 01:30:10,678 [INFO] InventoryService - Checking for inventory discrepancies
+2025-03-22 01:30:15,789 [WARN] InventoryService - Inventory mismatch: prod_123 (system: 24, actual: 22)
+2025-03-22 01:30:20,890 [WARN] InventoryService - Inventory mismatch: prod_456 (system: 16, actual: 15)
+2025-03-22 01:30:25,901 [INFO] InventoryService - Updating inventory records
+2025-03-22 01:30:30,012 [INFO] InventoryService - Inventory reconciliation complete
+2025-03-22 01:30:35,123 [INFO] NotificationService - Inventory report sent: warehouse team
+2025-03-22 02:00:00,234 [INFO] MonitoringService - Hourly metrics collection
+2025-03-22 02:00:05,345 [INFO] PerformanceMonitor - CPU usage: 15%
+2025-03-22 02:00:10,456 [INFO] PerformanceMonitor - Memory usage: 42%
+2025-03-22 02:00:15,567 [INFO] PerformanceMonitor - Disk usage: 68%
+2025-03-22 02:00:20,678 [INFO] PerformanceMonitor - Network throughput: 18MB/s
+2025-03-22 02:00:25,789 [INFO] MonitoringService - Metrics collection complete
+2025-03-22 02:30:00,890 [INFO] TaskScheduler - Running scheduled background tasks
+2025-03-22 02:30:05,901 [INFO] TaskScheduler - Task started: product_price_update
+2025-03-22 02:30:10,012 [INFO] TaskScheduler - Processing 1,245 price updates
+2025-03-22 02:30:15,123 [INFO] TaskScheduler - Price updates applied
+2025-03-22 02:30:20,234 [INFO] TaskScheduler - Task completed: product_price_update
+2025-03-22 02:30:25,345 [INFO] TaskScheduler - Task started: cleanup_expired_sessions
+2025-03-22 02:30:30,456 [INFO] TaskScheduler - Removed 12,345 expired sessions
+2025-03-22 02:30:35,567 [INFO] TaskScheduler - Task completed: cleanup_expired_sessions
+2025-03-22 02:30:40,678 [INFO] TaskScheduler - Task started: remove_abandoned_carts
+2025-03-22 02:30:45,789 [INFO] TaskScheduler - Processed 567 abandoned carts
+2025-03-22 02:30:50,890 [INFO] TaskScheduler - Sent 234 cart reminder emails
+2025-03-22 02:30:55,901 [INFO] TaskScheduler - Task completed: remove_abandoned_carts
+2025-03-22 02:31:00,012 [INFO] TaskScheduler - All scheduled tasks completed
+2025-03-22 03:00:00,123 [INFO] MonitoringService - Hourly metrics collection
+2025-03-22 03:00:05,234 [INFO] PerformanceMonitor - CPU usage: 22%
+2025-03-22 03:00:10,345 [INFO] PerformanceMonitor - Memory usage: 48%
+2025-03-22 03:00:15,456 [INFO] PerformanceMonitor - Disk usage: 68%
+2025-03-22 03:00:20,567 [INFO] PerformanceMonitor - Network throughput: 25MB/s
+2025-03-22 03:00:25,678 [INFO] MonitoringService - Metrics collection complete
+2025-03-22 03:30:00,789 [INFO] ConfigService - Applying configuration updates
+2025-03-22 03:30:05,890 [INFO] ConfigService - Loading new configuration
+2025-03-22 03:30:10,901 [INFO] ConfigService - Updating payment gateway settings
+2025-03-22 03:30:15,012 [INFO] ConfigService - Updating shipping rate calculator
+2025-03-22 03:30:20,123 [INFO] ConfigService - Updating tax rules
+2025-03-22 03:30:25,234 [INFO] ConfigService - Configuration updates applied
+2025-03-22 03:30:30,345 [INFO] ConfigService - Services restarting with new configuration
+2025-03-22 03:30:35,456 [INFO] PaymentService - Service restarted
+2025-03-22 03:30:40,567 [INFO] ShippingService - Service restarted
+2025-03-22 03:30:45,678 [INFO] TaxService - Service restarted
+2025-03-22 03:30:50,789 [INFO] ConfigService - All services updated successfully
+2025-03-22 04:00:00,890 [INFO] MonitoringService - Hourly metrics collection
+2025-03-22 04:00:05,901 [INFO] PerformanceMonitor - CPU usage: 18%
+2025-03-22 04:00:10,012 [INFO] PerformanceMonitor - Memory usage: 45%
+2025-03-22 04:00:15,123 [INFO] PerformanceMonitor - Disk usage: 68%
+2025-03-22 04:00:20,234 [INFO] PerformanceMonitor - Network throughput: 20MB/s
+2025-03-22 04:00:25,345 [INFO] MonitoringService - Metrics collection complete
+2025-03-22 04:30:00,456 [INFO] APIGateway - API usage report generation
+2025-03-22 04:30:05,567 [INFO] APIGateway - Total API requests (last 24h): 1,245,678
+2025-03-22 04:30:10,678 [INFO] APIGateway - Top endpoint: /api/products (456,789 requests)
+2025-03-22 04:30:15,789 [INFO] APIGateway - Average response time: 124ms
+2025-03-22 04:30:20,890 [INFO] APIGateway - 95th percentile response time: 320ms
+2025-03-22 04:30:25,901 [INFO] APIGateway - Error rate: 0.42%
+2025-03-22 04:30:30,012 [INFO] APIGateway - Rate limit exceeded events: 123
+2025-03-22 04:30:35,123 [INFO] APIGateway - API usage report complete
+2025-03-22 05:00:00,234 [INFO] MonitoringService - Hourly metrics collection
+2025-03-22 05:00:05,345 [INFO] PerformanceMonitor - CPU usage: 16%
+2025-03-22 05:00:10,456 [INFO] PerformanceMonitor - Memory usage: 43%
+2025-03-22 05:00:15,567 [INFO] PerformanceMonitor - Disk usage: 68%
+2025-03-22 05:00:20,678 [INFO] PerformanceMonitor - Network throughput: 18MB/s
+2025-03-22 05:00:25,789 [INFO] MonitoringService - Metrics collection complete
+2025-03-22 05:30:00,890 [INFO] AnalyticsService - Processing website analytics data
+2025-03-22 05:30:05,901 [INFO] AnalyticsService - Processing 24h of user behavior data
+2025-03-22 05:30:10,012 [INFO] AnalyticsService - Total sessions: 123,456
+2025-03-22 05:30:15,123 [INFO] AnalyticsService - Average session duration: 8m 42s
+2025-03-22 05:30:20,234 [INFO] AnalyticsService - Bounce rate: 32.4%
+2025-03-22 05:30:25,345 [INFO] AnalyticsService - Most visited page: /products/featured
+2025-03-22 05:30:30,456 [INFO] AnalyticsService - Checkout conversion rate: 3.8%
+2025-03-22 05:30:35,567 [INFO] AnalyticsService - Analytics processing complete
+2025-03-22 05:30:40,678 [INFO] ReportService - Analytics report generated: daily_analytics_20250321.pdf
+2025-03-22 05:30:45,789 [INFO] NotificationService - Analytics report sent: marketing team
+2025-03-22 06:00:00,890 [INFO] MonitoringService - Hourly metrics collection
+2025-03-22 06:00:05,901 [INFO] PerformanceMonitor - CPU usage: 22%
+2025-03-22 06:00:10,012 [INFO] PerformanceMonitor - Memory usage: 47%
+2025-03-22 06:00:15,123 [INFO] PerformanceMonitor - Disk usage: 68%
+2025-03-22 06:00:20,234 [INFO] PerformanceMonitor - Network throughput: 28MB/s
+2025-03-22 06:00:25,345 [INFO] MonitoringService - Metrics collection complete
+2025-03-22 06:15:00,456 [INFO] UserService - User login: user_901
+2025-03-22 06:15:05,567 [INFO] SessionManager - Session created: sess_012
+2025-03-22 06:15:10,678 [INFO] UserService - Profile accessed: user_901
+2025-03-22 06:15:15,789 [INFO] ProductService - Product search: "headphones"
+2025-03-22 06:15:20,890 [INFO] ProductService - Product view: prod_123
+2025-03-22 06:15:25,901 [INFO] CartService - Product added to cart: prod_123
+2025-03-22 06:15:30,012 [INFO] CartService - Cart checkout initiated
+2025-03-22 06:15:35,123 [INFO] PaymentService - Payment processing: order_789
+2025-03-22 06:15:40,234 [INFO] PaymentService - Payment successful: order_789
+2025-03-22 06:15:45,345 [INFO] NotificationService - Order confirmation sent: order_789
+2025-03-22 06:16:00,456 [INFO] UserService - User logout: user_901
+2025-03-22 06:16:05,567 [INFO] SessionManager - Session terminated: sess_012
+2025-03-22 06:30:00,678 [INFO] UserService - User login: user_234
+2025-03-22 06:30:05,789 [INFO] SessionManager - Session created: sess_345
+2025-03-22 06:30:10,890 [INFO] UserService - Profile accessed: user_234
+2025-03-22 06:30:15,901 [INFO] ProductService - Product search: "tablet"
+2025-03-22 06:30:20,012 [INFO] ProductService - Product view: prod_456
+2025-03-22 06:30:25,123 [INFO] CartService - Product added to cart: prod_456
+2025-03-22 06:30:30,234 [INFO] CartService - Cart checkout initiated
+2025-03-22 06:30:35,345 [INFO] PaymentService - Payment processing: order_012
+2025-03-22 06:30:40,456 [INFO] PaymentService - Payment successful: order_012
+2025-03-22 06:30:45,567 [INFO] NotificationService - Order confirmation sent: order_012
+2025-03-22 06:31:00,678 [INFO] UserService - User logout: user_234
+2025-03-22 06:31:05,789 [INFO] SessionManager - Session terminated: sess_345
+2025-03-22 06:45:00,890 [INFO] UserService - User login: user_567
+2025-03-22 06:45:05,901 [INFO] SessionManager - Session created: sess_678
+2025-03-22 06:45:10,012 [INFO] UserService - Profile accessed: user_567
+2025-03-22 06:45:15,123 [INFO] ProductService - Product search: "monitor"
+2025-03-22 06:45:20,234 [INFO] ProductService - Product view: prod_789
+2025-03-22 06:45:25,345 [INFO] CartService - Product added to cart: prod_789
+2025-03-22 06:45:30,456 [INFO] CartService - Cart checkout initiated
+2025-03-22 06:45:35,567 [INFO] PaymentService - Payment processing: order_345
+2025-03-22 06:45:40,678 [INFO] PaymentService - Payment successful: order_345
+2025-03-22 06:45:45,789 [INFO] NotificationService - Order confirmation sent: order_345
+2025-03-22 06:46:00,890 [INFO] UserService - User logout: user_567
+2025-03-22 06:46:05,901 [INFO] SessionManager - Session terminated: sess_678
+2025-03-22 07:00:00,012 [INFO] MonitoringService - Hourly metrics collection
+2025-03-22 07:00:05,123 [INFO] PerformanceMonitor - CPU usage: 28%
+2025-03-22 07:00:10,234 [INFO] PerformanceMonitor - Memory usage: 52%
+2025-03-22 07:00:15,345 [WARN] PerformanceMonitor - Memory usage above threshold (50%)
+2025-03-22 07:00:20,456 [INFO] PerformanceMonitor - Disk usage: 68%
+2025-03-22 07:00:25,567 [INFO] PerformanceMonitor - Network throughput: 35MB/s
+2025-03-22 07:00:30,678 [INFO] MonitoringService - Metrics collection complete
+2025-03-22 07:15:00,789 [INFO] UserService - User login: user_890
+2025-03-22 07:15:05,890 [INFO] SessionManager - Session created: sess_901
+2025-03-22 07:15:10,901 [INFO] UserService - Profile accessed: user_890
+2025-03-22 07:15:15,012 [INFO] ProductService - Product search: "keyboard"
+2025-03-22 07:15:20,123 [INFO] ProductService - Product view: prod_012
+2025-03-22 07:15:25,234 [INFO] CartService - Product added to cart: prod_012
+2025-03-22 07:15:30,345 [INFO] CartService - Cart checkout initiated
+2025-03-22 07:15:35,456 [INFO] PaymentService - Payment processing: order_678
+2025-03-22 07:15:40,567 [INFO] PaymentService - Payment successful: order_678
+2025-03-22 07:15:45,678 [INFO] NotificationService - Order confirmation sent: order_678
+2025-03-22 07:16:00,789 [INFO] UserService - User logout: user_890
+2025-03-22 07:16:05,890 [INFO] SessionManager - Session terminated: sess_901
+2025-03-22 07:30:00,901 [INFO] UserService - User login: user_123
+2025-03-22 07:30:05,012 [INFO] SessionManager - Session created: sess_234
+2025-03-22 07:30:10,123 [INFO] UserService - Profile accessed: user_123
+2025-03-22 07:30:15,234 [INFO] ProductService - Product search: "mouse"
+2025-03-22 07:30:20,345 [INFO] ProductService - Product view: prod_345
+2025-03-22 07:30:25,456 [INFO] CartService - Product added to cart: prod_345
+2025-03-22 07:30:30,567 [INFO] CartService - Cart checkout initiated
+2025-03-22 07:30:35,678 [INFO] PaymentService - Payment processing: order_901
+2025-03-22 07:30:40,789 [INFO] PaymentService - Payment successful: order_901
+2025-03-22 07:30:45,890 [INFO] NotificationService - Order confirmation sent: order_901
+2025-03-22 07:31:00,901 [INFO] UserService - User logout: user_123
+2025-03-22 07:31:05,012 [INFO] SessionManager - Session terminated: sess_234
+2025-03-22 07:45:00,123 [INFO] UserService - User login: user_456
+2025-03-22 07:45:05,234 [INFO] SessionManager - Session created: sess_567
+2025-03-22 07:45:10,345 [INFO] UserService - Profile accessed: user_456
+2025-03-22 07:45:15,456 [INFO] ProductService - Product search: "laptop"
+2025-03-22 07:45:20,567 [INFO] ProductService - Product view: prod_678
+2025-03-22 07:45:25,678 [INFO] CartService - Product added to cart: prod_678
+2025-03-22 07:45:30,789 [INFO] CartService - Cart checkout initiated
+2025-03-22 07:45:35,890 [INFO] PaymentService - Payment processing: order_234
+2025-03-22 07:45:40,901 [INFO] PaymentService - Payment successful: order_234
+2025-03-22 07:45:45,012 [INFO] NotificationService - Order confirmation sent: order_234
+2025-03-22 07:46:00,123 [INFO] UserService - User logout: user_456
+2025-03-22 07:46:05,234 [INFO] SessionManager - Session terminated: sess_567
+2025-03-22 08:00:00,345 [INFO] MonitoringService - Hourly metrics collection
+2025-03-22 08:00:05,456 [INFO] PerformanceMonitor - CPU usage: 32%
+2025-03-22 08:00:10,567 [INFO] PerformanceMonitor - Memory usage: 55%
+2025-03-22 08:00:15,678 [WARN] PerformanceMonitor - Memory usage above threshold (50%)
+2025-03-22 08:00:20,789 [INFO] PerformanceMonitor - Disk usage: 69%
+2025-03-22 08:00:25,890 [INFO] PerformanceMonitor - Network throughput: 40MB/s
+2025-03-22 08:00:30,901 [INFO] MonitoringService - Metrics collection complete
+2025-03-22 08:10:00,012 [WARN] DatabaseService - Slow query detected: SELECT * FROM products WHERE category_id = 5 ORDER BY price ASC (2.3s)
+2025-03-22 08:10:05,123 [WARN] DatabaseService - Slow query detected: SELECT * FROM orders WHERE customer_id = 12345 AND status = 'PROCESSING' (1.8s)
+2025-03-22 08:10:10,234 [INFO] DatabaseService - Query optimization initiated
+2025-03-22 08:10:15,345 [INFO] DatabaseService - Adding index on orders(customer_id, status)
+2025-03-22 08:10:20,456 [INFO] DatabaseService - Adding index on products(category_id, price)
+2025-03-22 08:10:25,567 [INFO] DatabaseService - Indexes created successfully
+2025-03-22 08:15:00,678 [INFO] UserService - User login: user_789
+2025-03-22 08:15:05,789 [INFO] SessionManager - Session created: sess_890
+2025-03-22 08:15:10,890 [INFO] UserService - Profile accessed: user_789
+2025-03-22 08:15:15,901 [INFO] ProductService - Product search: "smartphone"
+2025-03-22 08:15:20,012 [INFO] ProductService - Product view: prod_901
+2025-03-22 08:15:25,123 [INFO] CartService - Product added to cart: prod_901
+2025-03-22 08:15:30,234 [INFO] CartService - Cart checkout initiated
+2025-03-22 08:15:35,345 [INFO] PaymentService - Payment processing: order_567
+2025-03-22 08:15:40,456 [INFO] PaymentService - Payment successful: order_567
+2025-03-22 08:15:45,567 [INFO] NotificationService - Order confirmation sent: order_567
+2025-03-22 08:16:00,678 [INFO] UserService - User logout: user_789
+2025-03-22 08:16:05,789 [INFO] SessionManager - Session terminated: sess_890
+2025-03-22 08:30:00,890 [INFO] UserService - User login: user_012
+2025-03-22 08:30:05,901 [INFO] SessionManager - Session created: sess_123
+2025-03-22 08:30:10,012 [INFO] UserService - Profile accessed: user_012
+2025-03-22 08:30:15,123 [INFO] OrderService - Order history viewed: user_012
+2025-03-22 08:30:20,234 [INFO] OrderService - Order details viewed: order_456
+2025-03-22 08:30:25,345 [INFO] OrderService - Order tracking viewed: order_456
+2025-03-22 08:30:30,456 [INFO] UserService - User logout: user_012
+2025-03-22 08:30:35,567 [INFO] SessionManager - Session terminated: sess_123
+2025-03-22 08:45:00,678 [INFO] UserService - User login: user_345
+2025-03-22 08:45:05,789 [INFO] SessionManager - Session created: sess_456
+2025-03-22 08:45:10,890 [INFO] UserService - Profile accessed: user_345
+2025-03-22 08:45:15,901 [INFO] ProductService - Product search: "speakers"
+2025-03-22 08:45:20,012 [INFO] ProductService - Product view: prod_234
+2025-03-22 08:45:25,123 [INFO] CartService - Product added to cart: prod_234
+2025-03-22 08:45:30,234 [INFO] CartService - Cart checkout initiated
+2025-03-22 08:45:35,345 [INFO] PaymentService - Payment processing: order_890
+2025-03-22 08:45:40,456 [INFO] PaymentService - Payment successful: order_890
+2025-03-22 08:45:45,567 [INFO] NotificationService - Order confirmation sent: order_890
+2025-03-22 08:46:00,678 [INFO] UserService - User logout: user_345
+2025-03-22 08:46:05,789 [INFO] SessionManager - Session terminated: sess_456
+2025-03-22 09:00:00,890 [INFO] MonitoringService - Hourly metrics collection
+2025-03-22 09:00:05,901 [INFO] PerformanceMonitor - CPU usage: 38%
+2025-03-22 09:00:10,012 [INFO] PerformanceMonitor - Memory usage: 58%
+2025-03-22 09:00:15,123 [WARN] PerformanceMonitor - Memory usage above threshold (50%)
+2025-03-22 09:00:20,234 [INFO] PerformanceMonitor - Disk usage: 69%
+2025-03-22 09:00:25,345 [INFO] PerformanceMonitor - Network throughput: 48MB/s
+2025-03-22 09:00:30,456 [INFO] MonitoringService - Metrics collection complete
+2025-03-22 09:01:00,567 [INFO] MarketingService - Email campaign starting: Spring Sale 2025
+2025-03-22 09:01:05,678 [INFO] MarketingService - Sending emails to 45,678 users
+2025-03-22 09:01:10,789 [INFO] MarketingService - Batch 1/10 sent (4,567 emails)
+2025-03-22 09:01:15,890 [INFO] MarketingService - Batch 2/10 sent (4,567 emails)
+2025-03-22 09:01:20,901 [INFO] MarketingService - Batch 3/10 sent (4,567 emails)
+2025-03-22 09:01:25,012 [INFO] MarketingService - Batch 4/10 sent (4,567 emails)
+2025-03-22 09:01:30,123 [INFO] MarketingService - Batch 5/10 sent (4,567 emails)
+2025-03-22 09:01:35,234 [INFO] MarketingService - Batch 6/10 sent (4,567 emails)
+2025-03-22 09:01:40,345 [INFO] MarketingService - Batch 7/10 sent (4,567 emails)
+2025-03-22 09:01:45,456 [INFO] MarketingService - Batch 8/10 sent (4,567 emails)
+2025-03-22 09:01:50,567 [INFO] MarketingService - Batch 9/10 sent (4,567 emails)
+2025-03-22 09:01:55,678 [INFO] MarketingService - Batch 10/10 sent (4,561 emails)
+2025-03-22 09:02:00,789 [INFO] MarketingService - Email campaign completed: 45,678 emails sent
+2025-03-22 09:15:00,890 [INFO] UserService - User login: user_678
+2025-03-22 09:15:05,901 [INFO] SessionManager - Session created: sess_789
+2025-03-22 09:15:10,012 [INFO] UserService - Profile accessed: user_678
+2025-03-22 09:15:15,123 [INFO] ProductService - Product search: "sale"
+2025-03-22 09:15:20,234 [INFO] ProductService - Product view: prod_567
+2025-03-22 09:15:25,345 [INFO] CartService - Product added to cart: prod_567
+2025-03-22 09:15:30,456 [INFO] CartService - Cart checkout initiated
+2025-03-22 09:15:35,567 [INFO] PaymentService - Payment processing: order_123
+2025-03-22 09:15:40,678 [INFO] PaymentService - Payment successful: order_123
+2025-03-22 09:15:45,789 [INFO] NotificationService - Order confirmation sent: order_123
+2025-03-22 09:16:00,890 [INFO] UserService - User logout: user_678
+2025-03-22 09:16:05,901 [INFO] SessionManager - Session terminated: sess_789
+2025-03-22 09:30:00,012 [INFO] UserService - User login: user_901
+2025-03-22 09:30:05,123 [INFO] SessionManager - Session created: sess_012
+2025-03-22 09:30:10,234 [INFO] UserService - Profile accessed: user_901
+2025-03-22 09:30:15,345 [INFO] ProductService - Product search: "discount"
+2025-03-22 09:30:20,456 [INFO] ProductService - Product view: prod_890
+2025-03-22 09:30:25,567 [INFO] CartService - Product added to cart: prod_890
+2025-03-22 09:30:30,678 [INFO] CartService - Cart checkout initiated
+2025-03-22 09:30:35,789 [INFO] PaymentService - Payment processing: order_456
+2025-03-22 09:30:40,890 [INFO] PaymentService - Payment successful: order_456
+2025-03-22 09:30:45,901 [INFO] NotificationService - Order confirmation sent: order_456
+2025-03-22 09:31:00,012 [INFO] UserService - User logout: user_901
+2025-03-22 09:31:05,123 [INFO] SessionManager - Session terminated: sess_012
+2025-03-22 09:45:00,234 [INFO] UserService - User login: user_345
+2025-03-22 09:45:05,345 [INFO] SessionManager - Session created: sess_456
+2025-03-22 09:45:10,456 [INFO] UserService - Profile accessed: user_345
+2025-03-22 09:45:15,567 [INFO] ProductService - Product search: "promotion"
+2025-03-22 09:45:20,678 [INFO] ProductService - Product view: prod_123
+2025-03-22 09:45:25,789 [INFO] CartService - Product added to cart: prod_123
+2025-03-22 09:45:30,890 [INFO] CartService - Cart checkout initiated
+2025-03-22 09:45:35,901 [INFO] PaymentService - Payment processing: order_789
+2025-03-22 09:45:40,012 [INFO] PaymentService - Payment successful: order_789
+2025-03-22 09:45:45,123 [INFO] NotificationService - Order confirmation sent: order_789
+2025-03-22 09:46:00,234 [INFO] UserService - User logout: user_345
+2025-03-22 09:46:05,345 [INFO] SessionManager - Session terminated: sess_456
+2025-03-22 10:00:00,456 [INFO] MonitoringService - Hourly metrics collection
+2025-03-22 10:00:05,567 [INFO] PerformanceMonitor - CPU usage: 45%
+2025-03-22 10:00:10,678 [INFO] PerformanceMonitor - Memory usage: 62%
+2025-03-22 10:00:15,789 [WARN] PerformanceMonitor - Memory usage above threshold (50%)
+2025-03-22 10:00:20,890 [INFO] PerformanceMonitor - Disk usage: 69%
+2025-03-22 10:00:25,901 [INFO] PerformanceMonitor - Network throughput: 62MB/s
+2025-03-22 10:00:30,012 [WARN] PerformanceMonitor - Network throughput above threshold (50MB/s)
+2025-03-22 10:00:35,123 [INFO] MonitoringService - Metrics collection complete

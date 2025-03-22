@@ -1,0 +1,36 @@
+2025-03-21 08:00:00,123 [INFO] NginxServer - Server starting on port 80
+2025-03-21 08:00:01,234 [INFO] NginxServer - Loading configuration from /etc/nginx/nginx.conf
+2025-03-21 08:00:02,345 [INFO] NginxServer - Initializing worker processes: 4
+2025-03-21 08:00:03,456 [INFO] NginxServer - Server started successfully
+2025-03-21 08:01:05,567 [INFO] NginxServer - GET /index.html 200 2ms
+2025-03-21 08:01:15,678 [INFO] NginxServer - GET /styles/main.css 200 1ms
+2025-03-21 08:01:16,789 [INFO] NginxServer - GET /js/app.js 200 1ms
+2025-03-21 08:01:25,890 [INFO] NginxServer - GET /api/products 200 150ms
+2025-03-21 08:01:35,901 [WARN] NginxServer - Slow response: GET /api/products took 150ms
+2025-03-21 08:02:05,012 [INFO] NginxServer - GET /index.html 200 1ms
+2025-03-21 08:02:15,123 [INFO] NginxServer - GET /styles/main.css 304 0ms
+2025-03-21 08:02:16,234 [INFO] NginxServer - GET /js/app.js 304 0ms
+2025-03-21 08:02:25,345 [INFO] NginxServer - GET /api/users 200 45ms
+2025-03-21 08:03:05,456 [INFO] NginxServer - POST /api/login 200 120ms
+2025-03-21 08:03:15,567 [INFO] NginxServer - GET /dashboard.html 200 2ms
+2025-03-21 08:03:25,678 [INFO] NginxServer - GET /api/dashboard/stats 200 300ms
+2025-03-21 08:03:25,789 [WARN] NginxServer - Slow response: GET /api/dashboard/stats took 300ms
+2025-03-21 08:04:05,890 [ERROR] NginxServer - 404 Not Found: GET /images/logo.png
+2025-03-21 08:05:05,901 [INFO] NginxServer - GET /products.html 200 3ms
+2025-03-21 08:05:15,012 [INFO] NginxServer - GET /api/products/featured 200 85ms
+2025-03-21 08:06:05,123 [INFO] NginxServer - GET /api/products/1 200 30ms
+2025-03-21 08:06:15,234 [INFO] NginxServer - GET /product-details.html 200 2ms
+2025-03-21 08:07:05,345 [INFO] NginxServer - POST /api/cart/add 200 150ms
+2025-03-21 08:08:05,456 [INFO] NginxServer - GET /cart.html 200 2ms
+2025-03-21 08:08:15,567 [INFO] NginxServer - GET /api/cart 200 65ms
+2025-03-21 08:09:05,678 [ERROR] NginxServer - 500 Internal Server Error: POST /api/checkout
+2025-03-21 08:09:05,789 [ERROR] ApiServer - SQLException: Duplicate transaction ID in checkout process
+2025-03-21 08:09:15,890 [INFO] NginxServer - GET /error.html 200 1ms
+2025-03-21 08:10:05,901 [INFO] NginxServer - POST /api/contact 200 50ms
+2025-03-21 08:15:05,012 [WARN] MemoryManager - High memory usage: 85% of allocated memory
+2025-03-21 08:20:05,123 [ERROR] DatabaseConnection - Connection timeout after 30s
+2025-03-21 08:20:05,234 [ERROR] ApiServer - Failed to process request: database connection error
+2025-03-21 08:20:05,345 [INFO] NginxServer - 503 Service Unavailable: GET /api/products
+2025-03-21 08:20:15,456 [INFO] DatabaseConnection - Attempting to reconnect to database
+2025-03-21 08:20:25,567 [INFO] DatabaseConnection - Database connection reestablished
+2025-03-21 08:21:05,678 [INFO] NginxServer - GET /api/products 200 70ms

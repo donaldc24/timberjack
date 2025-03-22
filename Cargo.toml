@@ -8,3 +8,6 @@ authors = ["Donald Calhoun donaldcalhouncs@gmail.com"]
 [dependencies]
 clap = { version = "4.4", features = ["derive"] }
 regex = "1.10"
+assert_cmd = "2.0"
+predicates = "2.1"
+tempfile = "3.3"

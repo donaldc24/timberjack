@@ -1,0 +1,25 @@
+use clap::Parser;
+
+#[derive(Parser, Debug)]
+#[clap(name = "timber")]
+#[clap(about = "Timber: Fell Your Logs Fast", long_about = None)]
+pub struct Args {
+    /// Log file to analyze
+    pub file: String,
+
+    /// Pattern to search for
+    #[clap(short, long)]
+    pub chop: Option<String>,
+
+    /// Filter by log level (ERROR, WARN, INFO, etc.)
+    #[clap(short, long)]
+    pub level: Option<String>,
+
+    /// Show time-based trends
+    #[clap(long)]
+    pub trend: bool,
+
+    /// Show summary statistics
+    #[clap(long)]
+    pub stats: bool,
+}
