@@ -1,0 +1,9 @@
+[package]
+name = "timber"
+version = "0.1.0"
+edition = "2024"
+description = "A CLI tool that fells log files with speed and insight"
+authors = ["Donald Calhoun donaldcalhouncs@gmail.com"]
+
+[dependencies]
+clap = { version = "4.4", features = ["derive"] }

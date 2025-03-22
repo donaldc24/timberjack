@@ -1,0 +1,4 @@
+2025-03-21 14:00:00,123 [ERROR] NullPointerException in WebController.java:42
+2025-03-21 14:01:00,456 [WARN] Slow database query (2.3s) in DatabaseService.java:128
+2025-03-21 14:02:00,789 [INFO] Application started successfully
+2025-03-21 14:03:00,012 [ERROR] Connection timeout in NetworkClient.java:86
