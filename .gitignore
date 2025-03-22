@@ -1,1 +1,43 @@
+# Rust build output
 /target
+debug/
+release/
+*.rs.bk
+
+# Dependency directories
+/node_modules
+/bower_components
+
+# IDE-specific files
+.vscode/
+.idea/
+*.iml
+*.ipr
+*.iws
+.eclipse
+.settings/
+.classpath
+.project
+
+# Temporary files
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logging files
+*.log
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Backup files
+*.bak
+*.gho
+*.ori
+*.orig
+*.tmp
