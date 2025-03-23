@@ -17,6 +17,8 @@ fn test_json_output_basic() {
         levels_count: FxHashMap::default(),
         error_types: FxHashMap::default(),
         unique_messages: FxHashSet::default(),
+        deduplicated: false,
+        line_counts: FxHashMap::default(),
     };
 
     // Add some level counts and error types
@@ -91,6 +93,8 @@ fn test_json_structure() {
         levels_count: FxHashMap::default(),
         error_types: FxHashMap::default(),
         unique_messages: FxHashSet::default(),
+        deduplicated: false,
+        line_counts: FxHashMap::default(),
     };
 
     // Add time trends
@@ -163,6 +167,8 @@ fn test_json_unique_messages() {
         levels_count: FxHashMap::default(),
         error_types: FxHashMap::default(),
         unique_messages: FxHashSet::default(),
+        deduplicated: false,
+        line_counts: FxHashMap::default(),
     };
 
     // Add unique messages
@@ -220,6 +226,8 @@ fn test_json_top_errors_limit() {
         levels_count: FxHashMap::default(),
         error_types: FxHashMap::default(),
         unique_messages: FxHashSet::default(),
+        deduplicated: false,
+        line_counts: FxHashMap::default(),
     };
 
     // Add several error types

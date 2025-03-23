@@ -17,6 +17,8 @@ fn test_print_basic_results() {
         levels_count: FxHashMap::default(),
         error_types: FxHashMap::default(),
         unique_messages: FxHashSet::default(),
+        deduplicated: false,
+        line_counts: FxHashMap::default(),
     };
 
     // Add some level counts
@@ -46,6 +48,8 @@ fn test_print_trend_results() {
         levels_count: FxHashMap::default(),
         error_types: FxHashMap::default(),
         unique_messages: FxHashSet::default(),
+        deduplicated: false,
+        line_counts: FxHashMap::default(),
     };
 
     // Add time trends
@@ -77,6 +81,8 @@ fn test_print_stats_results() {
         levels_count: FxHashMap::default(),
         error_types: FxHashMap::default(),
         unique_messages: FxHashSet::default(),
+        deduplicated: false,
+        line_counts: FxHashMap::default(),
     };
 
     // Add level counts
@@ -128,6 +134,8 @@ fn test_empty_results() {
         levels_count: FxHashMap::default(),
         error_types: FxHashMap::default(),
         unique_messages: FxHashSet::default(),
+        deduplicated: false,
+        line_counts: FxHashMap::default(),
     };
 
     let mut output = Vec::new();
@@ -153,6 +161,8 @@ fn test_show_unique_messages() {
         levels_count: FxHashMap::default(),
         error_types: FxHashMap::default(),
         unique_messages: FxHashSet::default(),
+        deduplicated: false,
+        line_counts: FxHashMap::default(),
     };
 
     // Add unique messages
@@ -188,6 +198,8 @@ fn test_top_errors_limit() {
         levels_count: FxHashMap::default(),
         error_types: FxHashMap::default(),
         unique_messages: FxHashSet::default(),
+        deduplicated: false,
+        line_counts: FxHashMap::default(),
     };
 
     // Add several error types
