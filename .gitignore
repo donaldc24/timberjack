@@ -49,3 +49,4 @@ release/
 %BENCH_DIR%bench_100k.log
 nul
 *.csv
+benchmark_data

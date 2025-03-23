@@ -42,7 +42,7 @@ fn main() -> std::io::Result<()> {
     let start_time = Instant::now();
 
     // Create analyzer
-    let analyzer = LogAnalyzer::new();
+    let mut analyzer = LogAnalyzer::new();
 
     // Determine processing mode (parallel or sequential)
     let use_parallel = if args.sequential {
@@ -59,7 +59,7 @@ fn main() -> std::io::Result<()> {
     // Process the file using memory mapping
     let result = process_with_mmap(
         &args.file,
-        &analyzer,
+        &mut analyzer,
         pattern.as_ref(),
         level,
         args.trend,
@@ -93,7 +93,7 @@ fn main() -> std::io::Result<()> {
 // Process file using memory mapping
 fn process_with_mmap(
     file_path: &str,
-    analyzer: &LogAnalyzer,
+    analyzer: &mut LogAnalyzer,
     pattern: Option<&Regex>,
     level: Option<&str>,
     collect_trends: bool,
