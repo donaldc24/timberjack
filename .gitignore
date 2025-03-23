@@ -50,3 +50,4 @@ release/
 nul
 *.csv
 benchmark_data
+*.png
