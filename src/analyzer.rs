@@ -1,8 +1,9 @@
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use rustc_hash::{FxHashMap, FxHashSet};
+use rayon::prelude::*;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AnalysisResult {
     pub matched_lines: Vec<String>,
     pub count: usize,
@@ -42,45 +43,57 @@ impl LogAnalyzer {
         }
     }
 
-    // Extract all needed data from a line at once to avoid repeated regex operations
+    // Optimized parsing: Extract all needed data in a single pass
     fn parse_line<'a>(&self, line: &'a str, need_timestamp: bool, need_stats: bool) -> ParsedLine<'a> {
-        // Initialize with defaults
-        let mut parsed = ParsedLine {
-            level: "",
-            timestamp: None,
-            error_type: None,
-            message: None,
+        // Cache regex captures to avoid multiple regex runs on the same line
+        let level_caps = self.level_regex.captures(line);
+
+        // Only run timestamp regex if needed
+        let timestamp_caps = if need_timestamp {
+            self.timestamp_regex.captures(line)
+        } else {
+            None
         };
 
-        // Extract log level if present
-        if let Some(caps) = self.level_regex.captures(line) {
-            parsed.level = caps
-                .get(1)
-                .map_or_else(|| caps.get(0).map_or("", |m| m.as_str()), |m| m.as_str());
-        }
+        // Only run error_type regex if needed for stats
+        let error_type_caps = if need_stats {
+            self.error_type_regex.captures(line)
+        } else {
+            None
+        };
 
-        // Extract timestamp only if needed
-        if need_timestamp {
-            if let Some(caps) = self.timestamp_regex.captures(line) {
-                if let Some(timestamp) = caps.get(1) {
-                    let timestamp_str = timestamp.as_str();
-                    if timestamp_str.len() >= 13 {
-                        parsed.timestamp = Some(&timestamp_str[0..13]);
-                    } else {
-                        parsed.timestamp = Some(timestamp_str);
-                    }
+        // Extract log level
+        let level = if let Some(caps) = &level_caps {
+            caps.get(1)
+                .map_or_else(|| caps.get(0).map_or("", |m| m.as_str()), |m| m.as_str())
+        } else {
+            ""
+        };
+
+        // Extract timestamp
+        let timestamp = if let Some(caps) = timestamp_caps {
+            if let Some(timestamp) = caps.get(1) {
+                let timestamp_str = timestamp.as_str();
+                if timestamp_str.len() >= 13 {
+                    Some(&timestamp_str[0..13])
+                } else {
+                    Some(timestamp_str)
                 }
+            } else {
+                None
             }
-        }
+        } else {
+            None
+        };
 
-        // Extract message and error type only if collecting stats
-        if need_stats {
-            parsed.message = self.extract_message(line);
-
-            // Error type extraction - still needs a String due to formatting in some cases
-            if let Some(caps) = self.error_type_regex.captures(line) {
+        // Extract error type and message for stats
+        let (error_type, message) = if need_stats {
+            // Process error type
+            let err_type = if let Some(caps) = error_type_caps {
                 if let Some(error_type) = caps.get(1) {
-                    parsed.error_type = Some(error_type.as_str().to_string());
+                    Some(error_type.as_str().to_string())
+                } else {
+                    None
                 }
             } else if line.contains("Failed to") {
                 // Extract the specific failure reason
@@ -89,13 +102,31 @@ impl LogAnalyzer {
                     let action_parts: Vec<&str> = parts[1].split(':').collect();
                     if !action_parts.is_empty() {
                         let action = action_parts[0].trim();
-                        parsed.error_type = Some(format!("Failed to {}", action));
+                        Some(format!("Failed to {}", action))
+                    } else {
+                        None
                     }
+                } else {
+                    None
                 }
-            }
-        }
+            } else {
+                None
+            };
 
-        parsed
+            // Extract message
+            let msg = self.extract_message(line);
+
+            (err_type, msg)
+        } else {
+            (None, None)
+        };
+
+        ParsedLine {
+            level,
+            timestamp,
+            error_type,
+            message,
+        }
     }
 
     // Extract message with string slices instead of new Strings
@@ -160,16 +191,25 @@ impl LogAnalyzer {
     where
         I: Iterator<Item = String>,
     {
-        // Pre-allocate collections with capacity hints
-        let estimated_lines = 1000; // Adjust based on expected input size
+        // More intelligent capacity hints based on filtering
+        // Start with moderately large number, can be adjusted based on benchmarks
+        let lines_hint = 10_000;
 
+        // If we have filtering, expect fewer matches
+        let estimated_matches = if pattern.is_some() || level_filter.is_some() {
+            lines_hint / 5  // Estimate 20% match rate when filters are applied
+        } else {
+            lines_hint  // No filters means all lines match
+        };
+
+        // Initialize hash maps with appropriate capacities
         let mut result = AnalysisResult {
-            matched_lines: Vec::with_capacity(estimated_lines),
+            matched_lines: Vec::with_capacity(estimated_matches),
             count: 0,
-            time_trends: FxHashMap::default(),
-            levels_count: FxHashMap::default(),
-            error_types: FxHashMap::default(),
-            unique_messages: FxHashSet::default(),
+            time_trends: FxHashMap::with_capacity_and_hasher(24, Default::default()), // Most logs span hours (24 max)
+            levels_count: FxHashMap::with_capacity_and_hasher(5, Default::default()), // Most logs have ~5 levels
+            error_types: FxHashMap::with_capacity_and_hasher(50, Default::default()), // Reasonable number of error types
+            unique_messages: FxHashSet::with_capacity_and_hasher(estimated_matches, Default::default()),
         };
 
         // Process each line efficiently
@@ -224,5 +264,79 @@ impl LogAnalyzer {
         }
 
         result
+    }
+
+    /// Analyze lines in parallel for large files
+    /// This method processes chunks of lines in parallel to improve performance on multi-core systems
+    pub fn analyze_lines_parallel(
+        &self,
+        lines: Vec<String>,
+        pattern: Option<&Regex>,
+        level_filter: Option<&str>,
+        collect_trends: bool,
+        collect_stats: bool,
+    ) -> AnalysisResult {
+        // Determine optimal chunk size based on number of lines
+        // Smaller chunks for more cores, but not too small to avoid overhead
+        let num_cpus = rayon::current_num_threads();
+        let chunk_size = std::cmp::max(1000, lines.len() / (num_cpus * 2));
+
+        // Process chunks in parallel
+        let chunk_results: Vec<AnalysisResult> = lines
+            .par_chunks(chunk_size)
+            .map(|chunk| {
+                let analyzer = LogAnalyzer::new();
+                analyzer.analyze_lines(chunk.iter().cloned(), pattern, level_filter, collect_trends, collect_stats)
+            })
+            .collect();
+
+        // Merge results from all chunks
+        self.merge_results(chunk_results)
+    }
+
+    /// Merge multiple AnalysisResult objects into a single result
+    pub fn merge_results(&self, results: Vec<AnalysisResult>) -> AnalysisResult {
+        if results.is_empty() {
+            return AnalysisResult {
+                matched_lines: Vec::new(),
+                count: 0,
+                time_trends: FxHashMap::default(),
+                levels_count: FxHashMap::default(),
+                error_types: FxHashMap::default(),
+                unique_messages: FxHashSet::default(),
+            };
+        }
+
+        // Initialize with the first result
+        let mut merged = results[0].clone();
+
+        // Merge remaining results
+        for result in results.iter().skip(1) {
+            // Add matched lines and count
+            merged.matched_lines.extend_from_slice(&result.matched_lines);
+            merged.count += result.count;
+
+            // Merge time trends
+            for (timestamp, count) in &result.time_trends {
+                *merged.time_trends.entry(timestamp.clone()).or_insert(0) += count;
+            }
+
+            // Merge level counts
+            for (level, count) in &result.levels_count {
+                *merged.levels_count.entry(level.clone()).or_insert(0) += count;
+            }
+
+            // Merge error types
+            for (error_type, count) in &result.error_types {
+                *merged.error_types.entry(error_type.clone()).or_insert(0) += count;
+            }
+
+            // Merge unique messages
+            for message in &result.unique_messages {
+                merged.unique_messages.insert(message.clone());
+            }
+        }
+
+        merged
     }
 }

@@ -1,5 +1,5 @@
-use std::collections::{HashMap, HashSet};
 use timber_rs::analyzer::AnalysisResult;
+use rustc_hash::{FxHashMap, FxHashSet};
 
 #[cfg(test)]
 use timber_rs::formatter::print_results_to_writer;
@@ -13,10 +13,10 @@ fn test_print_basic_results() {
             "2025-03-21 14:03:00,012 [ERROR] Connection timeout".to_string(),
         ],
         count: 2,
-        time_trends: HashMap::new(),
-        levels_count: HashMap::new(),
-        error_types: HashMap::new(),
-        unique_messages: HashSet::new(),
+        time_trends: FxHashMap::default(),
+        levels_count: FxHashMap::default(),
+        error_types: FxHashMap::default(),
+        unique_messages: FxHashSet::default(),
     };
 
     // Add some level counts
@@ -42,10 +42,10 @@ fn test_print_trend_results() {
             "2025-03-21 15:03:00,012 [ERROR] Connection timeout".to_string(),
         ],
         count: 2,
-        time_trends: HashMap::new(),
-        levels_count: HashMap::new(),
-        error_types: HashMap::new(),
-        unique_messages: HashSet::new(),
+        time_trends: FxHashMap::default(),
+        levels_count: FxHashMap::default(),
+        error_types: FxHashMap::default(),
+        unique_messages: FxHashSet::default(),
     };
 
     // Add time trends
@@ -73,10 +73,10 @@ fn test_print_stats_results() {
             "2025-03-21 14:03:00,012 [ERROR] ServiceC - Connection timeout".to_string(),
         ],
         count: 3,
-        time_trends: HashMap::new(),
-        levels_count: HashMap::new(),
-        error_types: HashMap::new(),
-        unique_messages: HashSet::new(),
+        time_trends: FxHashMap::default(),
+        levels_count: FxHashMap::default(),
+        error_types: FxHashMap::default(),
+        unique_messages: FxHashSet::default(),
     };
 
     // Add level counts
@@ -124,10 +124,10 @@ fn test_empty_results() {
     let result = AnalysisResult {
         matched_lines: vec![],
         count: 0,
-        time_trends: HashMap::new(),
-        levels_count: HashMap::new(),
-        error_types: HashMap::new(),
-        unique_messages: HashSet::new(),
+        time_trends: FxHashMap::default(),
+        levels_count: FxHashMap::default(),
+        error_types: FxHashMap::default(),
+        unique_messages: FxHashSet::default(),
     };
 
     let mut output = Vec::new();
@@ -149,10 +149,10 @@ fn test_show_unique_messages() {
             "2025-03-21 14:03:00,012 [ERROR] ServiceC - Connection timeout".to_string(),
         ],
         count: 3,
-        time_trends: HashMap::new(),
-        levels_count: HashMap::new(),
-        error_types: HashMap::new(),
-        unique_messages: HashSet::new(),
+        time_trends: FxHashMap::default(),
+        levels_count: FxHashMap::default(),
+        error_types: FxHashMap::default(),
+        unique_messages: FxHashSet::default(),
     };
 
     // Add unique messages
@@ -184,10 +184,10 @@ fn test_top_errors_limit() {
     let mut result = AnalysisResult {
         matched_lines: vec![],
         count: 10,
-        time_trends: HashMap::new(),
-        levels_count: HashMap::new(),
-        error_types: HashMap::new(),
-        unique_messages: HashSet::new(),
+        time_trends: FxHashMap::default(),
+        levels_count: FxHashMap::default(),
+        error_types: FxHashMap::default(),
+        unique_messages: FxHashSet::default(),
     };
 
     // Add several error types

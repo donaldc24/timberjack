@@ -681,6 +681,7 @@ dependencies = [
  "clap",
  "criterion",
  "predicates",
+ "rayon",
  "regex",
  "rustc-hash",
  "serde",

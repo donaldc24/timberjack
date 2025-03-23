@@ -35,4 +35,12 @@ pub struct Args {
     /// Show unique messages in the output
     #[clap(long)]
     pub show_unique: bool,
+
+    /// Force parallel processing (default: auto-detect based on file size)
+    #[clap(long)]
+    pub parallel: bool,
+
+    /// Force sequential processing (overrides parallel)
+    #[clap(long)]
+    pub sequential: bool,
 }

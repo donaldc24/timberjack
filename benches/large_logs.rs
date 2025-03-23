@@ -133,8 +133,61 @@ fn bench_process_large_file(c: &mut Criterion) {
         });
     });
 
+    // Test parallel processing
+    group.bench_function("parallel_processing", |b| {
+        b.iter(|| {
+            let file = File::open(file_path).unwrap();
+            let reader = BufReader::new(file);
+            let lines: Vec<String> = reader.lines()
+                .filter_map(Result::ok)
+                .collect();
+
+            let analyzer = LogAnalyzer::new();
+            let result = analyzer.analyze_lines_parallel(lines, Some(&pattern), Some("ERROR"), true, true);
+            black_box(result);
+        });
+    });
+
     group.finish();
 }
 
-criterion_group!(benches, bench_process_large_file);
+fn bench_sequential_vs_parallel(c: &mut Criterion) {
+    // Create a large file with 100,000 lines for a more realistic test
+    let temp_file = create_large_log_file(100_000);
+    let file_path = temp_file.path().to_str().unwrap();
+
+    let mut group = c.benchmark_group("sequential_vs_parallel");
+
+    // Sequential processing
+    group.bench_function("sequential_100k", |b| {
+        b.iter(|| {
+            let file = File::open(file_path).unwrap();
+            let reader = BufReader::new(file);
+            let lines = reader.lines().map(|l| l.unwrap());
+
+            let analyzer = LogAnalyzer::new();
+            let result = analyzer.analyze_lines(lines, None, None, true, true);
+            black_box(result);
+        });
+    });
+
+    // Parallel processing
+    group.bench_function("parallel_100k", |b| {
+        b.iter(|| {
+            let file = File::open(file_path).unwrap();
+            let reader = BufReader::new(file);
+            let lines: Vec<String> = reader.lines()
+                .filter_map(Result::ok)
+                .collect();
+
+            let analyzer = LogAnalyzer::new();
+            let result = analyzer.analyze_lines_parallel(lines, None, None, true, true);
+            black_box(result);
+        });
+    });
+
+    group.finish();
+}
+
+criterion_group!(benches, bench_process_large_file, bench_sequential_vs_parallel);
 criterion_main!(benches);
