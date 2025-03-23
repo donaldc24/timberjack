@@ -54,35 +54,35 @@ impl Default for AnalysisResult {
 }
 
 // Pattern matcher trait for polymorphism
-trait PatternMatcher: Send + Sync {
+pub trait PatternMatcher: Send + Sync {
     fn is_match(&self, text: &str) -> bool;
 }
 
 // Fast literal matching
-struct LiteralMatcher {
+pub struct LiteralMatcher {
     pattern: String,
 }
 
 impl LiteralMatcher {
-    fn new(pattern: &str) -> Self {
+    pub fn new(pattern: &str) -> Self {
         Self { pattern: pattern.to_string() }
     }
 }
 
 impl PatternMatcher for LiteralMatcher {
     fn is_match(&self, text: &str) -> bool {
-        // Use memchr for fast substring search
-        memmem::find(text.as_bytes(), self.pattern.as_bytes()).is_some()
+        // Standard string contains method
+        text.contains(&self.pattern)
     }
 }
 
 // Regex-based matching for complex patterns
-struct RegexMatcher {
+pub struct RegexMatcher {
     regex: Regex,
 }
 
 impl RegexMatcher {
-    fn new(pattern: &str) -> Self {
+    pub fn new(pattern: &str) -> Self {
         Self { regex: Regex::new(pattern).unwrap() }
     }
 }
@@ -102,8 +102,8 @@ struct ParsedLine<'a> {
 }
 
 pub struct LogAnalyzer {
-    pattern_matcher: Option<Box<dyn PatternMatcher>>,
-    level_filter_lowercase: Option<String>,
+    pub(crate) pattern_matcher: Option<Box<dyn PatternMatcher + Send + Sync>>,
+    pub(crate) level_filter_lowercase: Option<String>,
 }
 
 impl Default for LogAnalyzer {
@@ -125,10 +125,21 @@ impl LogAnalyzer {
         // Create appropriate pattern matcher
         self.pattern_matcher = pattern.map(|p| {
             if Self::is_complex_pattern(p) {
-                Box::new(RegexMatcher::new(p)) as Box<dyn PatternMatcher>
+                Box::new(RegexMatcher::new(p)) as Box<dyn PatternMatcher + Send + Sync>
             } else {
-                Box::new(LiteralMatcher::new(p)) as Box<dyn PatternMatcher>
+                Box::new(LiteralMatcher::new(p)) as Box<dyn PatternMatcher + Send + Sync>
             }
+        });
+
+        // Store level filter in lowercase for fast comparison
+        self.level_filter_lowercase = level_filter.map(|l| l.to_lowercase());
+    }
+
+    // New method: Configure using the optimized SIMD factory
+    pub fn configure_optimized(&mut self, pattern: Option<&str>, level_filter: Option<&str>) {
+        // Use pattern matcher factory to create the most optimized matcher
+        self.pattern_matcher = pattern.map(|p| {
+            crate::accelerated::PatternMatcherFactory::create(p)
         });
 
         // Store level filter in lowercase for fast comparison
@@ -269,7 +280,7 @@ impl LogAnalyzer {
     }
 
     // Optimized line processing for chunks
-    fn process_chunk_data(
+    pub fn process_chunk_data(
         &self,
         data: &[u8],
         result: &mut AnalysisResult,
@@ -449,6 +460,48 @@ impl LogAnalyzer {
         result
     }
 
+    // New SIMD-optimized version of analyze_lines
+    pub fn analyze_lines_optimized<I>(
+        &mut self,
+        lines: I,
+        pattern: Option<&str>,
+        level_filter: Option<&str>,
+        collect_trends: bool,
+        collect_stats: bool,
+    ) -> AnalysisResult
+    where
+        I: Iterator<Item = String>,
+    {
+        // Configure with optimized pattern matcher if provided
+        if let Some(pat) = pattern {
+            self.configure_optimized(Some(pat), level_filter);
+        } else if level_filter.is_some() {
+            // If only level filter is provided, use standard configuration
+            self.configure(None, level_filter);
+        }
+
+        // Initialize result
+        let mut result = AnalysisResult {
+            matched_lines: Vec::with_capacity(1000),
+            line_counts: FxHashMap::default(),
+            count: 0,
+            time_trends: FxHashMap::default(),
+            levels_count: FxHashMap::default(),
+            error_types: FxHashMap::default(),
+            unique_messages: FxHashSet::default(),
+            deduplicated: true,
+        };
+
+        // Process all lines using SIMD-optimized line joining
+        let lines_vec: Vec<String> = lines.collect();
+        let lines_bytes: Vec<u8> = lines_vec.join("\n").into_bytes();
+
+        // Process the data as a single chunk
+        self.process_chunk_data(&lines_bytes, &mut result, collect_trends, collect_stats);
+
+        result
+    }
+
     // Parallel processing for collections of lines (legacy support)
     pub fn analyze_lines_parallel(
         &mut self,
@@ -480,6 +533,93 @@ impl LogAnalyzer {
             .collect();
 
         // Process chunks in parallel
+        let results: Vec<AnalysisResult> = chunks.par_iter()
+            .map(|chunk_lines| {
+                let analyzer = Arc::clone(&analyzer);
+                let mut result = AnalysisResult::default();
+                result.deduplicated = true;
+
+                // Join lines and process as bytes
+                let lines_bytes: Vec<u8> = chunk_lines.join("\n").into_bytes();
+                analyzer.process_chunk_data(&lines_bytes, &mut result, collect_trends, collect_stats);
+
+                result
+            })
+            .collect();
+
+        // Merge results
+        let mut final_result = AnalysisResult::default();
+        final_result.deduplicated = true;
+
+        for result in results {
+            final_result.count += result.count;
+
+            // Merge line counts for deduplication
+            for (line, count) in result.line_counts {
+                let current_count = final_result.line_counts.entry(line.clone()).or_insert(0);
+                *current_count += count;
+
+                // Only add to matched_lines if we haven't exceeded our limit
+                if final_result.matched_lines.len() < MAX_UNIQUE_LINES &&
+                    !final_result.matched_lines.contains(&line) {
+                    final_result.matched_lines.push(line);
+                }
+            }
+
+            // Merge time trends
+            for (timestamp, count) in result.time_trends {
+                *final_result.time_trends.entry(timestamp).or_insert(0) += count;
+            }
+
+            // Merge level counts
+            for (level, count) in result.levels_count {
+                *final_result.levels_count.entry(level).or_insert(0) += count;
+            }
+
+            // Merge error types
+            for (error_type, count) in result.error_types {
+                *final_result.error_types.entry(error_type).or_insert(0) += count;
+            }
+
+            // Merge unique messages
+            final_result.unique_messages.extend(result.unique_messages);
+        }
+
+        final_result
+    }
+
+    // Parallel processing with SIMD optimizations
+    pub fn analyze_lines_parallel_optimized(
+        &mut self,
+        lines: Vec<String>,
+        pattern: Option<&str>,
+        level_filter: Option<&str>,
+        collect_trends: bool,
+        collect_stats: bool,
+    ) -> AnalysisResult {
+        // Configure with optimized pattern matcher if provided
+        if let Some(pat) = pattern {
+            self.configure_optimized(Some(pat), level_filter);
+        } else if level_filter.is_some() {
+            // If only level filter is provided, use standard configuration
+            self.configure(None, level_filter);
+        }
+
+        // Create thread-safe shared analyzer
+        let analyzer = Arc::new(self);
+
+        // Split lines into chunks for parallel processing - larger chunks for SIMD efficiency
+        let chunk_size = 20000; // Process in larger chunks for SIMD
+        let num_chunks = (lines.len() + chunk_size - 1) / chunk_size;
+        let chunks: Vec<_> = (0..num_chunks)
+            .map(|i| {
+                let start = i * chunk_size;
+                let end = std::cmp::min(start + chunk_size, lines.len());
+                lines[start..end].to_vec()
+            })
+            .collect();
+
+        // Process chunks in parallel with SIMD
         let results: Vec<AnalysisResult> = chunks.par_iter()
             .map(|chunk_lines| {
                 let analyzer = Arc::clone(&analyzer);
@@ -609,6 +749,83 @@ impl LogAnalyzer {
         result
     }
 
+    // SIMD-optimized memory-mapped file processing
+    pub fn analyze_mmap_optimized(
+        &mut self,
+        mmap: &Mmap,
+        pattern: Option<&str>,
+        level_filter: Option<&str>,
+        collect_trends: bool,
+        collect_stats: bool,
+    ) -> AnalysisResult {
+        // Configure with pattern if provided - using SIMD optimized version
+        if let Some(pat) = pattern {
+            self.configure_optimized(Some(pat), level_filter);
+        } else if level_filter.is_some() {
+            // If only level filter, use standard configuration
+            self.configure(None, level_filter);
+        }
+
+        // Initialize result structure
+        let mut result = AnalysisResult {
+            matched_lines: Vec::with_capacity(1000),
+            line_counts: FxHashMap::default(),
+            count: 0,
+            time_trends: FxHashMap::default(),
+            levels_count: FxHashMap::default(),
+            error_types: FxHashMap::default(),
+            unique_messages: FxHashSet::default(),
+            deduplicated: true,
+        };
+
+        // Buffer for handling partial lines between chunks - larger buffer for SIMD efficiency
+        let mut pending_line = Vec::with_capacity(8192);
+
+        // Process file in chunks - use larger chunk size for SIMD efficiency
+        const SIMD_CHUNK_SIZE: usize = 4 * 1024 * 1024; // 4MB
+        let mut position = 0;
+
+        while position < mmap.len() {
+            // Determine chunk boundaries
+            let chunk_end = std::cmp::min(position + SIMD_CHUNK_SIZE, mmap.len());
+            let chunk = &mmap[position..chunk_end];
+
+            // Use memchr for fast newline search (SIMD-accelerated)
+            let last_newline = if chunk_end < mmap.len() {
+                match memchr::memchr_iter(b'\n', chunk).last() {
+                    Some(pos) => pos + 1, // Include the newline
+                    None => 0, // No newline found in chunk
+                }
+            } else {
+                chunk.len() // Last chunk, process everything
+            };
+
+            // Prepare data to process (pending line + complete lines)
+            let mut process_data = Vec::with_capacity(pending_line.len() + last_newline);
+            process_data.extend_from_slice(&pending_line);
+            process_data.extend_from_slice(&chunk[..last_newline]);
+
+            // Save incomplete line for next chunk
+            pending_line.clear();
+            if last_newline < chunk.len() {
+                pending_line.extend_from_slice(&chunk[last_newline..]);
+            }
+
+            // Process the lines in this chunk
+            self.process_chunk_data(&process_data, &mut result, collect_trends, collect_stats);
+
+            // Move to next chunk
+            position += last_newline;
+        }
+
+        // Process any remaining data
+        if !pending_line.is_empty() {
+            self.process_chunk_data(&pending_line, &mut result, collect_trends, collect_stats);
+        }
+
+        result
+    }
+
     // Memory-mapped file processing (parallel)
     pub fn analyze_mmap_parallel(
         &mut self,
@@ -640,6 +857,105 @@ impl LogAnalyzer {
             let chunk_end = if chunk_end_approx < mmap.len() {
                 let search_end = std::cmp::min(chunk_end_approx + 1000, mmap.len());
                 match mmap[chunk_end_approx..search_end].iter().position(|&b| b == b'\n') {
+                    Some(pos) => chunk_end_approx + pos + 1, // Include the newline
+                    None => chunk_end_approx, // No newline found, use approximate end
+                }
+            } else {
+                mmap.len() // Last chunk goes to the end
+            };
+
+            // Add chunk to list
+            chunks.push((chunk_start, chunk_end));
+            chunk_start = chunk_end;
+        }
+
+        // Process chunks in parallel
+        let results: Vec<AnalysisResult> = chunks.par_iter()
+            .map(|&(start, end)| {
+                let analyzer = Arc::clone(&analyzer);
+                let chunk = &mmap[start..end];
+                let mut result = AnalysisResult::default();
+                result.deduplicated = true;
+                analyzer.process_chunk_data(chunk, &mut result, collect_trends, collect_stats);
+                result
+            })
+            .collect();
+
+        // Merge results
+        let mut final_result = AnalysisResult::default();
+        final_result.deduplicated = true;
+
+        for result in results {
+            final_result.count += result.count;
+
+            // Merge line counts for deduplication
+            for (line, count) in result.line_counts {
+                let current_count = final_result.line_counts.entry(line.clone()).or_insert(0);
+                *current_count += count;
+
+                // Only add to matched_lines if we haven't exceeded our limit
+                if final_result.matched_lines.len() < MAX_UNIQUE_LINES &&
+                    !final_result.matched_lines.contains(&line) {
+                    final_result.matched_lines.push(line);
+                }
+            }
+
+            // Merge time trends
+            for (timestamp, count) in result.time_trends {
+                *final_result.time_trends.entry(timestamp).or_insert(0) += count;
+            }
+
+            // Merge level counts
+            for (level, count) in result.levels_count {
+                *final_result.levels_count.entry(level).or_insert(0) += count;
+            }
+
+            // Merge error types
+            for (error_type, count) in result.error_types {
+                *final_result.error_types.entry(error_type).or_insert(0) += count;
+            }
+
+            // Merge unique messages
+            final_result.unique_messages.extend(result.unique_messages);
+        }
+
+        final_result
+    }
+
+    // SIMD-optimized parallel processing for memory-mapped files
+    pub fn analyze_mmap_parallel_optimized(
+        &mut self,
+        mmap: &Mmap,
+        pattern: Option<&str>,
+        level_filter: Option<&str>,
+        collect_trends: bool,
+        collect_stats: bool,
+    ) -> AnalysisResult {
+        // Configure with optimized pattern matcher
+        if let Some(pat) = pattern {
+            self.configure_optimized(Some(pat), level_filter);
+        } else if level_filter.is_some() {
+            // If only level filter, use standard configuration
+            self.configure(None, level_filter);
+        }
+
+        // Create thread-safe shared analyzer
+        let analyzer = Arc::new(self);
+
+        // Split the file into chunks for parallel processing
+        // Use SIMD to efficiently find newlines for chunk boundaries
+        let mut chunks = Vec::new();
+        let mut chunk_start = 0;
+        const SIMD_CHUNK_SIZE: usize = 8 * 1024 * 1024; // 8MB for better SIMD efficiency
+
+        // Identify chunk boundaries at newlines
+        while chunk_start < mmap.len() {
+            let chunk_end_approx = std::cmp::min(chunk_start + SIMD_CHUNK_SIZE, mmap.len());
+
+            // Find the next newline after the approximate chunk end
+            let chunk_end = if chunk_end_approx < mmap.len() {
+                let search_end = std::cmp::min(chunk_end_approx + 2000, mmap.len());
+                match memchr::memchr(b'\n', &mmap[chunk_end_approx..search_end]) {
                     Some(pos) => chunk_end_approx + pos + 1, // Include the newline
                     None => chunk_end_approx, // No newline found, use approximate end
                 }
