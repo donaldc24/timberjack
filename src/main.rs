@@ -14,15 +14,15 @@ const PARALLEL_THRESHOLD_BYTES: u64 = 10 * 1024 * 1024; // 10MB
 fn main() -> std::io::Result<()> {
     let args = Args::parse();
 
-    // Skip the banner when using JSON output for cleaner piping
-    if !args.json {
+    // Skip the banner when using JSON output or count for cleaner output
+    if !args.json && !args.count {
         println!("\nWaking LumberJacks...Timber is chopping: {}\n", args.file);
     }
 
     // Set up pattern matching
     let pattern = match &args.chop {
         Some(pattern) => {
-            if !args.json {
+            if !args.json && !args.count {
                 println!("Searching for pattern: {}", pattern);
             }
             Some(Regex::new(pattern).expect("Invalid regex pattern"))
@@ -33,7 +33,7 @@ fn main() -> std::io::Result<()> {
     // Set up level filtering
     let level = args.level.as_deref();
     if let Some(level_str) = level {
-        if !args.json {
+        if !args.json && !args.count {
             println!("Filtering by level: {}", level_str);
         }
     }
@@ -55,6 +55,13 @@ fn main() -> std::io::Result<()> {
         // Auto-detect based on file size
         should_use_parallel(&args.file)
     };
+
+    // If only count is needed, use a fast counting method
+    if args.count {
+        let count = count_total_logs(&args.file, pattern.as_ref(), level)?;
+        println!("{}", count);
+        return Ok(());
+    }
 
     // Process the file using memory mapping
     let result = process_with_mmap(
@@ -90,12 +97,54 @@ fn main() -> std::io::Result<()> {
     Ok(())
 }
 
+// Fast method to count total logs with optional filtering
+fn count_total_logs(
+    file_path: &str,
+    pattern: Option<&Regex>,
+    level_filter: Option<&str>,
+) -> std::io::Result<usize> {
+    let file = File::open(file_path)?;
+    let mmap = unsafe { MmapOptions::new().map(&file)? };
+
+    let mut total_count = 0;
+    let mut analyzer = LogAnalyzer::new();
+
+    // Configure with pattern and level if provided
+    if let Some(pat) = pattern {
+        analyzer.configure(Some(&pat.to_string()), level_filter);
+    } else {
+        analyzer.configure(None, level_filter);
+    }
+
+    // Fast counting using chunk processing
+    const FAST_CHUNK_SIZE: usize = 1_048_576; // 1MB
+    let mut position = 0;
+
+    while position < mmap.len() {
+        let chunk_end = std::cmp::min(position + FAST_CHUNK_SIZE, mmap.len());
+        let chunk = &mmap[position..chunk_end];
+
+        // Temporary result to just count lines
+        let mut result = timber_rs::analyzer::AnalysisResult::default();
+
+        // Process chunk with minimal overhead
+        analyzer.process_chunk_data(chunk, &mut result, false, false);
+
+        total_count += result.count;
+
+        // Move to next chunk
+        position += chunk_end - position;
+    }
+
+    Ok(total_count)
+}
+
 // Process file using memory mapping
 fn process_with_mmap(
     file_path: &str,
     analyzer: &mut LogAnalyzer,
     pattern: Option<&Regex>,
-    level: Option<&str>,
+    level_filter: Option<&str>,
     collect_trends: bool,
     collect_stats: bool,
     use_parallel: bool,
@@ -121,11 +170,11 @@ fn process_with_mmap(
 
     // Process the mapped memory
     if use_parallel && file_size > PARALLEL_THRESHOLD_BYTES {
-        // Use analyzer's parallel mmap processing method (to be implemented)
-        Ok(analyzer.analyze_mmap_parallel(&mmap, pattern, level, collect_trends, collect_stats))
+        // Use analyzer's parallel mmap processing method
+        Ok(analyzer.analyze_mmap_parallel(&mmap, pattern, level_filter, collect_trends, collect_stats))
     } else {
-        // Use analyzer's sequential mmap processing method (to be implemented)
-        Ok(analyzer.analyze_mmap(&mmap, pattern, level, collect_trends, collect_stats))
+        // Use analyzer's sequential mmap processing method
+        Ok(analyzer.analyze_mmap(&mmap, pattern, level_filter, collect_trends, collect_stats))
     }
 }
 

@@ -333,6 +333,8 @@ run_benchmarks() {
         benchmark "timber-level-ERROR" "$TIMBER_PATH --level ERROR $BENCH_DIR/$log_file" "$log_file"
         benchmark "timber-chop-ERROR" "$TIMBER_PATH --chop \"ERROR\" $BENCH_DIR/$log_file" "$log_file"
         benchmark "timber-chop-stats" "$TIMBER_PATH --chop \"ERROR\" --stats $BENCH_DIR/$log_file" "$log_file"
+        benchmark "timber-chop-count" "$TIMBER_PATH --chop \"ERROR\" --count $BENCH_DIR/$log_file" "$log_file"
+        benchmark "timber-level-count" "$TIMBER_PATH --level \"ERROR\" --count $BENCH_DIR/$log_file" "$log_file"
 
         # Run comparison tools
         benchmark "grep" "grep -c ERROR $BENCH_DIR/$log_file" "$log_file"

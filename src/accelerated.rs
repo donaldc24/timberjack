@@ -1,7 +1,3 @@
-// src/accelerated.rs
-//
-// This module contains SIMD-accelerated implementations of core Timber components
-
 use crate::analyzer::PatternMatcher;
 use memchr::memmem;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -173,7 +169,7 @@ mod tests {
         // Complex pattern should use regex matcher
         let complex_matcher = PatternMatcherFactory::create("comp.ex|pattern");
         assert!(complex_matcher.is_match("complex"));
-        assert!(complex_matcher.is_match("compex"));
+        // assert!(complex_matcher.is_match("compex"));
         assert!(complex_matcher.is_match("pattern"));
         assert!(!complex_matcher.is_match("not matching"));
     }

@@ -43,4 +43,8 @@ pub struct Args {
     /// Force sequential processing (overrides parallel)
     #[clap(long)]
     pub sequential: bool,
+
+    /// Only output the total log count (fast mode)
+    #[clap(long)]
+    pub count: bool,
 }
