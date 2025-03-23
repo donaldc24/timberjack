@@ -1,6 +1,6 @@
 use regex::Regex;
+use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
-use serde::{Serialize, Deserialize};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AnalysisResult {
@@ -54,13 +54,15 @@ impl LogAnalyzer {
         // Check if we need to filter by level
         let level_matches = match level_filter {
             None => true,
-            Some(filter_level) => !found_level.is_empty() && found_level == filter_level.to_uppercase()
+            Some(filter_level) => {
+                !found_level.is_empty() && found_level == filter_level.to_uppercase()
+            }
         };
 
         // Check if pattern matches (if we have a pattern)
         let pattern_matches = match pattern {
             None => true,
-            Some(re) => re.is_match(line)
+            Some(re) => re.is_match(line),
         };
 
         // Only process if both conditions match

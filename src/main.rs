@@ -54,7 +54,7 @@ fn main() -> std::io::Result<()> {
         args.stats,
         args.json,
         args.top_errors,
-        args.show_unique
+        args.show_unique,
     );
 
     Ok(())

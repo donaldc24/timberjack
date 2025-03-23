@@ -47,7 +47,7 @@ pub fn print_results(
     show_stats: bool,
     json_output: bool,
     top_errors: usize,
-    show_unique: bool
+    show_unique: bool,
 ) {
     if json_output {
         // Create a more structured JSON output

@@ -11,7 +11,7 @@ fn test_cli_json_output() {
         temp_file,
         "2025-03-21 14:00:00,123 [ERROR] NullPointerException"
     )
-        .unwrap();
+    .unwrap();
     writeln!(temp_file, "2025-03-21 14:01:00,456 [WARN] Some warning").unwrap();
 
     let file_path = temp_file.path().to_str().unwrap();
@@ -38,22 +38,22 @@ fn test_cli_top_errors_option() {
         temp_file,
         "2025-03-21 14:00:00,123 [ERROR] NullPointerException"
     )
-        .unwrap();
+    .unwrap();
     writeln!(
         temp_file,
         "2025-03-21 14:01:00,456 [ERROR] Connection timeout"
     )
-        .unwrap();
+    .unwrap();
     writeln!(
         temp_file,
         "2025-03-21 14:02:00,789 [ERROR] OutOfMemoryError"
     )
-        .unwrap();
+    .unwrap();
     writeln!(
         temp_file,
         "2025-03-21 14:03:00,123 [ERROR] FileNotFoundException"
     )
-        .unwrap();
+    .unwrap();
 
     let file_path = temp_file.path().to_str().unwrap();
 
@@ -83,7 +83,7 @@ fn test_cli_show_unique_option() {
         temp_file,
         "2025-03-21 14:00:00,123 [ERROR] NullPointerException"
     )
-        .unwrap();
+    .unwrap();
     writeln!(temp_file, "2025-03-21 14:01:00,456 [WARN] Some warning").unwrap();
 
     let file_path = temp_file.path().to_str().unwrap();
@@ -100,8 +100,8 @@ fn test_cli_show_unique_option() {
     assert
         .success()
         .stdout(predicates::str::contains("Unique messages:"))
-        .stdout(predicates::str::contains("NullPointerException"))  // Just check for the content
-        .stdout(predicates::str::contains("Some warning"));         // without assuming formatting
+        .stdout(predicates::str::contains("NullPointerException")) // Just check for the content
+        .stdout(predicates::str::contains("Some warning")); // without assuming formatting
 }
 
 #[test]
@@ -112,13 +112,13 @@ fn test_cli_json_with_new_options() {
         temp_file,
         "2025-03-21 14:00:00,123 [ERROR] NullPointerException"
     )
-        .unwrap();
+    .unwrap();
     writeln!(temp_file, "2025-03-21 14:01:00,456 [WARN] Some warning").unwrap();
     writeln!(
         temp_file,
         "2025-03-21 14:02:00,789 [ERROR] Connection timeout"
     )
-        .unwrap();
+    .unwrap();
 
     let file_path = temp_file.path().to_str().unwrap();
 

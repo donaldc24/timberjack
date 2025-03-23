@@ -21,12 +21,20 @@ fn test_json_output_basic() {
 
     // Add some level counts and error types
     result.levels_count.insert("ERROR".to_string(), 2);
-    result.error_types.insert("NullPointerException".to_string(), 1);
-    result.error_types.insert("Connection timeout".to_string(), 1);
+    result
+        .error_types
+        .insert("NullPointerException".to_string(), 1);
+    result
+        .error_types
+        .insert("Connection timeout".to_string(), 1);
 
     // Add unique messages
-    result.unique_messages.insert("NullPointerException".to_string());
-    result.unique_messages.insert("Connection timeout".to_string());
+    result
+        .unique_messages
+        .insert("NullPointerException".to_string());
+    result
+        .unique_messages
+        .insert("Connection timeout".to_string());
 
     // Create expected JSON structure
     let json_output = serde_json::json!({
@@ -48,7 +56,12 @@ fn test_json_output_basic() {
     });
 
     // Verify structure has the expected keys
-    assert!(json_output.as_object().unwrap().contains_key("matched_lines"));
+    assert!(
+        json_output
+            .as_object()
+            .unwrap()
+            .contains_key("matched_lines")
+    );
     assert!(json_output.as_object().unwrap().contains_key("count"));
     assert!(json_output.as_object().unwrap().contains_key("stats"));
 
@@ -56,7 +69,12 @@ fn test_json_output_basic() {
     let stats = json_output.as_object().unwrap().get("stats").unwrap();
     assert!(stats.as_object().unwrap().contains_key("log_levels"));
     assert!(stats.as_object().unwrap().contains_key("error_types"));
-    assert!(stats.as_object().unwrap().contains_key("unique_messages_count"));
+    assert!(
+        stats
+            .as_object()
+            .unwrap()
+            .contains_key("unique_messages_count")
+    );
     assert!(stats.as_object().unwrap().contains_key("repetition_ratio"));
 }
 
@@ -81,12 +99,20 @@ fn test_json_structure() {
 
     // Add level counts and error types
     result.levels_count.insert("ERROR".to_string(), 2);
-    result.error_types.insert("NullPointerException".to_string(), 1);
-    result.error_types.insert("Connection timeout".to_string(), 1);
+    result
+        .error_types
+        .insert("NullPointerException".to_string(), 1);
+    result
+        .error_types
+        .insert("Connection timeout".to_string(), 1);
 
     // Add unique messages
-    result.unique_messages.insert("NullPointerException".to_string());
-    result.unique_messages.insert("Connection timeout".to_string());
+    result
+        .unique_messages
+        .insert("NullPointerException".to_string());
+    result
+        .unique_messages
+        .insert("Connection timeout".to_string());
 
     // Convert result to JSON manually for testing
     let json_output = serde_json::json!({
@@ -112,7 +138,12 @@ fn test_json_structure() {
 
     // Validate the structure is as expected
     assert!(json_output.is_object());
-    assert!(json_output.as_object().unwrap().contains_key("matched_lines"));
+    assert!(
+        json_output
+            .as_object()
+            .unwrap()
+            .contains_key("matched_lines")
+    );
     assert!(json_output.as_object().unwrap().contains_key("count"));
     assert!(json_output.as_object().unwrap().contains_key("time_trends"));
     assert!(json_output.as_object().unwrap().contains_key("stats"));
@@ -135,9 +166,15 @@ fn test_json_unique_messages() {
     };
 
     // Add unique messages
-    result.unique_messages.insert("NullPointerException".to_string());
-    result.unique_messages.insert("Slow database query".to_string());
-    result.unique_messages.insert("Connection timeout".to_string());
+    result
+        .unique_messages
+        .insert("NullPointerException".to_string());
+    result
+        .unique_messages
+        .insert("Slow database query".to_string());
+    result
+        .unique_messages
+        .insert("Connection timeout".to_string());
 
     // Verify structure with show_unique enabled
     let expected_json = serde_json::json!({
@@ -159,11 +196,18 @@ fn test_json_unique_messages() {
 
     // Note: A full test would capture stdout and parse the JSON
     // For this test, we're checking the expected structure
-    assert!(expected_json.as_object().unwrap()
-        .get("stats").unwrap()
-        .as_object().unwrap()
-        .get("unique_messages").unwrap()
-        .is_array());
+    assert!(
+        expected_json
+            .as_object()
+            .unwrap()
+            .get("stats")
+            .unwrap()
+            .as_object()
+            .unwrap()
+            .get("unique_messages")
+            .unwrap()
+            .is_array()
+    );
 }
 
 #[test]
@@ -207,11 +251,17 @@ fn test_json_top_errors_limit() {
 
     // For this test, we're checking the expected structure
     assert_eq!(
-        expected_json_3_errors.as_object().unwrap()
-            .get("stats").unwrap()
-            .as_object().unwrap()
-            .get("error_types").unwrap()
-            .as_array().unwrap()
+        expected_json_3_errors
+            .as_object()
+            .unwrap()
+            .get("stats")
+            .unwrap()
+            .as_object()
+            .unwrap()
+            .get("error_types")
+            .unwrap()
+            .as_array()
+            .unwrap()
             .len(),
         3
     );
@@ -238,11 +288,17 @@ fn test_json_top_errors_limit() {
     });
 
     assert_eq!(
-        expected_json_7_errors.as_object().unwrap()
-            .get("stats").unwrap()
-            .as_object().unwrap()
-            .get("error_types").unwrap()
-            .as_array().unwrap()
+        expected_json_7_errors
+            .as_object()
+            .unwrap()
+            .get("stats")
+            .unwrap()
+            .as_object()
+            .unwrap()
+            .get("error_types")
+            .unwrap()
+            .as_array()
+            .unwrap()
             .len(),
         7
     );
