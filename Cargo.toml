@@ -10,10 +10,15 @@ homepage = "https://github.com/donaldc24/timber"
 readme = "README.md"
 keywords = ["log", "analysis", "cli", "logging"]
 categories = ["command-line-utilities", "development-tools"]
+default-run = "timber"
 
 [[bin]]
 name = "timber"
 path = "src/main.rs"
+
+[[bin]]
+name = "create_benchmark_logs"
+path = "src/bin/create_benchmark_logs.rs"
 
 [dependencies]
 clap = { version = "4.4", features = ["derive"] }

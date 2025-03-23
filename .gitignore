@@ -41,3 +41,11 @@ release/
 *.ori
 *.orig
 *.tmp
+
+# Benchmark
+%BENCH_DIR%
+%BENCH_DIR%reports
+%BENCH_DIR%bench_10k.log
+%BENCH_DIR%bench_100k.log
+nul
+*.csv
