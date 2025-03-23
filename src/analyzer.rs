@@ -5,16 +5,20 @@ use memmap2::Mmap;
 use rayon::prelude::*;
 use std::sync::{Arc, Mutex};
 
+// Define this as a module-level constant
 const CHUNK_SIZE: usize = 1_048_576; // 1MB
+const MAX_UNIQUE_LINES: usize = 10000; // Maximum unique lines to store
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AnalysisResult {
     pub matched_lines: Vec<String>,
+    pub line_counts: FxHashMap<String, usize>, // New field to store line counts
     pub count: usize,
     pub time_trends: FxHashMap<String, usize>,
     pub levels_count: FxHashMap<String, usize>,
     pub error_types: FxHashMap<String, usize>,
     pub unique_messages: FxHashSet<String>,
+    pub deduplicated: bool, // Flag to indicate if results are deduplicated
 }
 
 // Add Default implementation for AnalysisResult
@@ -22,11 +26,13 @@ impl Default for AnalysisResult {
     fn default() -> Self {
         AnalysisResult {
             matched_lines: Vec::new(),
+            line_counts: FxHashMap::default(),
             count: 0,
             time_trends: FxHashMap::default(),
             levels_count: FxHashMap::default(),
             error_types: FxHashMap::default(),
             unique_messages: FxHashSet::default(),
+            deduplicated: false,
         }
     }
 }
@@ -184,11 +190,13 @@ impl LogAnalyzer {
 
         let mut result = AnalysisResult {
             matched_lines: Vec::with_capacity(estimated_lines),
+            line_counts: FxHashMap::default(),
             count: 0,
             time_trends: FxHashMap::default(),
             levels_count: FxHashMap::default(),
             error_types: FxHashMap::default(),
             unique_messages: FxHashSet::default(),
+            deduplicated: true, // Enable deduplication by default
         };
 
         // Process each line efficiently
@@ -214,9 +222,17 @@ impl LogAnalyzer {
                 continue;
             }
 
-            // We have a match - add to results
-            result.matched_lines.push(line.clone());
+            // We have a match - increment count
             result.count += 1;
+
+            // Store the line with deduplication
+            let entry = result.line_counts.entry(line.clone()).or_insert(0);
+            *entry += 1;
+
+            // Store unique lines up to the limit
+            if *entry == 1 && result.matched_lines.len() < MAX_UNIQUE_LINES {
+                result.matched_lines.push(line.clone());
+            }
 
             // Add stats if requested
             if collect_stats {
@@ -257,6 +273,7 @@ impl LogAnalyzer {
         // Use thread-safe containers for shared data
         let matched_lines = Arc::new(Mutex::new(Vec::with_capacity(lines.len() / 10)));
         let count = Arc::new(Mutex::new(0));
+        let line_counts = Arc::new(Mutex::new(FxHashMap::default()));
 
         // Each thread will have its own copy of these maps for performance
         let time_trends = Arc::new(Mutex::new(FxHashMap::default()));
@@ -287,15 +304,31 @@ impl LogAnalyzer {
                 return;
             }
 
-            // We have a match - add to results
-            {
-                let mut matched = matched_lines.lock().unwrap();
-                matched.push(line.clone());
-            }
-
+            // We have a match - add to count
             {
                 let mut cnt = count.lock().unwrap();
                 *cnt += 1;
+            }
+
+            // Add to line counts for deduplication
+            {
+                let mut counts = line_counts.lock().unwrap();
+                let entry = counts.entry(line.clone()).or_insert(0);
+                *entry += 1;
+
+                // Only add to matched_lines if this is the first occurrence
+                // and we haven't exceeded our limit
+                if *entry == 1 {
+                    let matched_len = {
+                        let matched = matched_lines.lock().unwrap();
+                        matched.len()
+                    };
+
+                    if matched_len < MAX_UNIQUE_LINES {
+                        let mut matched = matched_lines.lock().unwrap();
+                        matched.push(line.clone());
+                    }
+                }
             }
 
             // Add stats if requested
@@ -329,11 +362,13 @@ impl LogAnalyzer {
         // Combine results
         AnalysisResult {
             matched_lines: Arc::try_unwrap(matched_lines).unwrap().into_inner().unwrap(),
+            line_counts: Arc::try_unwrap(line_counts).unwrap().into_inner().unwrap(),
             count: Arc::try_unwrap(count).unwrap().into_inner().unwrap(),
             time_trends: Arc::try_unwrap(time_trends).unwrap().into_inner().unwrap(),
             levels_count: Arc::try_unwrap(levels_count).unwrap().into_inner().unwrap(),
             error_types: Arc::try_unwrap(error_types).unwrap().into_inner().unwrap(),
             unique_messages: Arc::try_unwrap(unique_messages).unwrap().into_inner().unwrap(),
+            deduplicated: true,
         }
     }
 
@@ -349,11 +384,13 @@ impl LogAnalyzer {
         // Initialize result
         let mut result = AnalysisResult {
             matched_lines: Vec::with_capacity(1000),
+            line_counts: FxHashMap::default(),
             count: 0,
             time_trends: FxHashMap::default(),
             levels_count: FxHashMap::default(),
             error_types: FxHashMap::default(),
             unique_messages: FxHashSet::default(),
+            deduplicated: true,
         };
 
         // Buffer for handling partial lines between chunks
@@ -442,6 +479,7 @@ impl LogAnalyzer {
             .map(|&(start, end)| {
                 let chunk = &mmap[start..end];
                 let mut result = AnalysisResult::default();
+                result.deduplicated = true;
                 self.process_chunk_data(chunk, &mut result, pattern,
                                         level_filter, collect_trends, collect_stats);
                 result
@@ -450,9 +488,22 @@ impl LogAnalyzer {
 
         // Merge results
         let mut final_result = AnalysisResult::default();
+        final_result.deduplicated = true;
+
         for result in results {
-            final_result.matched_lines.extend(result.matched_lines);
             final_result.count += result.count;
+
+            // Merge line counts for deduplication
+            for (line, count) in result.line_counts {
+                let current_count = final_result.line_counts.entry(line.clone()).or_insert(0);
+                *current_count += count;
+
+                // Only add to matched_lines if we haven't exceeded our limit
+                if final_result.matched_lines.len() < MAX_UNIQUE_LINES &&
+                    !final_result.matched_lines.contains(&line) {
+                    final_result.matched_lines.push(line);
+                }
+            }
 
             // Merge time trends
             for (timestamp, count) in result.time_trends {
@@ -515,9 +566,21 @@ impl LogAnalyzer {
                 continue;
             }
 
-            // We have a match - add to results
-            result.matched_lines.push(line_str.to_string());
+            // We have a match - increment count
             result.count += 1;
+
+            // Store the line with deduplication
+            let line_string = line_str.to_string();
+            let entry = result.line_counts.entry(line_string.clone()).or_insert(0);
+            *entry += 1;
+
+            // Add to matched_lines if this is the first occurrence and we're within limits
+            let is_first_occurrence = *entry == 1;
+            let within_limit = result.matched_lines.len() < MAX_UNIQUE_LINES;
+
+            if is_first_occurrence && within_limit {
+                result.matched_lines.push(line_string);
+            }
 
             // Add stats if requested
             if collect_stats {
