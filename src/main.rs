@@ -1,7 +1,7 @@
 use clap::Parser;
 use regex::Regex;
+use memmap2::MmapOptions;
 use std::fs::File;
-use std::io::{BufRead, BufReader};
 use std::time::Instant;
 
 use timber_rs::analyzer::LogAnalyzer;
@@ -56,33 +56,16 @@ fn main() -> std::io::Result<()> {
         should_use_parallel(&args.file)
     };
 
-    // Process the file according to chosen mode
-    let result = if use_parallel {
-        // For large files, use parallel processing
-        if !args.json {
-            println!("Using parallel processing");
-        }
-
-        // Read all lines into memory for parallel processing
-        let file = File::open(&args.file)?;
-        let reader = BufReader::new(file);
-        let lines: Vec<String> = reader.lines()
-            .filter_map(Result::ok)
-            .collect();
-
-        analyzer.analyze_lines_parallel(lines, pattern.as_ref(), level, args.trend, args.stats)
-    } else {
-        // For smaller files, use sequential processing
-        if !args.json && should_use_parallel(&args.file) {
-            println!("Using sequential processing (override)");
-        }
-
-        let file = File::open(&args.file)?;
-        let reader = BufReader::new(file);
-        let lines = reader.lines().map(|l| l.expect("Could not read line"));
-
-        analyzer.analyze_lines(lines, pattern.as_ref(), level, args.trend, args.stats)
-    };
+    // Process the file using memory mapping
+    let result = process_with_mmap(
+        &args.file,
+        &analyzer,
+        pattern.as_ref(),
+        level,
+        args.trend,
+        args.stats,
+        use_parallel,
+    )?;
 
     // Print processing time if not in JSON mode
     let elapsed = start_time.elapsed();
@@ -105,6 +88,45 @@ fn main() -> std::io::Result<()> {
     );
 
     Ok(())
+}
+
+// Process file using memory mapping
+fn process_with_mmap(
+    file_path: &str,
+    analyzer: &LogAnalyzer,
+    pattern: Option<&Regex>,
+    level: Option<&str>,
+    collect_trends: bool,
+    collect_stats: bool,
+    use_parallel: bool,
+) -> std::io::Result<timber_rs::analyzer::AnalysisResult> {
+    let path = std::path::Path::new(file_path);
+    if !path.exists() {
+        return Err(std::io::Error::new(
+            std::io::ErrorKind::NotFound,
+            format!("File not found: {}", file_path)
+        ));
+    }
+
+    let file = File::open(path)?;
+
+    // Skip processing for empty files
+    let file_size = file.metadata()?.len();
+    if file_size == 0 {
+        return Ok(timber_rs::analyzer::AnalysisResult::default());
+    }
+
+    // Memory map the file
+    let mmap = unsafe { MmapOptions::new().map(&file)? };
+
+    // Process the mapped memory
+    if use_parallel && file_size > PARALLEL_THRESHOLD_BYTES {
+        // Use analyzer's parallel mmap processing method (to be implemented)
+        Ok(analyzer.analyze_mmap_parallel(&mmap, pattern, level, collect_trends, collect_stats))
+    } else {
+        // Use analyzer's sequential mmap processing method (to be implemented)
+        Ok(analyzer.analyze_mmap(&mmap, pattern, level, collect_trends, collect_stats))
+    }
 }
 
 // Determine if parallel processing should be used based on file size
