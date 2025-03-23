@@ -1,12 +1,8 @@
 use regex::Regex;
+use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 
-pub struct LogAnalyzer {
-    level_regex: Regex,
-    timestamp_regex: Regex,
-    error_type_regex: Regex,
-}
-
+#[derive(Debug, Serialize, Deserialize)]
 pub struct AnalysisResult {
     pub matched_lines: Vec<String>,
     pub count: usize,
@@ -14,6 +10,12 @@ pub struct AnalysisResult {
     pub levels_count: HashMap<String, usize>,
     pub error_types: HashMap<String, usize>,
     pub unique_messages: HashSet<String>,
+}
+
+pub struct LogAnalyzer {
+    level_regex: Regex,
+    timestamp_regex: Regex,
+    error_type_regex: Regex,
 }
 
 impl Default for LogAnalyzer {
@@ -50,12 +52,18 @@ impl LogAnalyzer {
         }
 
         // Check if we need to filter by level
-        let level_matches = level_filter.is_none_or(|filter_level| {
-            !found_level.is_empty() && found_level == filter_level.to_uppercase()
-        });
+        let level_matches = match level_filter {
+            None => true,
+            Some(filter_level) => {
+                !found_level.is_empty() && found_level == filter_level.to_uppercase()
+            }
+        };
 
         // Check if pattern matches (if we have a pattern)
-        let pattern_matches = pattern.is_none_or(|re| re.is_match(line));
+        let pattern_matches = match pattern {
+            None => true,
+            Some(re) => re.is_match(line),
+        };
 
         // Only process if both conditions match
         if level_matches && pattern_matches {
