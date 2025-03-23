@@ -12,8 +12,15 @@ keywords = ["log", "analysis", "cli", "logging"]
 categories = ["command-line-utilities", "development-tools"]
 
 [[bin]]
-name = "timber"  # This keeps your CLI command as `timber`
+name = "timber"
 path = "src/main.rs"
+
+[dev-dependencies]
+criterion = "0.5"
+
+[[bench]]
+name = "large_logs"
+harness = false
 
 [dependencies]
 clap = { version = "4.4", features = ["derive"] }
