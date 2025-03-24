@@ -42,11 +42,13 @@ cargo install --path .
 
 ## 🔨 Usage
 
+### Basic Examples
+
 ```bash
-# Basic usage
+# Basic usage - view all log entries
 timber path/to/logfile.log
 
-# Search for a specific pattern
+# Search for a specific pattern (regex supported)
 timber --chop "Exception" path/to/logfile.log
 
 # Filter by log level
@@ -57,29 +59,80 @@ timber --trend path/to/logfile.log
 
 # Display statistical summary
 timber --stats path/to/logfile.log
+```
 
+### Advanced Examples
+
+```bash
 # Count matching logs (fast mode)
 timber --count --chop "Exception" path/to/logfile.log
 
-# Combine options
-timber --chop "timeout" --level ERROR --trend --stats path/to/logfile.log
+# Combine pattern search with level filtering
+timber --chop "timeout|connection refused" --level ERROR path/to/logfile.log
 
-# Force parallel or sequential processing
-timber --parallel path/to/logfile.log
-timber --sequential path/to/logfile.log
+# Comprehensive analysis with trends and statistics
+timber --chop "database" --level ERROR --trend --stats path/to/logfile.log
 
-# Get JSON output
+# Analyze a file with explicit parallel processing
+timber --parallel --stats large_logfile.log
+
+# View detailed error statistics with more top errors
+timber --stats --top-errors 10 path/to/logfile.log
+
+# Show unique messages in the stats output
+timber --stats --show-unique path/to/logfile.log
+```
+
+### JSON Output
+
+```bash
+# Get basic JSON output
 timber --json path/to/logfile.log
 
-# Show unique messages
-timber --show-unique path/to/logfile.log
+# Get JSON output with statistics
+timber --stats --json path/to/logfile.log
+
+# Filter and get JSON for programmatic use
+timber --chop "Exception" --level ERROR --json path/to/logfile.log > errors.json
+
+# Pipe JSON to jq for further processing
+timber --stats --json path/to/logfile.log | jq '.stats.error_types'
+
+# Count with JSON output
+timber --count --chop "ERROR" --json path/to/logfile.log
+```
+
+Example JSON output for `--stats --json`:
+
+```json
+{
+  "matched_lines": [
+    "2025-03-21 14:00:00,123 [ERROR] NullPointerException in WebController.java:42",
+    "2025-03-21 14:03:00,012 [ERROR] Connection timeout in NetworkClient.java:86"
+  ],
+  "total_count": 2,
+  "time_trends": null,
+  "stats": {
+    "log_levels": [
+      {"level": "ERROR", "count": 2}
+    ],
+    "error_types": [
+      {"error_type": "NullPointerException", "count": 1, "rank": 1},
+      {"error_type": "Connection timeout", "count": 1, "rank": 2}
+    ],
+    "unique_messages_count": 2,
+    "repetition_ratio": 0.0,
+    "unique_messages": null
+  },
+  "deduplicated": false
+}
 ```
 
 ### Command-Line Options
 
 | Option | Description |
 |--------|-------------|
-| `--chop <PATTERN>` | Search for log lines matching the given pattern |
+| `--chop <PATTERN>` | Search for log lines matching the given pattern (regex supported) |
 | `--level <LEVEL>` | Filter logs by level (ERROR, WARN, INFO, etc.) |
 | `--trend` | Show time-based trends of log occurrences |
 | `--stats` | Show summary statistics (levels, error types, uniqueness) |
@@ -141,6 +194,74 @@ Time trends:
   2025-03-21 15 - 1 log occurred during this hour
 
 Timber finished chopping the log! 🪵
+```
+
+### Count Mode
+
+```bash
+# Count all logs
+$ timber --count app.log
+1245
+
+# Count ERROR logs
+$ timber --count --level ERROR app.log
+42
+
+# Count pattern matches
+$ timber --count --chop "NullPointerException" app.log
+5
+```
+
+### JSON Output
+
+```bash
+# JSON output with stats
+$ timber --stats --json app.log
+
+{
+  "matched_lines": [
+    "2025-03-21 14:00:00,123 [ERROR] NullPointerException in WebController.java:42",
+    "2025-03-21 14:03:00,012 [ERROR] Connection timeout in NetworkClient.java:86"
+  ],
+  "total_count": 2,
+  "time_trends": null,
+  "stats": {
+    "log_levels": [
+      {"level": "ERROR", "count": 2}
+    ],
+    "error_types": [
+      {"error_type": "NullPointerException", "count": 1, "rank": 1},
+      {"error_type": "Connection timeout", "count": 1, "rank": 2}
+    ],
+    "unique_messages_count": 2,
+    "repetition_ratio": 0.0,
+    "unique_messages": null
+  },
+  "deduplicated": false
+}
+```
+
+### JSON With Unique Messages
+
+```bash
+# Include unique messages in JSON output
+$ timber --stats --show-unique --json app.log
+
+{
+  "matched_lines": [...],
+  "total_count": 2,
+  "stats": {
+    "log_levels": [...],
+    "error_types": [...],
+    "unique_messages_count": 2,
+    "repetition_ratio": 0.0,
+    "unique_messages": [
+      "NullPointerException in WebController.java:42",
+      "Connection timeout in NetworkClient.java:86"
+    ]
+  },
+  "deduplicated": false
+}
 ```
 
 ### Count Only Mode
