@@ -21,8 +21,16 @@ fn test_empty_file() {
 fn test_malformed_logs() {
     let mut temp_file = NamedTempFile::new().unwrap();
     writeln!(temp_file, "This is not a properly formatted log line").unwrap();
-    writeln!(temp_file, "Another invalid log line without timestamp or level").unwrap();
-    writeln!(temp_file, "2025-03-21 Some malformed timestamp [INFO] Message").unwrap();
+    writeln!(
+        temp_file,
+        "Another invalid log line without timestamp or level"
+    )
+    .unwrap();
+    writeln!(
+        temp_file,
+        "2025-03-21 Some malformed timestamp [INFO] Message"
+    )
+    .unwrap();
 
     let file_path = temp_file.path().to_str().unwrap();
 
@@ -38,10 +46,26 @@ fn test_malformed_logs() {
 #[test]
 fn test_non_ascii_characters() {
     let mut temp_file = NamedTempFile::new().unwrap();
-    writeln!(temp_file, "2025-03-21 14:00:00,123 [ERROR] Résumé upload failed").unwrap();
-    writeln!(temp_file, "2025-03-21 14:01:00,456 [WARN] Ümlaut encoding issue").unwrap();
-    writeln!(temp_file, "2025-03-21 14:02:00,789 [INFO] 你好，世界! (Hello, world!)").unwrap();
-    writeln!(temp_file, "2025-03-21 14:03:00,012 [ERROR] エラーが発生しました (Error occurred)").unwrap();
+    writeln!(
+        temp_file,
+        "2025-03-21 14:00:00,123 [ERROR] Résumé upload failed"
+    )
+    .unwrap();
+    writeln!(
+        temp_file,
+        "2025-03-21 14:01:00,456 [WARN] Ümlaut encoding issue"
+    )
+    .unwrap();
+    writeln!(
+        temp_file,
+        "2025-03-21 14:02:00,789 [INFO] 你好，世界! (Hello, world!)"
+    )
+    .unwrap();
+    writeln!(
+        temp_file,
+        "2025-03-21 14:03:00,012 [ERROR] エラーが発生しました (Error occurred)"
+    )
+    .unwrap();
 
     let file_path = temp_file.path().to_str().unwrap();
 
@@ -83,10 +107,26 @@ fn test_very_large_values() {
 #[test]
 fn test_complex_regex_patterns() {
     let mut temp_file = NamedTempFile::new().unwrap();
-    writeln!(temp_file, "2025-03-21 14:00:00,123 [ERROR] NullPointerException").unwrap();
-    writeln!(temp_file, "2025-03-21 14:01:00,456 [WARN] Connection timeout").unwrap();
-    writeln!(temp_file, "2025-03-21 14:02:00,789 [INFO] User123 logged in").unwrap();
-    writeln!(temp_file, "2025-03-21 14:03:00,012 [ERROR] Invalid user ID: ABC-123-XYZ").unwrap();
+    writeln!(
+        temp_file,
+        "2025-03-21 14:00:00,123 [ERROR] NullPointerException"
+    )
+    .unwrap();
+    writeln!(
+        temp_file,
+        "2025-03-21 14:01:00,456 [WARN] Connection timeout"
+    )
+    .unwrap();
+    writeln!(
+        temp_file,
+        "2025-03-21 14:02:00,789 [INFO] User123 logged in"
+    )
+    .unwrap();
+    writeln!(
+        temp_file,
+        "2025-03-21 14:03:00,012 [ERROR] Invalid user ID: ABC-123-XYZ"
+    )
+    .unwrap();
 
     let file_path = temp_file.path().to_str().unwrap();
 
@@ -123,9 +163,17 @@ fn test_complex_regex_patterns() {
 fn test_mixed_log_formats() {
     let mut temp_file = NamedTempFile::new().unwrap();
     // Standard format
-    writeln!(temp_file, "2025-03-21 14:00:00,123 [ERROR] NullPointerException").unwrap();
+    writeln!(
+        temp_file,
+        "2025-03-21 14:00:00,123 [ERROR] NullPointerException"
+    )
+    .unwrap();
     // Apache-like format - note this won't be detected as ERROR by current implementation
-    writeln!(temp_file, "127.0.0.1 - - [21/Mar/2025:14:01:00 +0000] \"GET /index.html HTTP/1.1\" 200 1234").unwrap();
+    writeln!(
+        temp_file,
+        "127.0.0.1 - - [21/Mar/2025:14:01:00 +0000] \"GET /index.html HTTP/1.1\" 200 1234"
+    )
+    .unwrap();
     // Simple format - note this won't be detected as ERROR by current implementation
     writeln!(temp_file, "ERROR: Database connection failed at 14:02:00").unwrap();
     // JSON-like format - note this won't be detected as ERROR by current implementation
@@ -135,11 +183,7 @@ fn test_mixed_log_formats() {
 
     // Should handle mixed formats and find the standard format ERROR
     let mut cmd = Command::cargo_bin("timber").unwrap();
-    let assert = cmd
-        .arg("--level")
-        .arg("ERROR")
-        .arg(file_path)
-        .assert();
+    let assert = cmd.arg("--level").arg("ERROR").arg(file_path).assert();
 
     assert
         .success()
@@ -147,9 +191,7 @@ fn test_mixed_log_formats() {
 
     // Test without level filter to see all lines
     let mut cmd = Command::cargo_bin("timber").unwrap();
-    let assert = cmd
-        .arg(file_path)
-        .assert();
+    let assert = cmd.arg(file_path).assert();
 
     assert
         .success()
@@ -163,7 +205,10 @@ fn test_mixed_log_formats() {
 fn test_very_long_lines() {
     let mut temp_file = NamedTempFile::new().unwrap();
     // Create a very long log message (10KB+)
-    let long_message = format!("2025-03-21 14:00:00,123 [ERROR] Very long error message: {}", "A".repeat(10_000));
+    let long_message = format!(
+        "2025-03-21 14:00:00,123 [ERROR] Very long error message: {}",
+        "A".repeat(10_000)
+    );
     writeln!(temp_file, "{}", long_message).unwrap();
 
     let file_path = temp_file.path().to_str().unwrap();
@@ -180,16 +225,16 @@ fn test_very_long_lines() {
 #[test]
 fn test_multiple_matches_same_line() {
     let mut temp_file = NamedTempFile::new().unwrap();
-    writeln!(temp_file, "2025-03-21 14:00:00,123 [ERROR] Error Error Error multiple matches in one line").unwrap();
+    writeln!(
+        temp_file,
+        "2025-03-21 14:00:00,123 [ERROR] Error Error Error multiple matches in one line"
+    )
+    .unwrap();
 
     let file_path = temp_file.path().to_str().unwrap();
 
     let mut cmd = Command::cargo_bin("timber").unwrap();
-    let assert = cmd
-        .arg("--chop")
-        .arg("Error")
-        .arg(file_path)
-        .assert();
+    let assert = cmd.arg("--chop").arg("Error").arg(file_path).assert();
 
     // Should only count the line once despite multiple matches
     assert

@@ -1,9 +1,9 @@
-use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId};
-use timber_rs::analyzer::{LiteralMatcher, PatternMatcher};
-use timber_rs::accelerated::SimdLiteralMatcher;
+use criterion::{BenchmarkId, Criterion, black_box, criterion_group, criterion_main};
 use std::fs::File;
 use std::io::{Read, Write};
 use tempfile::NamedTempFile;
+use timber_rs::accelerated::SimdLiteralMatcher;
+use timber_rs::analyzer::{LiteralMatcher, PatternMatcher};
 
 // Create sample log data for benchmarking
 fn create_benchmark_log(size: usize, pattern_frequency: usize) -> NamedTempFile {
@@ -35,7 +35,8 @@ fn create_benchmark_log(size: usize, pattern_frequency: usize) -> NamedTempFile 
             i % 1000,
             level,
             message
-        ).unwrap();
+        )
+        .unwrap();
     }
 
     temp_file
@@ -54,8 +55,8 @@ fn bench_pattern_matching(c: &mut Criterion) {
 
     // Patterns to search for
     let patterns = [
-        "Exception", // Common error term
-        "process_data", // Function name
+        "Exception",          // Common error term
+        "process_data",       // Function name
         "Normal log message", // Common message
         "NonExistentPattern", // No matches expected
     ];
@@ -77,29 +78,25 @@ fn bench_pattern_matching(c: &mut Criterion) {
                     }
                     black_box(matches)
                 });
-            }
+            },
         );
     }
 
     // Benchmark SIMD matcher
     for pattern in &patterns {
-        group.bench_with_input(
-            BenchmarkId::new("simd", pattern),
-            pattern,
-            |b, pattern| {
-                let matcher = SimdLiteralMatcher::new(pattern);
-                b.iter(|| {
-                    // Count matches in content
-                    let mut matches = 0;
-                    for line in content.lines() {
-                        if matcher.is_match(black_box(line)) {
-                            matches += 1;
-                        }
+        group.bench_with_input(BenchmarkId::new("simd", pattern), pattern, |b, pattern| {
+            let matcher = SimdLiteralMatcher::new(pattern);
+            b.iter(|| {
+                // Count matches in content
+                let mut matches = 0;
+                for line in content.lines() {
+                    if matcher.is_match(black_box(line)) {
+                        matches += 1;
                     }
-                    black_box(matches)
-                });
-            }
-        );
+                }
+                black_box(matches)
+            });
+        });
     }
 
     group.finish();
@@ -139,7 +136,7 @@ fn bench_pattern_matching_large(c: &mut Criterion) {
                     }
                     black_box(matches)
                 });
-            }
+            },
         );
 
         group.bench_with_input(
@@ -157,12 +154,16 @@ fn bench_pattern_matching_large(c: &mut Criterion) {
                     }
                     black_box(matches)
                 });
-            }
+            },
         );
     }
 
     group.finish();
 }
 
-criterion_group!(benches, bench_pattern_matching, bench_pattern_matching_large);
+criterion_group!(
+    benches,
+    bench_pattern_matching,
+    bench_pattern_matching_large
+);
 criterion_main!(benches);

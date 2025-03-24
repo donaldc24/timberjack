@@ -1,7 +1,7 @@
+use regex::Regex;
 use std::io::Write;
 use tempfile::NamedTempFile;
 use timber_rs::analyzer::LogAnalyzer;
-use regex::Regex;
 
 // Helper function to create a test log file with specified number of lines
 fn create_test_log_file(lines: usize) -> NamedTempFile {
@@ -26,7 +26,7 @@ fn create_test_log_file(lines: usize) -> NamedTempFile {
             level,
             i
         )
-            .unwrap();
+        .unwrap();
     }
 
     temp_file
@@ -47,14 +47,18 @@ fn test_parallel_processing_basic() {
     let mut parallel_analyzer = LogAnalyzer::new();
 
     // Process sequentially
-    let sequential_result = sequential_analyzer.analyze_lines(lines.clone().into_iter(), None, None, false, false);
+    let sequential_result =
+        sequential_analyzer.analyze_lines(lines.clone().into_iter(), None, None, false, false);
 
     // Process in parallel
     let parallel_result = parallel_analyzer.analyze_lines_parallel(lines, None, None, false, false);
 
     // Compare results
     assert_eq!(sequential_result.count, parallel_result.count);
-    assert_eq!(sequential_result.matched_lines.len(), parallel_result.matched_lines.len());
+    assert_eq!(
+        sequential_result.matched_lines.len(),
+        parallel_result.matched_lines.len()
+    );
 }
 
 #[test]
@@ -78,7 +82,7 @@ fn test_parallel_processing_with_filters() {
         Some(&pattern),
         Some("ERROR"),
         false,
-        false
+        false,
     );
 
     // Process in parallel with the same filters
@@ -87,12 +91,15 @@ fn test_parallel_processing_with_filters() {
         Some(&pattern),
         Some("ERROR"),
         false,
-        false
+        false,
     );
 
     // Compare results
     assert_eq!(sequential_result.count, parallel_result.count);
-    assert_eq!(sequential_result.matched_lines.len(), parallel_result.matched_lines.len());
+    assert_eq!(
+        sequential_result.matched_lines.len(),
+        parallel_result.matched_lines.len()
+    );
 }
 
 #[test]
@@ -110,46 +117,38 @@ fn test_parallel_processing_with_stats() {
     let mut parallel_analyzer = LogAnalyzer::new();
 
     // Process sequentially with stats collection
-    let sequential_result = sequential_analyzer.analyze_lines(
-        lines.clone().into_iter(),
-        None,
-        None,
-        true,
-        true
-    );
+    let sequential_result =
+        sequential_analyzer.analyze_lines(lines.clone().into_iter(), None, None, true, true);
 
     // Process in parallel with stats collection
-    let parallel_result = parallel_analyzer.analyze_lines_parallel(
-        lines,
-        None,
-        None,
-        true,
-        true
-    );
+    let parallel_result = parallel_analyzer.analyze_lines_parallel(lines, None, None, true, true);
 
     // Compare results
     assert_eq!(sequential_result.count, parallel_result.count);
 
     // Check if time trends have the same number of entries and values
-    assert_eq!(sequential_result.time_trends.len(), parallel_result.time_trends.len());
+    assert_eq!(
+        sequential_result.time_trends.len(),
+        parallel_result.time_trends.len()
+    );
     for (timestamp, count) in &sequential_result.time_trends {
-        assert_eq!(
-            parallel_result.time_trends.get(timestamp),
-            Some(count)
-        );
+        assert_eq!(parallel_result.time_trends.get(timestamp), Some(count));
     }
 
     // Check if level counts match
-    assert_eq!(sequential_result.levels_count.len(), parallel_result.levels_count.len());
+    assert_eq!(
+        sequential_result.levels_count.len(),
+        parallel_result.levels_count.len()
+    );
     for (level, count) in &sequential_result.levels_count {
-        assert_eq!(
-            parallel_result.levels_count.get(level),
-            Some(count)
-        );
+        assert_eq!(parallel_result.levels_count.get(level), Some(count));
     }
 
     // Check if unique message counts match
-    assert_eq!(sequential_result.unique_messages.len(), parallel_result.unique_messages.len());
+    assert_eq!(
+        sequential_result.unique_messages.len(),
+        parallel_result.unique_messages.len()
+    );
 }
 
 // This test is disabled because the LogAnalyzer does not have a merge_results method

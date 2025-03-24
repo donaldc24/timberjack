@@ -16,7 +16,10 @@ fn main() -> io::Result<()> {
     let num_lines: usize = args[1].parse().expect("Invalid number of lines");
     let file_path = &args[2];
 
-    println!("Creating log file with {} lines at {}", num_lines, file_path);
+    println!(
+        "Creating log file with {} lines at {}",
+        num_lines, file_path
+    );
     create_benchmark_logs(num_lines, file_path)?;
     println!("Log file created successfully.");
 
@@ -70,11 +73,11 @@ fn create_benchmark_logs(lines: usize, file_path: &str) -> io::Result<()> {
         writeln!(
             file,
             "2025-03-{:02} {:02}:{:02}:{:02},{:03} [{}] {}",
-            (i % 31) + 1,           // Day (1-31)
-            (i / 3600) % 24,         // Hour (0-23)
-            (i / 60) % 60,           // Minute (0-59)
-            i % 60,                  // Second (0-59)
-            i % 1000,                // Millisecond (0-999)
+            (i % 31) + 1,    // Day (1-31)
+            (i / 3600) % 24, // Hour (0-23)
+            (i / 60) % 60,   // Minute (0-59)
+            i % 60,          // Second (0-59)
+            i % 1000,        // Millisecond (0-999)
             level,
             message
         )?;

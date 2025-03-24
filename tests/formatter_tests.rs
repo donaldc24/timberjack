@@ -1,5 +1,5 @@
-use timber_rs::analyzer::AnalysisResult;
 use rustc_hash::{FxHashMap, FxHashSet};
+use timber_rs::analyzer::AnalysisResult;
 
 #[cfg(test)]
 use timber_rs::formatter::print_results_to_writer;

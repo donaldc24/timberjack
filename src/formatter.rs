@@ -177,9 +177,11 @@ pub fn print_results(
 
         // If there are more lines than we stored, show a message
         if result.count > result.matched_lines.len() {
-            println!("... and {} more lines (total: {})",
-                     result.count - result.matched_lines.len(),
-                     result.count);
+            println!(
+                "... and {} more lines (total: {})",
+                result.count - result.matched_lines.len(),
+                result.count
+            );
         }
     } else {
         // Original behavior - print individual lines
@@ -297,9 +299,12 @@ pub fn print_results_to_writer<W: Write>(
 
         // If there are more lines than we stored, show a message
         if result.count > result.matched_lines.len() {
-            writeln!(writer, "... and {} more lines (total: {})",
-                     result.count - result.matched_lines.len(),
-                     result.count)?;
+            writeln!(
+                writer,
+                "... and {} more lines (total: {})",
+                result.count - result.matched_lines.len(),
+                result.count
+            )?;
         }
     } else {
         // Original behavior - print individual lines

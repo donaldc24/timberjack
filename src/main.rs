@@ -1,6 +1,6 @@
 use clap::Parser;
-use regex::Regex;
 use memmap2::MmapOptions;
+use regex::Regex;
 use std::fs::File;
 use std::time::Instant;
 
@@ -153,7 +153,7 @@ fn process_with_mmap(
     if !path.exists() {
         return Err(std::io::Error::new(
             std::io::ErrorKind::NotFound,
-            format!("File not found: {}", file_path)
+            format!("File not found: {}", file_path),
         ));
     }
 
@@ -171,7 +171,13 @@ fn process_with_mmap(
     // Process the mapped memory
     if use_parallel && file_size > PARALLEL_THRESHOLD_BYTES {
         // Use analyzer's parallel mmap processing method
-        Ok(analyzer.analyze_mmap_parallel(&mmap, pattern, level_filter, collect_trends, collect_stats))
+        Ok(analyzer.analyze_mmap_parallel(
+            &mmap,
+            pattern,
+            level_filter,
+            collect_trends,
+            collect_stats,
+        ))
     } else {
         // Use analyzer's sequential mmap processing method
         Ok(analyzer.analyze_mmap(&mmap, pattern, level_filter, collect_trends, collect_stats))
@@ -184,7 +190,7 @@ fn should_use_parallel(file_path: &str) -> bool {
         Ok(metadata) => {
             let size = metadata.len();
             size > PARALLEL_THRESHOLD_BYTES
-        },
+        }
         Err(_) => false, // If we can't determine file size, assume small
     }
 }

@@ -149,29 +149,40 @@ fn test_combined_options() {
 #[test]
 fn test_count_total_lines() {
     let mut temp_file = NamedTempFile::new().unwrap();
-    writeln!(temp_file, "2025-03-21 14:00:00,123 [ERROR] NullPointerException").unwrap();
+    writeln!(
+        temp_file,
+        "2025-03-21 14:00:00,123 [ERROR] NullPointerException"
+    )
+    .unwrap();
     writeln!(temp_file, "2025-03-21 14:01:00,456 [WARN] Some warning").unwrap();
-    writeln!(temp_file, "2025-03-21 14:02:00,789 [INFO] Application started").unwrap();
+    writeln!(
+        temp_file,
+        "2025-03-21 14:02:00,789 [INFO] Application started"
+    )
+    .unwrap();
 
     let file_path = temp_file.path().to_str().unwrap();
 
     let mut cmd = Command::cargo_bin("timber").unwrap();
-    let assert = cmd
-        .arg("--count")
-        .arg(file_path)
-        .assert();
+    let assert = cmd.arg("--count").arg(file_path).assert();
 
-    assert
-        .success()
-        .stdout(predicate::str::contains("3"));
+    assert.success().stdout(predicate::str::contains("3"));
 }
 
 #[test]
 fn test_count_with_pattern() {
     let mut temp_file = NamedTempFile::new().unwrap();
-    writeln!(temp_file, "2025-03-21 14:00:00,123 [ERROR] NullPointerException").unwrap();
+    writeln!(
+        temp_file,
+        "2025-03-21 14:00:00,123 [ERROR] NullPointerException"
+    )
+    .unwrap();
     writeln!(temp_file, "2025-03-21 14:01:00,456 [WARN] Some warning").unwrap();
-    writeln!(temp_file, "2025-03-21 14:02:00,789 [INFO] Application started").unwrap();
+    writeln!(
+        temp_file,
+        "2025-03-21 14:02:00,789 [INFO] Application started"
+    )
+    .unwrap();
 
     let file_path = temp_file.path().to_str().unwrap();
 
@@ -183,17 +194,23 @@ fn test_count_with_pattern() {
         .arg(file_path)
         .assert();
 
-    assert
-        .success()
-        .stdout(predicate::str::contains("1"));
+    assert.success().stdout(predicate::str::contains("1"));
 }
 
 #[test]
 fn test_count_with_level_filter() {
     let mut temp_file = NamedTempFile::new().unwrap();
-    writeln!(temp_file, "2025-03-21 14:00:00,123 [ERROR] NullPointerException").unwrap();
+    writeln!(
+        temp_file,
+        "2025-03-21 14:00:00,123 [ERROR] NullPointerException"
+    )
+    .unwrap();
     writeln!(temp_file, "2025-03-21 14:01:00,456 [WARN] Some warning").unwrap();
-    writeln!(temp_file, "2025-03-21 14:02:00,789 [INFO] Application started").unwrap();
+    writeln!(
+        temp_file,
+        "2025-03-21 14:02:00,789 [INFO] Application started"
+    )
+    .unwrap();
 
     let file_path = temp_file.path().to_str().unwrap();
 
@@ -205,17 +222,23 @@ fn test_count_with_level_filter() {
         .arg(file_path)
         .assert();
 
-    assert
-        .success()
-        .stdout(predicate::str::contains("1"));
+    assert.success().stdout(predicate::str::contains("1"));
 }
 
 #[test]
 fn test_count_with_pattern_and_level() {
     let mut temp_file = NamedTempFile::new().unwrap();
-    writeln!(temp_file, "2025-03-21 14:00:00,123 [ERROR] NullPointerException in WebController").unwrap();
+    writeln!(
+        temp_file,
+        "2025-03-21 14:00:00,123 [ERROR] NullPointerException in WebController"
+    )
+    .unwrap();
     writeln!(temp_file, "2025-03-21 14:01:00,456 [ERROR] Some error").unwrap();
-    writeln!(temp_file, "2025-03-21 14:02:00,789 [INFO] Application started").unwrap();
+    writeln!(
+        temp_file,
+        "2025-03-21 14:02:00,789 [INFO] Application started"
+    )
+    .unwrap();
 
     let file_path = temp_file.path().to_str().unwrap();
 
@@ -229,9 +252,7 @@ fn test_count_with_pattern_and_level() {
         .arg(file_path)
         .assert();
 
-    assert
-        .success()
-        .stdout(predicate::str::contains("1"));
+    assert.success().stdout(predicate::str::contains("1"));
 }
 
 #[test]
@@ -240,12 +261,7 @@ fn test_count_empty_file() {
     let file_path = temp_file.path().to_str().unwrap();
 
     let mut cmd = Command::cargo_bin("timber").unwrap();
-    let assert = cmd
-        .arg("--count")
-        .arg(file_path)
-        .assert();
+    let assert = cmd.arg("--count").arg(file_path).assert();
 
-    assert
-        .success()
-        .stdout(predicate::str::contains("0"));
+    assert.success().stdout(predicate::str::contains("0"));
 }

@@ -1,10 +1,10 @@
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use criterion::{Criterion, black_box, criterion_group, criterion_main};
 use std::fs::File;
 use std::io::{BufRead, BufReader, Write};
 use tempfile::NamedTempFile;
 
-use timber_rs::analyzer::LogAnalyzer;
 use regex::Regex;
+use timber_rs::analyzer::LogAnalyzer;
 
 // Helper function to create a large log file for benchmarking
 fn create_large_log_file(lines: usize) -> NamedTempFile {
@@ -41,7 +41,8 @@ fn create_large_log_file(lines: usize) -> NamedTempFile {
             i % 1000,
             level,
             message
-        ).unwrap();
+        )
+        .unwrap();
     }
 
     temp_file
@@ -138,12 +139,11 @@ fn bench_process_large_file(c: &mut Criterion) {
         b.iter(|| {
             let file = File::open(file_path).unwrap();
             let reader = BufReader::new(file);
-            let lines: Vec<String> = reader.lines()
-                .filter_map(Result::ok)
-                .collect();
+            let lines: Vec<String> = reader.lines().filter_map(Result::ok).collect();
 
             let analyzer = LogAnalyzer::new();
-            let result = analyzer.analyze_lines_parallel(lines, Some(&pattern), Some("ERROR"), true, true);
+            let result =
+                analyzer.analyze_lines_parallel(lines, Some(&pattern), Some("ERROR"), true, true);
             black_box(result);
         });
     });
@@ -176,9 +176,7 @@ fn bench_sequential_vs_parallel(c: &mut Criterion) {
         b.iter(|| {
             let file = File::open(file_path).unwrap();
             let reader = BufReader::new(file);
-            let lines: Vec<String> = reader.lines()
-                .filter_map(Result::ok)
-                .collect();
+            let lines: Vec<String> = reader.lines().filter_map(Result::ok).collect();
 
             let analyzer = LogAnalyzer::new();
             let result = analyzer.analyze_lines_parallel(lines, None, None, true, true);
@@ -189,5 +187,9 @@ fn bench_sequential_vs_parallel(c: &mut Criterion) {
     group.finish();
 }
 
-criterion_group!(benches, bench_process_large_file, bench_sequential_vs_parallel);
+criterion_group!(
+    benches,
+    bench_process_large_file,
+    bench_sequential_vs_parallel
+);
 criterion_main!(benches);

@@ -1,10 +1,10 @@
-use regex::Regex;
-use serde::{Deserialize, Serialize};
-use rustc_hash::{FxHashMap, FxHashSet};
+use lazy_static::lazy_static;
 use memmap2::Mmap;
 use rayon::prelude::*;
+use regex::Regex;
+use rustc_hash::{FxHashMap, FxHashSet};
+use serde::{Deserialize, Serialize};
 use std::sync::Arc;
-use lazy_static::lazy_static;
 
 // Constants
 const CHUNK_SIZE: usize = 1_048_576; // 1MB
@@ -64,7 +64,9 @@ pub struct LiteralMatcher {
 
 impl LiteralMatcher {
     pub fn new(pattern: &str) -> Self {
-        Self { pattern: pattern.to_string() }
+        Self {
+            pattern: pattern.to_string(),
+        }
     }
 }
 
@@ -82,7 +84,9 @@ pub struct RegexMatcher {
 
 impl RegexMatcher {
     pub fn new(pattern: &str) -> Self {
-        Self { regex: Regex::new(pattern).unwrap() }
+        Self {
+            regex: Regex::new(pattern).unwrap(),
+        }
     }
 }
 
@@ -137,9 +141,8 @@ impl LogAnalyzer {
     // New method: Configure using the optimized SIMD factory
     pub fn configure_optimized(&mut self, pattern: Option<&str>, level_filter: Option<&str>) {
         // Use pattern matcher factory to create the most optimized matcher
-        self.pattern_matcher = pattern.map(|p| {
-            crate::accelerated::PatternMatcherFactory::create(p)
-        });
+        self.pattern_matcher =
+            pattern.map(|p| crate::accelerated::PatternMatcherFactory::create(p));
 
         // Store level filter in lowercase for fast comparison
         self.level_filter_lowercase = level_filter.map(|l| l.to_lowercase());
@@ -147,8 +150,17 @@ impl LogAnalyzer {
 
     // Check if pattern is complex and needs regex
     fn is_complex_pattern(pattern: &str) -> bool {
-        pattern.contains(|c: char| c == '*' || c == '?' || c == '[' || c == '(' ||
-            c == '|' || c == '+' || c == '.' || c == '^' || c == '$')
+        pattern.contains(|c: char| {
+            c == '*'
+                || c == '?'
+                || c == '['
+                || c == '('
+                || c == '|'
+                || c == '+'
+                || c == '.'
+                || c == '^'
+                || c == '$'
+        })
     }
 
     // Fast pre-check for level filter before regex
@@ -172,7 +184,12 @@ impl LogAnalyzer {
     }
 
     // Parse line once to extract all needed data (legacy method)
-    fn parse_line<'a>(&self, line: &'a str, need_timestamp: bool, need_stats: bool) -> ParsedLine<'a> {
+    fn parse_line<'a>(
+        &self,
+        line: &'a str,
+        need_timestamp: bool,
+        need_stats: bool,
+    ) -> ParsedLine<'a> {
         // Initialize with defaults
         let mut parsed = ParsedLine {
             level: "",
@@ -254,13 +271,15 @@ impl LogAnalyzer {
         // Apply filters
         let level_matches = match level_filter {
             None => true,
-            Some(filter_level) => !parsed.level.is_empty() &&
-                parsed.level.to_uppercase() == filter_level.to_uppercase()
+            Some(filter_level) => {
+                !parsed.level.is_empty()
+                    && parsed.level.to_uppercase() == filter_level.to_uppercase()
+            }
         };
 
         let pattern_matches = match pattern {
             None => true,
-            Some(re) => re.is_match(line)
+            Some(re) => re.is_match(line),
         };
 
         if level_matches && pattern_matches {
@@ -348,11 +367,7 @@ impl LogAnalyzer {
                     TIMESTAMP_REGEX.captures(line_str).and_then(|caps| {
                         caps.get(1).map(|m| {
                             let ts = m.as_str();
-                            if ts.len() >= 13 {
-                                &ts[0..13]
-                            } else {
-                                ts
-                            }
+                            if ts.len() >= 13 { &ts[0..13] } else { ts }
                         })
                     })
                 } else {
@@ -532,7 +547,8 @@ impl LogAnalyzer {
             .collect();
 
         // Process chunks in parallel
-        let results: Vec<AnalysisResult> = chunks.par_iter()
+        let results: Vec<AnalysisResult> = chunks
+            .par_iter()
             .map(|chunk_lines| {
                 let analyzer = Arc::clone(&analyzer);
                 let mut result = AnalysisResult::default();
@@ -540,7 +556,12 @@ impl LogAnalyzer {
 
                 // Join lines and process as bytes
                 let lines_bytes: Vec<u8> = chunk_lines.join("\n").into_bytes();
-                analyzer.process_chunk_data(&lines_bytes, &mut result, collect_trends, collect_stats);
+                analyzer.process_chunk_data(
+                    &lines_bytes,
+                    &mut result,
+                    collect_trends,
+                    collect_stats,
+                );
 
                 result
             })
@@ -559,8 +580,9 @@ impl LogAnalyzer {
                 *current_count += count;
 
                 // Only add to matched_lines if we haven't exceeded our limit
-                if final_result.matched_lines.len() < MAX_UNIQUE_LINES &&
-                    !final_result.matched_lines.contains(&line) {
+                if final_result.matched_lines.len() < MAX_UNIQUE_LINES
+                    && !final_result.matched_lines.contains(&line)
+                {
                     final_result.matched_lines.push(line);
                 }
             }
@@ -619,7 +641,8 @@ impl LogAnalyzer {
             .collect();
 
         // Process chunks in parallel with SIMD
-        let results: Vec<AnalysisResult> = chunks.par_iter()
+        let results: Vec<AnalysisResult> = chunks
+            .par_iter()
             .map(|chunk_lines| {
                 let analyzer = Arc::clone(&analyzer);
                 let mut result = AnalysisResult::default();
@@ -627,7 +650,12 @@ impl LogAnalyzer {
 
                 // Join lines and process as bytes
                 let lines_bytes: Vec<u8> = chunk_lines.join("\n").into_bytes();
-                analyzer.process_chunk_data(&lines_bytes, &mut result, collect_trends, collect_stats);
+                analyzer.process_chunk_data(
+                    &lines_bytes,
+                    &mut result,
+                    collect_trends,
+                    collect_stats,
+                );
 
                 result
             })
@@ -646,8 +674,9 @@ impl LogAnalyzer {
                 *current_count += count;
 
                 // Only add to matched_lines if we haven't exceeded our limit
-                if final_result.matched_lines.len() < MAX_UNIQUE_LINES &&
-                    !final_result.matched_lines.contains(&line) {
+                if final_result.matched_lines.len() < MAX_UNIQUE_LINES
+                    && !final_result.matched_lines.contains(&line)
+                {
                     final_result.matched_lines.push(line);
                 }
             }
@@ -716,7 +745,7 @@ impl LogAnalyzer {
             let last_newline = if chunk_end < mmap.len() {
                 match chunk.iter().rposition(|&b| b == b'\n') {
                     Some(pos) => pos + 1, // Include the newline
-                    None => 0, // No newline found in chunk
+                    None => 0,            // No newline found in chunk
                 }
             } else {
                 chunk.len() // Last chunk, process everything
@@ -793,7 +822,7 @@ impl LogAnalyzer {
             let last_newline = if chunk_end < mmap.len() {
                 match memchr::memchr_iter(b'\n', chunk).last() {
                     Some(pos) => pos + 1, // Include the newline
-                    None => 0, // No newline found in chunk
+                    None => 0,            // No newline found in chunk
                 }
             } else {
                 chunk.len() // Last chunk, process everything
@@ -855,7 +884,10 @@ impl LogAnalyzer {
             // Find the next newline after the approximate chunk end
             let chunk_end = if chunk_end_approx < mmap.len() {
                 let search_end = std::cmp::min(chunk_end_approx + 1000, mmap.len());
-                match mmap[chunk_end_approx..search_end].iter().position(|&b| b == b'\n') {
+                match mmap[chunk_end_approx..search_end]
+                    .iter()
+                    .position(|&b| b == b'\n')
+                {
                     Some(pos) => chunk_end_approx + pos + 1, // Include the newline
                     None => chunk_end_approx, // No newline found, use approximate end
                 }
@@ -869,7 +901,8 @@ impl LogAnalyzer {
         }
 
         // Process chunks in parallel
-        let results: Vec<AnalysisResult> = chunks.par_iter()
+        let results: Vec<AnalysisResult> = chunks
+            .par_iter()
             .map(|&(start, end)| {
                 let analyzer = Arc::clone(&analyzer);
                 let chunk = &mmap[start..end];
@@ -893,8 +926,9 @@ impl LogAnalyzer {
                 *current_count += count;
 
                 // Only add to matched_lines if we haven't exceeded our limit
-                if final_result.matched_lines.len() < MAX_UNIQUE_LINES &&
-                    !final_result.matched_lines.contains(&line) {
+                if final_result.matched_lines.len() < MAX_UNIQUE_LINES
+                    && !final_result.matched_lines.contains(&line)
+                {
                     final_result.matched_lines.push(line);
                 }
             }
@@ -968,7 +1002,8 @@ impl LogAnalyzer {
         }
 
         // Process chunks in parallel
-        let results: Vec<AnalysisResult> = chunks.par_iter()
+        let results: Vec<AnalysisResult> = chunks
+            .par_iter()
             .map(|&(start, end)| {
                 let analyzer = Arc::clone(&analyzer);
                 let chunk = &mmap[start..end];
@@ -992,8 +1027,9 @@ impl LogAnalyzer {
                 *current_count += count;
 
                 // Only add to matched_lines if we haven't exceeded our limit
-                if final_result.matched_lines.len() < MAX_UNIQUE_LINES &&
-                    !final_result.matched_lines.contains(&line) {
+                if final_result.matched_lines.len() < MAX_UNIQUE_LINES
+                    && !final_result.matched_lines.contains(&line)
+                {
                     final_result.matched_lines.push(line);
                 }
             }

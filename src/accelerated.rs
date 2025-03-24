@@ -122,8 +122,16 @@ impl PatternMatcherFactory {
     fn is_complex_pattern(pattern: &str) -> bool {
         // Look for regex metacharacters
         pattern.contains(|c: char| {
-            c == '*' || c == '?' || c == '[' || c == '(' || c == '|' ||
-                c == '+' || c == '.' || c == '^' || c == '$' || c == '\\'
+            c == '*'
+                || c == '?'
+                || c == '['
+                || c == '('
+                || c == '|'
+                || c == '+'
+                || c == '.'
+                || c == '^'
+                || c == '$'
+                || c == '\\'
         })
     }
 }
@@ -139,7 +147,12 @@ pub mod line_processing {
 
     /// Count lines in a buffer quickly
     pub fn count_lines(buffer: &[u8]) -> usize {
-        memchr_iter(b'\n', buffer).count() + if buffer.is_empty() || buffer[buffer.len() - 1] == b'\n' { 0 } else { 1 }
+        memchr_iter(b'\n', buffer).count()
+            + if buffer.is_empty() || buffer[buffer.len() - 1] == b'\n' {
+                0
+            } else {
+                1
+            }
     }
 }
 
