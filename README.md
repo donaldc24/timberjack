@@ -74,6 +74,9 @@ timber --chop "timeout|connection refused" --level ERROR path/to/logfile.log
 # Comprehensive analysis with trends and statistics
 timber --chop "database" --level ERROR --trend --stats path/to/logfile.log
 
+# Filter JSON logs by field values
+timber --format json -f service=api -f user_id=12345 path/to/logfile.log
+
 # Analyze a file with explicit parallel processing
 timber --parallel --stats large_logfile.log
 

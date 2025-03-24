@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
-    use timber_rs::parser::{ParserRegistry, LogParser, LogFormat};
     use std::sync::Arc;
+    use timber_rs::parser::{LogFormat, LogParser, ParserRegistry};
 
     #[test]
     fn test_generic_parser() {
@@ -21,7 +21,7 @@ mod tests {
         let registry = ParserRegistry::new();
         let sample_lines = &[
             "2025-03-21 14:00:00,123 [ERROR] Test error message",
-            "2025-03-21 14:01:00,456 [WARN] Test warning message"
+            "2025-03-21 14:01:00,456 [WARN] Test warning message",
         ];
 
         let (format, _) = registry.detect_format(sample_lines);

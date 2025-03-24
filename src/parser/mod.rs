@@ -62,7 +62,7 @@ impl ParserRegistry {
         // Register the JSON parser
         let json_parser = Arc::new(json::JsonLogParser);
         registry.register_parser(LogFormat::Json, json_parser);
-        
+
         registry
     }
 
@@ -81,12 +81,16 @@ impl ParserRegistry {
         }
 
         // Fallback to generic parser if no match
-        (LogFormat::Generic, self.get_parser(LogFormat::Generic).unwrap())
+        (
+            LogFormat::Generic,
+            self.get_parser(LogFormat::Generic).unwrap(),
+        )
     }
 
     /// Get parser for specific format
     pub fn get_parser(&self, format: LogFormat) -> Option<Arc<dyn LogParser>> {
-        self.parsers.iter()
+        self.parsers
+            .iter()
             .find(|(f, _)| *f == format)
             .map(|(_, p)| p.clone())
     }

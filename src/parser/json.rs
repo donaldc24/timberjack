@@ -15,11 +15,12 @@ impl LogParser for JsonLogParser {
             return false;
         }
 
-        let valid_count = sample_lines.iter()
+        let valid_count = sample_lines
+            .iter()
             .filter(|line| {
                 let trimmed = line.trim();
-                (trimmed.starts_with('{') && trimmed.ends_with('}')) &&
-                    serde_json::from_str::<Value>(trimmed).is_ok()
+                (trimmed.starts_with('{') && trimmed.ends_with('}'))
+                    && serde_json::from_str::<Value>(trimmed).is_ok()
             })
             .count();
 
@@ -29,62 +30,62 @@ impl LogParser for JsonLogParser {
 
     fn parse_line<'a>(&self, line: &'a str) -> ParsedLogLine<'a> {
         let mut parsed = ParsedLogLine::default();
+
+        // Always set the full line as the default message
         parsed.message = Some(line);
 
         // Try to parse as JSON
         if let Ok(json) = serde_json::from_str::<Value>(line.trim()) {
             if let Some(obj) = json.as_object() {
-                // Extract common timestamp fields
-                for key in &["timestamp", "time", "@timestamp", "date", "datetime"] {
-                    if let Some(ts) = obj.get(*key) {
-                        if let Some(ts_str) = ts.as_str() {
-                            parsed.timestamp = Some(ts_str);
-                            // Store in fields too
-                            parsed.fields.insert(key.to_string(), ts_str.to_string());
-                            break;
-                        }
-                    }
-                }
-
-                // Extract common level fields
-                for key in &["level", "severity", "loglevel", "log_level", "@level"] {
-                    if let Some(lvl) = obj.get(*key) {
-                        if let Some(lvl_str) = lvl.as_str() {
-                            parsed.level = Some(lvl_str);
-                            // Store in fields too
-                            parsed.fields.insert(key.to_string(), lvl_str.to_string());
-                            break;
-                        }
-                    }
-                }
-
-                // Extract message field
-                for key in &["message", "msg", "text", "description", "content"] {
-                    if let Some(msg) = obj.get(*key) {
-                        if let Some(msg_str) = msg.as_str() {
-                            // Keep original as well but set specific message field
-                            parsed.message = Some(msg_str);
-                            // Store in fields too
-                            parsed.fields.insert(key.to_string(), msg_str.to_string());
-                            break;
-                        }
-                    }
-                }
-
-                // Extract all fields (flattened for first level)
+                // Fill the fields HashMap with owned String values
                 for (key, value) in obj {
-                    // Only handle string, number, and bool values
                     match value {
                         Value::String(s) => {
                             parsed.fields.insert(key.clone(), s.clone());
-                        },
+                        }
                         Value::Number(n) => {
                             parsed.fields.insert(key.clone(), n.to_string());
-                        },
+                        }
                         Value::Bool(b) => {
                             parsed.fields.insert(key.clone(), b.to_string());
-                        },
+                        }
                         _ => {} // Ignore other types for now
+                    }
+                }
+
+                // Now the fields are collected - IMPORTANT: We must NOT use references from the json object!
+                // Instead, we'll convert field values back to string slices from the original line
+
+                // For timestamp: Check common fields and find in the original line
+                for key in &["timestamp", "time", "@timestamp", "date", "datetime"] {
+                    if let Some(json_str) = obj.get(*key).and_then(|v| v.as_str()) {
+                        // Try to find this exact string in the original line
+                        if let Some(pos) = line.find(json_str) {
+                            parsed.timestamp = Some(&line[pos..pos + json_str.len()]);
+                            break;
+                        }
+                    }
+                }
+
+                // For level: Check common fields and find in the original line
+                for key in &["level", "severity", "loglevel", "log_level", "@level"] {
+                    if let Some(json_str) = obj.get(*key).and_then(|v| v.as_str()) {
+                        // Try to find this exact string in the original line
+                        if let Some(pos) = line.find(json_str) {
+                            parsed.level = Some(&line[pos..pos + json_str.len()]);
+                            break;
+                        }
+                    }
+                }
+
+                // For message: Check common fields and find in the original line
+                for key in &["message", "msg", "text", "description", "content"] {
+                    if let Some(json_str) = obj.get(*key).and_then(|v| v.as_str()) {
+                        // Try to find this exact string in the original line
+                        if let Some(pos) = line.find(json_str) {
+                            parsed.message = Some(&line[pos..pos + json_str.len()]);
+                            break;
+                        }
                     }
                 }
             }

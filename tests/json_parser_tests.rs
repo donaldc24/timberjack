@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
-    use timber_rs::parser::{ParserRegistry, LogParser, LogFormat};
     use std::sync::Arc;
+    use timber_rs::parser::{LogFormat, LogParser, ParserRegistry};
 
     #[test]
     fn test_json_detection() {
@@ -10,7 +10,7 @@ mod tests {
         // Valid JSON logs
         let sample_lines = &[
             r#"{"timestamp":"2025-03-21T14:00:00.123Z","level":"ERROR","message":"Database connection failed"}"#,
-            r#"{"time":"2025-03-21T14:01:00.456Z","severity":"WARN","msg":"Slow query detected"}"#
+            r#"{"time":"2025-03-21T14:01:00.456Z","severity":"WARN","msg":"Slow query detected"}"#,
         ];
 
         let (format, _) = registry.detect_format(sample_lines);

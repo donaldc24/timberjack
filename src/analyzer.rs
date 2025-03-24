@@ -1,10 +1,10 @@
+use crate::parser::LogParser;
 use lazy_static::lazy_static;
 use memmap2::Mmap;
 use rayon::prelude::*;
 use regex::Regex;
 use rustc_hash::{FxHashMap, FxHashSet};
 use serde::{Deserialize, Serialize};
-use crate::parser::LogParser;
 use std::sync::Arc;
 
 // Constants
@@ -94,6 +94,7 @@ pub struct LogAnalyzer {
     pub(crate) pattern_matcher: Option<Box<dyn PatternMatcher + Send + Sync>>,
     pub(crate) level_filter_lowercase: Option<String>,
     pub(crate) parser: Option<Arc<dyn LogParser>>,
+    pub(crate) field_filters: FxHashMap<String, String>,
 }
 
 impl Default for LogAnalyzer {
@@ -108,7 +109,35 @@ impl LogAnalyzer {
             pattern_matcher: None,
             level_filter_lowercase: None,
             parser: None,
+            field_filters: FxHashMap::default(),
         }
+    }
+
+    /// Set field filters from command line arguments in format "field=value"
+    pub fn set_field_filters(&mut self, field_filters: Vec<String>) {
+        for filter in field_filters {
+            if let Some(separator_pos) = filter.find('=') {
+                let field = filter[..separator_pos].trim().to_string();
+                let value = filter[separator_pos + 1..].trim().to_string();
+                self.field_filters.insert(field, value);
+            }
+        }
+    }
+
+    /// Check if parsed log line matches all field filters
+    fn matches_field_filters(&self, parsed: &crate::parser::ParsedLogLine) -> bool {
+        if self.field_filters.is_empty() {
+            return true; // No field filters, so it matches
+        }
+
+        // Check each field filter against the parsed line's fields
+        for (field, value) in &self.field_filters {
+            if !parsed.fields.contains_key(field) || parsed.fields.get(field).unwrap() != value {
+                return false; // Filter doesn't match
+            }
+        }
+
+        true // All filters match
     }
 
     pub fn set_parser(&mut self, parser: Arc<dyn LogParser>) {
@@ -316,9 +345,26 @@ impl LogAnalyzer {
                 continue;
             }
 
+            // Parse the line if we have field filters or a parser is set
+            let parsed_line = if !self.field_filters.is_empty() && self.parser.is_some() {
+                // Parse the line using the configured parser
+                self.parser.as_ref().unwrap().parse_line(line_str)
+            } else {
+                // No field filtering needed, use empty ParsedLogLine
+                crate::parser::ParsedLogLine::default()
+            };
+
+            // Apply field filters if any
+            if !self.field_filters.is_empty() && !self.matches_field_filters(&parsed_line) {
+                continue;
+            }
+
             // Apply full regex for level filtering if needed
             let level = if self.level_filter_lowercase.is_some() || collect_stats {
-                if let Some(caps) = LEVEL_REGEX.captures(line_str) {
+                // If we already parsed the line and it has a level, use that
+                if !self.field_filters.is_empty() && parsed_line.level.is_some() {
+                    parsed_line.level.unwrap_or("")
+                } else if let Some(caps) = LEVEL_REGEX.captures(line_str) {
                     caps.get(1)
                         .map_or_else(|| caps.get(0).map_or("", |m| m.as_str()), |m| m.as_str())
                 } else {

@@ -1,6 +1,6 @@
 use super::{LogParser, ParsedLogLine};
-use regex::Regex;
 use lazy_static::lazy_static;
+use regex::Regex;
 
 lazy_static! {
     static ref LEVEL_REGEX: Regex = Regex::new(
@@ -30,22 +30,17 @@ impl LogParser for GenericLogParser {
 
         // Extract log level if present
         if let Some(caps) = LEVEL_REGEX.captures(line) {
-            parsed.level = caps.get(1)
-                .map_or_else(
-                    || caps.get(0).map(|m| m.as_str()),
-                    |m| Some(m.as_str()) // Add Some() here
-                );
+            parsed.level = caps.get(1).map_or_else(
+                || caps.get(0).map(|m| m.as_str()),
+                |m| Some(m.as_str()), // Add Some() here
+            );
         }
 
         // Extract timestamp if present
         if let Some(caps) = TIMESTAMP_REGEX.captures(line) {
             if let Some(m) = caps.get(1) {
                 let ts = m.as_str();
-                parsed.timestamp = Some(if ts.len() >= 13 {
-                    &ts[0..13]
-                } else {
-                    ts
-                });
+                parsed.timestamp = Some(if ts.len() >= 13 { &ts[0..13] } else { ts });
             }
         }
 
