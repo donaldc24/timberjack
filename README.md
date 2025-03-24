@@ -11,11 +11,14 @@ Timber is a log-agnostic CLI tool that chops through noise to deliver patterns, 
 
 ## ✨ Features
 
-- **Fast Pattern Search**: Find matches with regex support
+- **Fast Pattern Search**: Find matches with regex support and SIMD acceleration
 - **Log Level Filtering**: Focus on specific severity levels (ERROR, WARN, INFO, etc.)
 - **Time-based Trend Analysis**: See how log patterns change over time
 - **Statistical Summaries**: Get insights on log levels, error types, and message uniqueness
 - **Efficient Processing**: Handles large log files with minimal resource usage
+- **High Performance**: Competitive with specialized tools like grep and ripgrep
+- **Memory-Mapped Processing**: Efficient handling of large files
+- **Parallel Processing**: Automatic multi-threading for large files
 
 ## 🚀 Installation
 
@@ -55,8 +58,21 @@ timber --trend path/to/logfile.log
 # Display statistical summary
 timber --stats path/to/logfile.log
 
+# Count matching logs (fast mode)
+timber --count --chop "Exception" path/to/logfile.log
+
 # Combine options
 timber --chop "timeout" --level ERROR --trend --stats path/to/logfile.log
+
+# Force parallel or sequential processing
+timber --parallel path/to/logfile.log
+timber --sequential path/to/logfile.log
+
+# Get JSON output
+timber --json path/to/logfile.log
+
+# Show unique messages
+timber --show-unique path/to/logfile.log
 ```
 
 ### Command-Line Options
@@ -67,6 +83,12 @@ timber --chop "timeout" --level ERROR --trend --stats path/to/logfile.log
 | `--level <LEVEL>` | Filter logs by level (ERROR, WARN, INFO, etc.) |
 | `--trend` | Show time-based trends of log occurrences |
 | `--stats` | Show summary statistics (levels, error types, uniqueness) |
+| `--count` | Only output the total count of matching logs (fast mode) |
+| `--json` | Output results in JSON format for programmatic use |
+| `--show-unique` | Show unique messages in the output |
+| `--top-errors <N>` | Number of top error types to show (default: 5) |
+| `--parallel` | Force parallel processing (auto-detected by default) |
+| `--sequential` | Force sequential processing (for debugging) |
 | `--help` | Display help information |
 | `--version` | Display version information |
 
@@ -121,6 +143,40 @@ Time trends:
 Timber finished chopping the log! 🪵
 ```
 
+### Count Only Mode
+
+```
+2
+```
+
+## ⚡ Performance
+
+Timber is designed for speed and efficiency:
+
+- **Memory-mapped file processing**: Fast access to files of any size
+- **SIMD acceleration**: Uses CPU vector instructions for faster pattern matching
+- **Parallel processing**: Automatically uses multiple cores for large files
+- **Smart deduplication**: Efficiently handles repeated log lines
+
+### Benchmarks
+
+| Operation | 10K lines | 100K lines | 1M lines |
+|-----------|-----------|------------|----------|
+| timber --chop-count | 0.164s | 0.181s | 0.401s |
+| grep | 0.166s | 0.181s | 0.296s |
+| ripgrep | 0.198s | 0.183s | 0.236s |
+| timber --level-count | 0.167s | 0.199s | 0.487s |
+| timber --chop | 0.169s | 0.239s | 0.640s |
+| timber --stats | 0.258s | 0.444s | 2.735s |
+
+For counting and pattern matching operations, Timber is competitive with specialized tools like grep and ripgrep while providing much richer analysis capabilities.
+
+## 📚 Documentation
+
+- [Command Line Interface](docs/cli.md) - Comprehensive guide to all CLI options and examples
+- [Performance Optimizations](docs/performance.md) - Technical details on performance features and optimization tips
+- [CHANGELOG](CHANGELOG.md) - Detailed version history and changes
+
 ## 📝 Roadmap
 
 ### Short-term Goals
@@ -129,20 +185,24 @@ Timber finished chopping the log! 🪵
 - [x] Log level filtering
 - [x] Time-based trend analysis
 - [x] Statistical summaries
+- [x] Memory-mapped file processing
+- [x] SIMD acceleration
+- [x] Parallel processing
+- [x] Count mode
 
 ### Upcoming Features
-- JSON output support
-- Advanced format auto-detection
+- Format-specific parsers
+- Package manager distributions
+- VS Code extension
 - Multi-file analysis
-- Performance optimization
-- IDE integrations (VS Code, IntelliJ)
 - Interactive TUI mode
 
 ### Long-term Vision
-- Machine learning-based log insights
-- Cloud log aggregation support
 - Advanced error correlation
-- Distributed log analysis
+- Root cause suggestions
+- Pattern identification
+- Cloud log aggregation support
+- Advanced visualization
 
 ## 🤝 Contributing
 

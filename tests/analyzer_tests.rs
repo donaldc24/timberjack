@@ -46,7 +46,7 @@ fn test_extract_error_type() {
 
 #[test]
 fn test_analyze_lines_with_pattern() {
-    let analyzer = LogAnalyzer::new();
+    let mut analyzer = LogAnalyzer::new();
     let lines = vec![
         "2025-03-21 14:00:00,123 [ERROR] NullPointerException in WebController.java:42".to_string(),
         "2025-03-21 14:01:00,456 [WARN] Slow database query (2.3s) in DatabaseService.java:128"
@@ -67,7 +67,7 @@ fn test_analyze_lines_with_pattern() {
 
 #[test]
 fn test_analyze_lines_with_level_filter() {
-    let analyzer = LogAnalyzer::new();
+    let mut analyzer = LogAnalyzer::new();
     let lines = vec![
         "2025-03-21 14:00:00,123 [ERROR] NullPointerException in WebController.java:42".to_string(),
         "2025-03-21 14:01:00,456 [WARN] Slow database query (2.3s) in DatabaseService.java:128"
@@ -86,7 +86,7 @@ fn test_analyze_lines_with_level_filter() {
 
 #[test]
 fn test_time_trends() {
-    let analyzer = LogAnalyzer::new();
+    let mut analyzer = LogAnalyzer::new();
     let lines = vec![
         "2025-03-21 14:00:00,123 [ERROR] NullPointerException in WebController.java:42".to_string(),
         "2025-03-21 14:01:00,456 [WARN] Slow database query (2.3s) in DatabaseService.java:128"
@@ -105,7 +105,7 @@ fn test_time_trends() {
 
 #[test]
 fn test_stats_collection() {
-    let analyzer = LogAnalyzer::new();
+    let mut analyzer = LogAnalyzer::new();
     let lines = vec![
         "2025-03-21 14:00:00,123 [ERROR] NullPointerException in WebController.java:42".to_string(),
         "2025-03-21 14:01:00,456 [WARN] Slow database query (2.3s) in DatabaseService.java:128"
@@ -140,7 +140,7 @@ fn test_stats_collection() {
 
 #[test]
 fn test_combined_filters() {
-    let analyzer = LogAnalyzer::new();
+    let mut analyzer = LogAnalyzer::new();
     let lines = vec![
         "2025-03-21 14:00:00,123 [ERROR] NullPointerException in WebController.java:42".to_string(),
         "2025-03-21 14:01:00,456 [WARN] Slow database query (2.3s) in DatabaseService.java:128"
@@ -165,7 +165,7 @@ fn test_combined_filters() {
 
 #[test]
 fn test_empty_results() {
-    let analyzer = LogAnalyzer::new();
+    let mut analyzer = LogAnalyzer::new();
     let lines = vec![
         "2025-03-21 14:00:00,123 [ERROR] NullPointerException in WebController.java:42".to_string(),
         "2025-03-21 14:01:00,456 [WARN] Slow database query (2.3s) in DatabaseService.java:128"

@@ -5,6 +5,38 @@ All notable changes to Timber will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.0-alpha.3] - 2025-03-23
+
+### Added
+- SIMD acceleration for pattern matching
+- Fast `--count` flag for efficient log counting
+- JSON output support via `--json` flag
+- Show unique messages with `--show-unique` flag
+- Custom top error limit with `--top-errors <N>` option
+- Explicit parallel/sequential processing controls
+
+### Changed
+- Switched to memory-mapped file processing for improved performance
+- Optimized memory usage with smarter string allocation
+- Enhanced deduplication of repeated log lines
+- Improved regex pattern matching performance
+- More efficient timestamp extraction
+- Better handling of very large files
+- Updated benchmarking suite with comprehensive comparisons
+
+### Fixed
+- Reduced memory usage for large log files
+- Improved handling of malformed log lines
+- Better error reporting for invalid regex patterns
+- Fixed potential issues with concurrent access in parallel mode
+
+### Performance
+- 2-3x overall performance improvement
+- Competitive with grep/ripgrep for counting operations
+- Memory usage reduced by approximately 40%
+- Significantly faster pattern matching with SIMD
+- Automatic parallelization for large files
+
 ## [0.1.0-alpha.2] - 2025-03-22
 
 ### Changed
@@ -40,16 +72,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Planned Features
 
 ### Short-term Roadmap
-- [ ] JSON output support
-- [ ] Advanced format auto-detection
+- [ ] Format-specific parsers for common log formats (JSON, Apache, etc.)
+- [ ] Package manager distributions (Homebrew, apt, etc.)
+- [ ] VS Code extension
 - [ ] Multi-file analysis
-- [ ] Performance optimization
 - [ ] Enhanced error handling
 
 ### Long-term Vision
-- Machine learning-based log insights
-- Cloud log aggregation support
-- Advanced error correlation
+- Pattern identification and correlation
+- Root cause suggestion
+- Advanced visualization
 - Distributed log analysis
 - IDE integrations
 

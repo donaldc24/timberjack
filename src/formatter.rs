@@ -6,10 +6,17 @@ use std::io::{self, Write};
 // New struct specifically for JSON output
 #[derive(Serialize)]
 struct JsonOutput {
-    matched_lines: Vec<String>,
-    count: usize,
+    matched_lines: Vec<LineWithCount>,
+    total_count: usize,
     time_trends: Option<Vec<TimeTrend>>,
     stats: Option<Stats>,
+    deduplicated: bool,
+}
+
+#[derive(Serialize)]
+struct LineWithCount {
+    line: String,
+    count: usize,
 }
 
 #[derive(Serialize)]
@@ -52,11 +59,31 @@ pub fn print_results(
     if json_output {
         // Create a more structured JSON output
         let mut json_output_data = JsonOutput {
-            matched_lines: result.matched_lines.clone(),
-            count: result.count,
+            matched_lines: Vec::new(),
+            total_count: result.count,
             time_trends: None,
             stats: None,
+            deduplicated: result.deduplicated,
         };
+
+        // Convert matched lines with counts
+        if result.deduplicated && !result.line_counts.is_empty() {
+            for line in &result.matched_lines {
+                let count = result.line_counts.get(line).unwrap_or(&1);
+                json_output_data.matched_lines.push(LineWithCount {
+                    line: line.clone(),
+                    count: *count,
+                });
+            }
+        } else {
+            // Original behavior
+            for line in &result.matched_lines {
+                json_output_data.matched_lines.push(LineWithCount {
+                    line: line.clone(),
+                    count: 1,
+                });
+            }
+        }
 
         // Add time trends if enabled
         if show_trends && !result.time_trends.is_empty() {
@@ -137,9 +164,30 @@ pub fn print_results(
         return;
     }
 
-    // Print matching lines
-    for line in &result.matched_lines {
-        println!("{}", line);
+    // Print matching lines with counts if deduplicated
+    if result.deduplicated && !result.line_counts.is_empty() {
+        for line in &result.matched_lines {
+            let count = result.line_counts.get(line).unwrap_or(&1);
+            if *count > 1 {
+                println!("{} [x{}]", line, count);
+            } else {
+                println!("{}", line);
+            }
+        }
+
+        // If there are more lines than we stored, show a message
+        if result.count > result.matched_lines.len() {
+            println!(
+                "... and {} more lines (total: {})",
+                result.count - result.matched_lines.len(),
+                result.count
+            );
+        }
+    } else {
+        // Original behavior - print individual lines
+        for line in &result.matched_lines {
+            println!("{}", line);
+        }
     }
 
     // Print summary
@@ -238,9 +286,31 @@ pub fn print_results_to_writer<W: Write>(
     top_errors: usize,
     show_unique: bool,
 ) -> io::Result<()> {
-    // Print matching lines
-    for line in &result.matched_lines {
-        writeln!(writer, "{}", line)?;
+    // Print matching lines with counts if deduplicated
+    if result.deduplicated && !result.line_counts.is_empty() {
+        for line in &result.matched_lines {
+            let count = result.line_counts.get(line).unwrap_or(&1);
+            if *count > 1 {
+                writeln!(writer, "{} [x{}]", line, count)?;
+            } else {
+                writeln!(writer, "{}", line)?;
+            }
+        }
+
+        // If there are more lines than we stored, show a message
+        if result.count > result.matched_lines.len() {
+            writeln!(
+                writer,
+                "... and {} more lines (total: {})",
+                result.count - result.matched_lines.len(),
+                result.count
+            )?;
+        }
+    } else {
+        // Original behavior - print individual lines
+        for line in &result.matched_lines {
+            writeln!(writer, "{}", line)?;
+        }
     }
 
     // Print summary

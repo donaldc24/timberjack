@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use rustc_hash::{FxHashMap, FxHashSet};
 use timber_rs::analyzer::AnalysisResult;
 
 #[test]
@@ -13,10 +13,12 @@ fn test_json_output_basic() {
             "2025-03-21 14:03:00,012 [ERROR] Connection timeout".to_string(),
         ],
         count: 2,
-        time_trends: HashMap::new(),
-        levels_count: HashMap::new(),
-        error_types: HashMap::new(),
-        unique_messages: HashSet::new(),
+        time_trends: FxHashMap::default(),
+        levels_count: FxHashMap::default(),
+        error_types: FxHashMap::default(),
+        unique_messages: FxHashSet::default(),
+        deduplicated: false,
+        line_counts: FxHashMap::default(),
     };
 
     // Add some level counts and error types
@@ -87,10 +89,12 @@ fn test_json_structure() {
             "2025-03-21 15:03:00,012 [ERROR] Connection timeout".to_string(),
         ],
         count: 2,
-        time_trends: HashMap::new(),
-        levels_count: HashMap::new(),
-        error_types: HashMap::new(),
-        unique_messages: HashSet::new(),
+        time_trends: FxHashMap::default(),
+        levels_count: FxHashMap::default(),
+        error_types: FxHashMap::default(),
+        unique_messages: FxHashSet::default(),
+        deduplicated: false,
+        line_counts: FxHashMap::default(),
     };
 
     // Add time trends
@@ -159,10 +163,12 @@ fn test_json_unique_messages() {
             "2025-03-21 14:03:00,012 [ERROR] Connection timeout".to_string(),
         ],
         count: 3,
-        time_trends: HashMap::new(),
-        levels_count: HashMap::new(),
-        error_types: HashMap::new(),
-        unique_messages: HashSet::new(),
+        time_trends: FxHashMap::default(),
+        levels_count: FxHashMap::default(),
+        error_types: FxHashMap::default(),
+        unique_messages: FxHashSet::default(),
+        deduplicated: false,
+        line_counts: FxHashMap::default(),
     };
 
     // Add unique messages
@@ -216,10 +222,12 @@ fn test_json_top_errors_limit() {
     let mut result = AnalysisResult {
         matched_lines: vec![],
         count: 10,
-        time_trends: HashMap::new(),
-        levels_count: HashMap::new(),
-        error_types: HashMap::new(),
-        unique_messages: HashSet::new(),
+        time_trends: FxHashMap::default(),
+        levels_count: FxHashMap::default(),
+        error_types: FxHashMap::default(),
+        unique_messages: FxHashSet::default(),
+        deduplicated: false,
+        line_counts: FxHashMap::default(),
     };
 
     // Add several error types

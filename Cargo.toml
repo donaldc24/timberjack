@@ -1,6 +1,6 @@
 [package]
 name = "timber-rs"
-version = "0.1.0-alpha.2"
+version = "0.1.0-alpha.3"
 edition = "2024"
 description = "A CLI tool that fells log files with speed and insight"
 license = "MIT"
@@ -10,16 +10,42 @@ homepage = "https://github.com/donaldc24/timber"
 readme = "README.md"
 keywords = ["log", "analysis", "cli", "logging"]
 categories = ["command-line-utilities", "development-tools"]
+default-run = "timber"
 
 [[bin]]
-name = "timber"  # This keeps your CLI command as `timber`
+name = "timber"
 path = "src/main.rs"
+
+[[bin]]
+name = "create_benchmark_logs"
+path = "src/bin/create_benchmark_logs.rs"
+
+[features]
+default = ["simd_acceleration"]
+simd_acceleration = []
 
 [dependencies]
 clap = { version = "4.4", features = ["derive"] }
 regex = "1.10"
+rustc-hash = "1.1"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+rayon = "1.10.0"
+memmap2 = "0.9.5"
+lazy_static = "1.4.0"
+memchr = "2.7.0"   # SIMD-accelerated string search
+
+[dev-dependencies]
 assert_cmd = "2.0"
 predicates = "3.1"
 tempfile = "3.3"
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
+criterion = "0.5"
+
+[[bench]]
+name = "large_logs"
+harness = false
+
+[[bench]]
+name = "simd_benchmarks"
+harness = false
+path = "benches/simd_benchmarks.rs"
