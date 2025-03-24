@@ -1,4 +1,5 @@
 use std::sync::Arc;
+use std::collections::HashMap;
 
 /// Trait defining the interface for all log format parsers
 pub trait LogParser: Send + Sync {
@@ -19,10 +20,10 @@ pub struct ParsedLogLine {
     pub timestamp: Option<String>,
     pub level: Option<String>,
     pub message: Option<String>,
-    pub fields: std::collections::HashMap<String, String>,
+    pub fields: HashMap<String, String>,
 }
 
-/// Log format types supported by Timber
+/// Log format types supported by Timberjack
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LogFormat {
     Generic,
@@ -55,7 +56,7 @@ impl ParserRegistry {
         registry.register_parser(LogFormat::Generic, generic_parser);
 
         // Register the JSON parser
-        let json_parser = Arc::new(json::JsonLogParser);
+        let json_parser = Arc::new(json::JsonLogParser::new());
         registry.register_parser(LogFormat::Json, json_parser);
 
         registry
@@ -84,7 +85,7 @@ impl ParserRegistry {
         // If JSON detection fails, try other parsers
         for (format, parser) in &self.parsers {
             if *format != LogFormat::Json && parser.can_parse(sample) {
-                return (*format, parser.clone());
+                return (*format, Arc::clone(parser));
             }
         }
 
@@ -100,7 +101,7 @@ impl ParserRegistry {
         self.parsers
             .iter()
             .find(|(f, _)| *f == format)
-            .map(|(_, p)| p.clone())
+            .map(|(_, p)| Arc::clone(p))
     }
 }
 
