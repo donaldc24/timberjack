@@ -5,6 +5,38 @@ All notable changes to Timberjack will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+[0.1.0-alpha.4] - April 2025
+🔄 Rebranding Release
+Name Change
+
+Project Renamed: From "Timber" to "Timberjack" to avoid naming conflicts with existing tools
+Package Renamed: Now published as timberjack on crates.io (previously timber-rs)
+Repository Renamed: GitHub repository now at donaldc24/timberjack
+
+Command Line Experience
+
+Preserved CLI Command: The binary name remains timber for backward compatibility
+Updated CLI Help Text: Help documentation now references the new name
+Updated Banner: Startup messages now reference Timberjack
+Added Note: Informative note about the rebranding in help text
+
+Documentation & Branding
+
+Updated README: All documentation updated to reflect new name
+Added Migration Guide: New MIGRATING.md file explains the transition
+New Visual Identity: Refreshed logo and color scheme
+New Domains: Secured timberjack.dev and timberjack.rs
+
+Internal Changes
+
+Updated Package Metadata: All package identifiers updated to reflect Timberjack
+Code References: Internal code references to project name updated
+Build System: Updated CI/CD pipelines to reflect new name
+
+Deprecated
+
+The timber-rs crate is now deprecated in favor of timberjack
+
 ## [0.1.0-alpha.3] - 2025-03-23
 
 ### Added
