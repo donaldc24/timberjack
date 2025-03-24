@@ -1,10 +1,10 @@
-# TimberJack 🪓
+# Timberjack 🪓
 
 [![Rust CI](https://github.com/donaldc24/timberjack/workflows/Rust%20CI/badge.svg)](https://github.com/donaldc24/timberjack/actions)
 [![Crates.io](https://img.shields.io/crates/v/timberjack.svg)](https://crates.io/crates/timberjack)
 [![Security Audit](https://github.com/donaldc24/timberjack/workflows/Security%20audit/badge.svg)](https://github.com/donaldc24/timberjack/actions?query=workflow%3A%22Security+audit%22)
 
-**Timber: Fell Your Logs Fast** - A lightning-fast CLI log analysis tool built in Rust.
+**Timberjack: Fell Your Logs Fast** - A lightning-fast CLI log analysis tool built in Rust.
 
 ## 📋 Overview
 
