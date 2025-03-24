@@ -4,6 +4,7 @@ use rayon::prelude::*;
 use regex::Regex;
 use rustc_hash::{FxHashMap, FxHashSet};
 use serde::{Deserialize, Serialize};
+use crate::parser::LogParser;
 use std::sync::Arc;
 
 // Constants
@@ -92,6 +93,7 @@ struct ParsedLine<'a> {
 pub struct LogAnalyzer {
     pub(crate) pattern_matcher: Option<Box<dyn PatternMatcher + Send + Sync>>,
     pub(crate) level_filter_lowercase: Option<String>,
+    pub(crate) parser: Option<Arc<dyn LogParser>>,
 }
 
 impl Default for LogAnalyzer {
@@ -105,7 +107,12 @@ impl LogAnalyzer {
         LogAnalyzer {
             pattern_matcher: None,
             level_filter_lowercase: None,
+            parser: None,
         }
+    }
+
+    pub fn set_parser(&mut self, parser: Arc<dyn LogParser>) {
+        self.parser = Some(parser);
     }
 
     // Configure analyzer with patterns

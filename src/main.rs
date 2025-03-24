@@ -1,12 +1,13 @@
 use clap::Parser;
-use memmap2::MmapOptions;
 use regex::Regex;
+use memmap2::MmapOptions;
 use std::fs::File;
 use std::time::Instant;
 
 use timber_rs::analyzer::LogAnalyzer;
 use timber_rs::cli::Args;
 use timber_rs::formatter::print_results;
+use timber_rs::parser::{ParserRegistry, LogFormat};
 
 // Threshold for using parallel processing (in bytes)
 const PARALLEL_THRESHOLD_BYTES: u64 = 10 * 1024 * 1024; // 10MB
@@ -43,6 +44,67 @@ fn main() -> std::io::Result<()> {
 
     // Create analyzer
     let mut analyzer = LogAnalyzer::new();
+
+    // Create parser registry
+    let parser_registry = ParserRegistry::new();
+
+    // Determine format to use
+    let format = match args.format.to_lowercase().as_str() {
+        "auto" => {
+            // Open the file for sampling
+            let file = File::open(&args.file)?;
+            if file.metadata()?.len() == 0 {
+                LogFormat::Generic
+            } else {
+                // Memory map just the beginning of the file for sampling
+                let mmap = unsafe { MmapOptions::new().map(&file)? };
+
+                // Extract sample lines for format detection (first ~10 lines)
+                let mut sample_lines = Vec::with_capacity(10);
+                let mut start = 0;
+                let mut line_count = 0;
+
+                // Get up to 10 lines or 4KB, whichever comes first
+                let max_sample = std::cmp::min(4096, mmap.len());
+
+                for i in 0..max_sample {
+                    if i == mmap.len() - 1 || mmap[i] == b'\n' {
+                        if i > start {
+                            // Extract a line - handle UTF-8 encoding properly
+                            if let Ok(line) = std::str::from_utf8(&mmap[start..i]) {
+                                sample_lines.push(line);
+                                line_count += 1;
+                                if line_count >= 10 {
+                                    break;
+                                }
+                            }
+                        }
+                        start = i + 1;
+                    }
+                }
+
+                // Detect format using the sample lines
+                let (detected_format, _) = parser_registry.detect_format(&sample_lines);
+
+                if !args.json && !args.count {
+                    println!("Detected format: {:?}", detected_format);
+                }
+
+                detected_format
+            }
+        },
+        "json" => LogFormat::Json,
+        "apache" => LogFormat::Apache,
+        "syslog" => LogFormat::Syslog,
+        _ => LogFormat::Generic,
+    };
+
+    // Get the appropriate parser
+    let parser = parser_registry.get_parser(format)
+        .expect("Failed to get parser for format");
+
+    // Set the parser in the analyzer
+    analyzer.set_parser(parser);
 
     // Determine processing mode (parallel or sequential)
     let use_parallel = if args.sequential {
@@ -153,7 +215,7 @@ fn process_with_mmap(
     if !path.exists() {
         return Err(std::io::Error::new(
             std::io::ErrorKind::NotFound,
-            format!("File not found: {}", file_path),
+            format!("File not found: {}", file_path)
         ));
     }
 
@@ -171,13 +233,7 @@ fn process_with_mmap(
     // Process the mapped memory
     if use_parallel && file_size > PARALLEL_THRESHOLD_BYTES {
         // Use analyzer's parallel mmap processing method
-        Ok(analyzer.analyze_mmap_parallel(
-            &mmap,
-            pattern,
-            level_filter,
-            collect_trends,
-            collect_stats,
-        ))
+        Ok(analyzer.analyze_mmap_parallel(&mmap, pattern, level_filter, collect_trends, collect_stats))
     } else {
         // Use analyzer's sequential mmap processing method
         Ok(analyzer.analyze_mmap(&mmap, pattern, level_filter, collect_trends, collect_stats))
@@ -190,7 +246,7 @@ fn should_use_parallel(file_path: &str) -> bool {
         Ok(metadata) => {
             let size = metadata.len();
             size > PARALLEL_THRESHOLD_BYTES
-        }
+        },
         Err(_) => false, // If we can't determine file size, assume small
     }
 }

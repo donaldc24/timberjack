@@ -47,4 +47,12 @@ pub struct Args {
     /// Only output the total log count (fast mode)
     #[clap(long)]
     pub count: bool,
+
+    /// Log format (auto, json, apache, syslog)
+    #[clap(long, default_value = "auto")]
+    pub format: String,
+
+    /// Filter by field values (format: field=value)
+    #[clap(long, short = 'f', number_of_values = 1)]
+    pub field: Vec<String>,
 }
