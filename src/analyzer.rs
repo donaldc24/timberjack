@@ -5,7 +5,6 @@ use memmap2::Mmap;
 use rayon::prelude::*;
 use std::sync::Arc;
 use lazy_static::lazy_static;
-use memchr::memmem;
 
 // Constants
 const CHUNK_SIZE: usize = 1_048_576; // 1MB

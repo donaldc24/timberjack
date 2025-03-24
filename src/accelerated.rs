@@ -1,7 +1,5 @@
 use crate::analyzer::PatternMatcher;
 use memchr::memmem;
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::Once;
 use std::sync::OnceLock;
 
 // Feature detection flags
@@ -9,11 +7,9 @@ struct CpuFeatures {
     sse41_supported: bool,
     avx2_supported: bool,
 }
-static FEATURE_DETECTION_INIT: Once = Once::new();
 
 static CPU_FEATURES: OnceLock<CpuFeatures> = OnceLock::new();
 
-// Initialize CPU feature detection
 // Initialize CPU feature detection
 fn get_cpu_features() -> &'static CpuFeatures {
     CPU_FEATURES.get_or_init(|| {
@@ -169,7 +165,6 @@ mod tests {
         // Complex pattern should use regex matcher
         let complex_matcher = PatternMatcherFactory::create("comp.ex|pattern");
         assert!(complex_matcher.is_match("complex"));
-        // assert!(complex_matcher.is_match("compex"));
         assert!(complex_matcher.is_match("pattern"));
         assert!(!complex_matcher.is_match("not matching"));
     }
