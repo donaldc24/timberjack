@@ -6,7 +6,9 @@ use clap::Parser;
 #[clap(version = env!("CARGO_PKG_VERSION"))]
 pub struct Args {
     /// Log file to analyze
-    #[clap(help = "Note: Timberjack is the new name for this tool, but the command remains 'timber' for compatibility")]
+    #[clap(
+        help = "Note: Timberjack is the new name for this tool, but the command remains 'timber' for compatibility"
+    )]
     pub file: String,
 
     /// Pattern to search for

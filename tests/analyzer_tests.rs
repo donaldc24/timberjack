@@ -1,5 +1,5 @@
 use regex::Regex;
-use timber_rs::analyzer::LogAnalyzer;
+use timberjack::analyzer::LogAnalyzer;
 
 #[test]
 fn test_analyze_line_with_pattern() {
@@ -60,7 +60,7 @@ fn test_analyze_mmap_with_pattern() {
     let pattern = Regex::new("ERROR").unwrap();
 
     // Create a mock Mmap - we'll use process_chunk_data directly since we can't create a real Mmap in tests
-    let mut result = timber_rs::analyzer::AnalysisResult::default();
+    let mut result = timberjack::analyzer::AnalysisResult::default();
 
     // Set up the pattern manually since we're not using the high-level methods
     analyzer.configure(Some(&pattern.to_string()), None);
@@ -90,7 +90,7 @@ fn test_analyze_mmap_with_level_filter() {
     let data = lines.join("\n").into_bytes();
 
     // Create a result structure
-    let mut result = timber_rs::analyzer::AnalysisResult::default();
+    let mut result = timberjack::analyzer::AnalysisResult::default();
 
     // Configure level filter manually
     analyzer.configure(None, Some("WARN"));
@@ -119,7 +119,7 @@ fn test_time_trends() {
     let data = lines.join("\n").into_bytes();
 
     // Create a result structure
-    let mut result = timber_rs::analyzer::AnalysisResult::default();
+    let mut result = timberjack::analyzer::AnalysisResult::default();
 
     // Process the data with trends collection
     analyzer.process_chunk_data(&data, &mut result, true, false);
@@ -145,7 +145,7 @@ fn test_stats_collection() {
     let data = lines.join("\n").into_bytes();
 
     // Create a result structure
-    let mut result = timber_rs::analyzer::AnalysisResult::default();
+    let mut result = timberjack::analyzer::AnalysisResult::default();
 
     // Process the data with stats collection
     analyzer.process_chunk_data(&data, &mut result, false, true);
@@ -183,7 +183,7 @@ fn test_combined_filters() {
     let data = lines.join("\n").into_bytes();
 
     // Create a result structure
-    let mut result = timber_rs::analyzer::AnalysisResult::default();
+    let mut result = timberjack::analyzer::AnalysisResult::default();
 
     // Configure pattern and level filter
     let pattern = Regex::new("Connection").unwrap();
@@ -210,7 +210,7 @@ fn test_empty_results() {
     let data = lines.join("\n").into_bytes();
 
     // Create a result structure
-    let mut result = timber_rs::analyzer::AnalysisResult::default();
+    let mut result = timberjack::analyzer::AnalysisResult::default();
 
     // Configure a pattern that doesn't match anything
     let pattern = Regex::new("ThisDoesNotExist").unwrap();

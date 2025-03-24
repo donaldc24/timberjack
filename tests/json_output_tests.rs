@@ -1,5 +1,5 @@
 use rustc_hash::{FxHashMap, FxHashSet};
-use timber_rs::analyzer::AnalysisResult;
+use timberjack::analyzer::AnalysisResult;
 
 #[test]
 fn test_json_output_basic() {

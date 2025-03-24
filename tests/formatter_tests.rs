@@ -1,8 +1,8 @@
 use rustc_hash::{FxHashMap, FxHashSet};
-use timber_rs::analyzer::AnalysisResult;
+use timberjack::analyzer::AnalysisResult;
 
 #[cfg(test)]
-use timber_rs::formatter::print_results_to_writer;
+use timberjack::formatter::print_results_to_writer;
 
 #[test]
 fn test_print_basic_results() {

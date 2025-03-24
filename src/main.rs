@@ -4,10 +4,10 @@ use regex::Regex;
 use std::fs::File;
 use std::time::Instant;
 
-use timber_rs::analyzer::LogAnalyzer;
-use timber_rs::cli::Args;
-use timber_rs::formatter::print_results;
-use timber_rs::parser::{LogFormat, ParserRegistry};
+use timberjack::analyzer::LogAnalyzer;
+use timberjack::cli::Args;
+use timberjack::formatter::print_results;
+use timberjack::parser::{LogFormat, ParserRegistry};
 
 // Threshold for using parallel processing (in bytes)
 const PARALLEL_THRESHOLD_BYTES: u64 = 10 * 1024 * 1024; // 10MB
@@ -17,7 +17,10 @@ fn main() -> std::io::Result<()> {
 
     // Skip the banner when using JSON output or count for cleaner output
     if !args.json && !args.count {
-        println!("\nWaking LumberJacks...Timberjack is chopping: {}\n", args.file);
+        println!(
+            "\nWaking LumberJacks...Timberjack is chopping: {}\n",
+            args.file
+        );
     }
 
     // Create parser registry
@@ -198,7 +201,7 @@ fn count_total_logs(
         let chunk = &mmap[position..chunk_end];
 
         // Temporary result to just count lines
-        let mut result = timber_rs::analyzer::AnalysisResult::default();
+        let mut result = timberjack::analyzer::AnalysisResult::default();
 
         // Process chunk with minimal overhead
         analyzer.process_chunk_data(chunk, &mut result, false, false);
@@ -221,7 +224,7 @@ fn process_with_mmap(
     collect_trends: bool,
     collect_stats: bool,
     use_parallel: bool,
-) -> std::io::Result<timber_rs::analyzer::AnalysisResult> {
+) -> std::io::Result<timberjack::analyzer::AnalysisResult> {
     let path = std::path::Path::new(file_path);
     if !path.exists() {
         return Err(std::io::Error::new(
@@ -235,7 +238,7 @@ fn process_with_mmap(
     // Skip processing for empty files
     let file_size = file.metadata()?.len();
     if file_size == 0 {
-        return Ok(timber_rs::analyzer::AnalysisResult::default());
+        return Ok(timberjack::analyzer::AnalysisResult::default());
     }
 
     // Memory map the file

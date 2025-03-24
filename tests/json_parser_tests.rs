@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use timber_rs::parser::{LogFormat, ParserRegistry};
+    use timberjack::parser::{LogFormat, ParserRegistry};
 
     #[test]
     fn test_json_detection() {
