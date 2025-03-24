@@ -294,8 +294,8 @@ For counting and pattern matching operations, Timber is competitive with special
 
 ## 📚 Documentation
 
-- [Command Line Interface](docs/cli.md) - Comprehensive guide to all CLI options and examples
-- [Performance Optimizations](docs/performance.md) - Technical details on performance features and optimization tips
+- [Command Line Interface](docs/CLI.md) - Comprehensive guide to all CLI options and examples
+- [Performance Optimizations](docs/PERFORMANCE.md) - Technical details on performance features and optimization tips
 - [CHANGELOG](CHANGELOG.md) - Detailed version history and changes
 
 ## 📝 Roadmap
