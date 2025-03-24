@@ -17,7 +17,7 @@ fn main() -> std::io::Result<()> {
 
     // Skip the banner when using JSON output or count for cleaner output
     if !args.json && !args.count {
-        println!("\nWaking LumberJacks...Timber is chopping: {}\n", args.file);
+        println!("\nWaking LumberJacks...Timberjack is chopping: {}\n", args.file);
     }
 
     // Create parser registry
