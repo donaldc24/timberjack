@@ -206,7 +206,7 @@ impl LogAnalyzer {
         };
 
         // Determine the level
-        let level = parsed_line.level
+        let level = parsed_line.level.clone()
             .unwrap_or_else(|| {
                 LEVEL_REGEX.captures(line)
                     .and_then(|caps|
