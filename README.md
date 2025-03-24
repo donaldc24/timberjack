@@ -2,6 +2,8 @@
 
 [![Rust CI](https://github.com/donaldc24/timber/workflows/Rust%20CI/badge.svg)](https://github.com/donaldc24/timber/actions)
 [![Crates.io](https://img.shields.io/crates/v/timber-rs.svg)](https://crates.io/crates/timber-rs)
+[![Security Audit](https://github.com/username/timber/workflows/Security%20audit/badge.svg)](https://github.com/username/timber/actions?query=workflow%3A%22Security+audit%22)
+[![CodeQL](https://github.com/username/timber/workflows/CodeQL/badge.svg)](https://github.com/username/timber/actions?query=workflow%3ACodeQL)
 
 **Timber: Fell Your Logs Fast** - A lightning-fast CLI log analysis tool built in Rust.
 
