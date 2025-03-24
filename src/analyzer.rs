@@ -26,6 +26,7 @@ lazy_static! {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[derive(Default)]
 pub struct AnalysisResult {
     pub matched_lines: Vec<String>,
     pub line_counts: FxHashMap<String, usize>,
@@ -37,20 +38,6 @@ pub struct AnalysisResult {
     pub deduplicated: bool,
 }
 
-impl Default for AnalysisResult {
-    fn default() -> Self {
-        AnalysisResult {
-            matched_lines: Vec::new(),
-            line_counts: FxHashMap::default(),
-            count: 0,
-            time_trends: FxHashMap::default(),
-            levels_count: FxHashMap::default(),
-            error_types: FxHashMap::default(),
-            unique_messages: FxHashSet::default(),
-            deduplicated: false,
-        }
-    }
-}
 
 // Pattern matcher trait for polymorphism
 pub trait PatternMatcher: Send + Sync {
@@ -142,7 +129,7 @@ impl LogAnalyzer {
     pub fn configure_optimized(&mut self, pattern: Option<&str>, level_filter: Option<&str>) {
         // Use pattern matcher factory to create the most optimized matcher
         self.pattern_matcher =
-            pattern.map(|p| crate::accelerated::PatternMatcherFactory::create(p));
+            pattern.map(crate::accelerated::PatternMatcherFactory::create);
 
         // Store level filter in lowercase for fast comparison
         self.level_filter_lowercase = level_filter.map(|l| l.to_lowercase());
@@ -537,7 +524,7 @@ impl LogAnalyzer {
 
         // Split lines into chunks for parallel processing
         let chunk_size = 10000; // Process in chunks of 10k lines
-        let num_chunks = (lines.len() + chunk_size - 1) / chunk_size;
+        let num_chunks = lines.len().div_ceil(chunk_size);
         let chunks: Vec<_> = (0..num_chunks)
             .map(|i| {
                 let start = i * chunk_size;
@@ -551,8 +538,10 @@ impl LogAnalyzer {
             .par_iter()
             .map(|chunk_lines| {
                 let analyzer = Arc::clone(&analyzer);
-                let mut result = AnalysisResult::default();
-                result.deduplicated = true;
+                let mut result = AnalysisResult {
+                    deduplicated: true,
+                    ..Default::default()
+                };
 
                 // Join lines and process as bytes
                 let lines_bytes: Vec<u8> = chunk_lines.join("\n").into_bytes();
@@ -568,8 +557,10 @@ impl LogAnalyzer {
             .collect();
 
         // Merge results
-        let mut final_result = AnalysisResult::default();
-        final_result.deduplicated = true;
+        let mut final_result = AnalysisResult {
+            deduplicated: true,
+            ..Default::default()
+        };
 
         for result in results {
             final_result.count += result.count;
@@ -631,7 +622,7 @@ impl LogAnalyzer {
 
         // Split lines into chunks for parallel processing - larger chunks for SIMD efficiency
         let chunk_size = 20000; // Process in larger chunks for SIMD
-        let num_chunks = (lines.len() + chunk_size - 1) / chunk_size;
+        let num_chunks = lines.len().div_ceil(chunk_size);
         let chunks: Vec<_> = (0..num_chunks)
             .map(|i| {
                 let start = i * chunk_size;
@@ -645,8 +636,10 @@ impl LogAnalyzer {
             .par_iter()
             .map(|chunk_lines| {
                 let analyzer = Arc::clone(&analyzer);
-                let mut result = AnalysisResult::default();
-                result.deduplicated = true;
+                let mut result = AnalysisResult {
+                    deduplicated: true,
+                    ..Default::default()
+                };
 
                 // Join lines and process as bytes
                 let lines_bytes: Vec<u8> = chunk_lines.join("\n").into_bytes();
@@ -662,8 +655,10 @@ impl LogAnalyzer {
             .collect();
 
         // Merge results
-        let mut final_result = AnalysisResult::default();
-        final_result.deduplicated = true;
+        let mut final_result = AnalysisResult {
+            deduplicated: true,
+            ..Default::default()
+        };
 
         for result in results {
             final_result.count += result.count;
@@ -906,16 +901,20 @@ impl LogAnalyzer {
             .map(|&(start, end)| {
                 let analyzer = Arc::clone(&analyzer);
                 let chunk = &mmap[start..end];
-                let mut result = AnalysisResult::default();
-                result.deduplicated = true;
+                let mut result = AnalysisResult {
+                    deduplicated: true,
+                    ..Default::default()
+                };
                 analyzer.process_chunk_data(chunk, &mut result, collect_trends, collect_stats);
                 result
             })
             .collect();
 
         // Merge results
-        let mut final_result = AnalysisResult::default();
-        final_result.deduplicated = true;
+        let mut final_result = AnalysisResult {
+            deduplicated: true,
+            ..Default::default()
+        };
 
         for result in results {
             final_result.count += result.count;
@@ -1007,16 +1006,20 @@ impl LogAnalyzer {
             .map(|&(start, end)| {
                 let analyzer = Arc::clone(&analyzer);
                 let chunk = &mmap[start..end];
-                let mut result = AnalysisResult::default();
-                result.deduplicated = true;
+                let mut result = AnalysisResult {
+                    deduplicated: true,
+                    ..Default::default()
+                };
                 analyzer.process_chunk_data(chunk, &mut result, collect_trends, collect_stats);
                 result
             })
             .collect();
 
         // Merge results
-        let mut final_result = AnalysisResult::default();
-        final_result.deduplicated = true;
+        let mut final_result = AnalysisResult {
+            deduplicated: true,
+            ..Default::default()
+        };
 
         for result in results {
             final_result.count += result.count;
