@@ -25,27 +25,35 @@ impl LogParser for GenericLogParser {
         true
     }
 
-    fn parse_line<'a>(&self, line: &'a str) -> ParsedLogLine<'a> {
+    fn parse_line(&self, line: &str) -> ParsedLogLine {
         let mut parsed = ParsedLogLine::default();
 
-        // Extract log level if present
+        // Always set the full line as the default message
+        parsed.message = Some(line.to_string());
+
+        // Extract log level
         if let Some(caps) = LEVEL_REGEX.captures(line) {
-            parsed.level = caps.get(1).map_or_else(
-                || caps.get(0).map(|m| m.as_str()),
-                |m| Some(m.as_str()), // Add Some() here
-            );
+            parsed.level = caps.get(1)
+                .map_or_else(
+                    || caps.get(0).map(|m| m.as_str().to_uppercase()),
+                    |m| Some(m.as_str().to_uppercase())
+                )
+                .map(|s| s.to_string());
         }
 
-        // Extract timestamp if present
+        // Extract timestamp
         if let Some(caps) = TIMESTAMP_REGEX.captures(line) {
             if let Some(m) = caps.get(1) {
                 let ts = m.as_str();
-                parsed.timestamp = Some(if ts.len() >= 13 { &ts[0..13] } else { ts });
+                parsed.timestamp = Some(
+                    if ts.len() >= 13 {
+                        ts[0..13].to_string()
+                    } else {
+                        ts.to_string()
+                    }
+                );
             }
         }
-
-        // Store the full message
-        parsed.message = Some(line);
 
         parsed
     }

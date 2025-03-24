@@ -10,27 +10,16 @@ pub trait LogParser: Send + Sync {
     fn can_parse(&self, sample_lines: &[&str]) -> bool;
 
     /// Parses a single line into structured data
-    fn parse_line<'a>(&self, line: &'a str) -> ParsedLogLine<'a>;
+    fn parse_line(&self, line: &str) -> ParsedLogLine;
 }
 
 /// Structured representation of a parsed log line
-#[derive(Debug, Clone)]
-pub struct ParsedLogLine<'a> {
-    pub timestamp: Option<&'a str>,
-    pub level: Option<&'a str>,
-    pub message: Option<&'a str>,
+#[derive(Debug, Clone, Default)]
+pub struct ParsedLogLine {
+    pub timestamp: Option<String>,
+    pub level: Option<String>,
+    pub message: Option<String>,
     pub fields: std::collections::HashMap<String, String>,
-}
-
-impl<'a> Default for ParsedLogLine<'a> {
-    fn default() -> Self {
-        Self {
-            timestamp: None,
-            level: None,
-            message: None,
-            fields: std::collections::HashMap::new(),
-        }
-    }
 }
 
 /// Log format types supported by Timber
@@ -73,9 +62,22 @@ impl ParserRegistry {
 
     /// Detect format from sample lines
     pub fn detect_format(&self, sample_lines: &[&str]) -> (LogFormat, Arc<dyn LogParser>) {
-        // Try each parser and find the best match
+        // First, try sampling more lines if possible
+        let sample = if sample_lines.len() < 5 {
+            sample_lines
+        } else {
+            &sample_lines[..5]  // Take first 5 lines for detection
+        };
+
+        // First, try JSON parser explicitly for more common JSON log scenarios
+        let json_parser = self.get_parser(LogFormat::Json).unwrap();
+        if json_parser.can_parse(sample) {
+            return (LogFormat::Json, json_parser);
+        }
+
+        // If JSON detection fails, try other parsers
         for (format, parser) in &self.parsers {
-            if parser.can_parse(sample_lines) {
+            if *format != LogFormat::Json && parser.can_parse(sample) {
                 return (*format, parser.clone());
             }
         }

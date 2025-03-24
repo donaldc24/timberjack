@@ -20,6 +20,65 @@ fn main() -> std::io::Result<()> {
         println!("\nWaking LumberJacks...Timber is chopping: {}\n", args.file);
     }
 
+    // Create parser registry
+    let parser_registry = ParserRegistry::new();
+
+    // Determine format to use
+    let format = match args.format.to_lowercase().as_str() {
+        "auto" => {
+            // Open the file for sampling
+            let file = File::open(&args.file)?;
+            if file.metadata()?.len() == 0 {
+                LogFormat::Generic
+            } else {
+                // Memory map just the beginning of the file for sampling
+                let mmap = unsafe { MmapOptions::new().map(&file)? };
+
+                // Extract sample lines for format detection (first ~10 lines)
+                let mut sample_lines = Vec::with_capacity(10);
+                let mut start = 0;
+                let mut line_count = 0;
+
+                // Get up to 10 lines or 4KB, whichever comes first
+                let max_sample = std::cmp::min(4096, mmap.len());
+
+                for i in 0..max_sample {
+                    if i == mmap.len() - 1 || mmap[i] == b'\n' {
+                        if i > start {
+                            // Extract a line - handle UTF-8 encoding properly
+                            if let Ok(line) = std::str::from_utf8(&mmap[start..i]) {
+                                let trimmed_line = line.trim();
+                                if !trimmed_line.is_empty() {
+                                    sample_lines.push(trimmed_line);
+                                    line_count += 1;
+                                    if line_count >= 10 {
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        start = i + 1;
+                    }
+                }
+
+                // Detect format using the sample lines
+                let (detected_format, _) = parser_registry.detect_format(
+                    &sample_lines.iter().map(|s| s.as_ref()).collect::<Vec<&str>>()
+                );
+
+                if !args.json && !args.count {
+                    println!("Detected format: {:?}", detected_format);
+                }
+
+                detected_format
+            }
+        }
+        "json" => LogFormat::Json,
+        "apache" => LogFormat::Apache,
+        "syslog" => LogFormat::Syslog,
+        _ => LogFormat::Generic,
+    };
+
     // Set up pattern matching
     let pattern = match &args.chop {
         Some(pattern) => {
@@ -52,60 +111,6 @@ fn main() -> std::io::Result<()> {
         }
         analyzer.set_field_filters(args.field);
     }
-
-    // Create parser registry
-    let parser_registry = ParserRegistry::new();
-
-    // Determine format to use
-    let format = match args.format.to_lowercase().as_str() {
-        "auto" => {
-            // Open the file for sampling
-            let file = File::open(&args.file)?;
-            if file.metadata()?.len() == 0 {
-                LogFormat::Generic
-            } else {
-                // Memory map just the beginning of the file for sampling
-                let mmap = unsafe { MmapOptions::new().map(&file)? };
-
-                // Extract sample lines for format detection (first ~10 lines)
-                let mut sample_lines = Vec::with_capacity(10);
-                let mut start = 0;
-                let mut line_count = 0;
-
-                // Get up to 10 lines or 4KB, whichever comes first
-                let max_sample = std::cmp::min(4096, mmap.len());
-
-                for i in 0..max_sample {
-                    if i == mmap.len() - 1 || mmap[i] == b'\n' {
-                        if i > start {
-                            // Extract a line - handle UTF-8 encoding properly
-                            if let Ok(line) = std::str::from_utf8(&mmap[start..i]) {
-                                sample_lines.push(line);
-                                line_count += 1;
-                                if line_count >= 10 {
-                                    break;
-                                }
-                            }
-                        }
-                        start = i + 1;
-                    }
-                }
-
-                // Detect format using the sample lines
-                let (detected_format, _) = parser_registry.detect_format(&sample_lines);
-
-                if !args.json && !args.count {
-                    println!("Detected format: {:?}", detected_format);
-                }
-
-                detected_format
-            }
-        }
-        "json" => LogFormat::Json,
-        "apache" => LogFormat::Apache,
-        "syslog" => LogFormat::Syslog,
-        _ => LogFormat::Generic,
-    };
 
     // Get the appropriate parser
     let parser = parser_registry
@@ -151,7 +156,6 @@ fn main() -> std::io::Result<()> {
         println!("Analysis completed in {:.2}s", elapsed.as_secs_f32());
     }
 
-    // Print the results
     if !args.json {
         println!();
     }
@@ -251,7 +255,13 @@ fn process_with_mmap(
         ))
     } else {
         // Use analyzer's sequential mmap processing method
-        Ok(analyzer.analyze_mmap(&mmap, pattern, level_filter, collect_trends, collect_stats))
+        Ok(analyzer.analyze_mmap(
+            &mmap,
+            pattern,
+            level_filter,
+            collect_trends,
+            collect_stats,
+        ))
     }
 }
 

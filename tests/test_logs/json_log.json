@@ -1,0 +1,10 @@
+{"timestamp":"2025-03-21T14:00:00.123Z","level":"ERROR","service":"api","user_id":"12345","message":"Database connection failed"}
+{"timestamp":"2025-03-21T14:01:00.456Z","level":"WARN","service":"web","user_id":"67890","message":"Slow query detected"}
+{"timestamp":"2025-03-21T14:02:00.789Z","level":"ERROR","service":"auth","user_id":"12345","message":"Authentication failed"}
+{"timestamp":"2025-03-21T14:03:00.012Z","level":"INFO","service":"notification","user_id":"54321","message":"User registration successful"}
+{"timestamp":"2025-03-21T14:04:00.345Z","level":"DEBUG","service":"cache","user_id":"98765","message":"Cache refresh triggered"}
+{"timestamp":"2025-03-21T14:05:00.678Z","level":"TRACE","service":"monitoring","user_id":"24680","message":"Heartbeat received"}
+{"timestamp":"2025-03-21T14:06:00.901Z","level":"ERROR","service":"payment","user_id":"13579","message":"Payment gateway timeout"}
+{"timestamp":"2025-03-21T14:07:00.234Z","level":"WARN","service":"database","user_id":"97531","message":"High latency detected"}
+{"timestamp":"2025-03-21T14:08:00.567Z","level":"INFO","service":"user","user_id":"86420","message":"Profile updated successfully"}
+{"timestamp":"2025-03-21T14:09:00.890Z","level":"ERROR","service":"search","user_id":"11223","message":"Indexing process failed"}

@@ -82,14 +82,6 @@ impl PatternMatcher for RegexMatcher {
     }
 }
 
-// Structure to hold parsed data from a line
-struct ParsedLine<'a> {
-    level: &'a str,
-    timestamp: Option<&'a str>,
-    error_type: Option<String>,
-    message: Option<&'a str>,
-}
-
 pub struct LogAnalyzer {
     pub(crate) pattern_matcher: Option<Box<dyn PatternMatcher + Send + Sync>>,
     pub(crate) level_filter_lowercase: Option<String>,
@@ -124,20 +116,43 @@ impl LogAnalyzer {
         }
     }
 
+    /// Helper function to check if a line contains a specific field filter
+    fn line_contains_filter(&self, line: &str, key: &str, value: &str) -> bool {
+        // Check if the line contains both key and value, case-insensitive
+        let line_lower = line.to_lowercase();
+        let key_lower = key.to_lowercase();
+        let value_lower = value.to_lowercase();
+
+        line_lower.contains(&key_lower) && line_lower.contains(&value_lower)
+    }
+
     /// Check if parsed log line matches all field filters
-    fn matches_field_filters(&self, parsed: &crate::parser::ParsedLogLine) -> bool {
+    fn matches_field_filters(&self, line: &str, parsed: &crate::parser::ParsedLogLine) -> bool {
         if self.field_filters.is_empty() {
             return true; // No field filters, so it matches
         }
 
         // Check each field filter against the parsed line's fields
-        for (field, value) in &self.field_filters {
-            if !parsed.fields.contains_key(field) || parsed.fields.get(field).unwrap() != value {
-                return false; // Filter doesn't match
+        for (filter_key, filter_value) in &self.field_filters {
+            // Trim whitespace and normalize the comparison
+            let normalized_filter_key = filter_key.trim();
+            let normalized_filter_value = filter_value.trim();
+
+            // Check the parsed fields first (works for JSON)
+            if let Some(field_value) = parsed.fields.get(normalized_filter_key) {
+                // Compare trimmed and lowercased values
+                if field_value.trim().to_lowercase() != normalized_filter_value.to_lowercase() {
+                    return false;
+                }
+            } else {
+                // If not found in parsed fields, try a fallback line search
+                if !self.line_contains_filter(line, normalized_filter_key, normalized_filter_value) {
+                    return false;
+                }
             }
         }
 
-        true // All filters match
+        true
     }
 
     pub fn set_parser(&mut self, parser: Arc<dyn LogParser>) {
@@ -159,15 +174,6 @@ impl LogAnalyzer {
         self.level_filter_lowercase = level_filter.map(|l| l.to_lowercase());
     }
 
-    // New method: Configure using the optimized SIMD factory
-    pub fn configure_optimized(&mut self, pattern: Option<&str>, level_filter: Option<&str>) {
-        // Use pattern matcher factory to create the most optimized matcher
-        self.pattern_matcher = pattern.map(crate::accelerated::PatternMatcherFactory::create);
-
-        // Store level filter in lowercase for fast comparison
-        self.level_filter_lowercase = level_filter.map(|l| l.to_lowercase());
-    }
-
     // Check if pattern is complex and needs regex
     fn is_complex_pattern(pattern: &str) -> bool {
         pattern.contains(|c: char| {
@@ -183,141 +189,92 @@ impl LogAnalyzer {
         })
     }
 
-    // Fast pre-check for level filter before regex
-    fn quick_level_match(&self, line: &str) -> bool {
-        if self.level_filter_lowercase.is_none() {
-            return true;
-        }
-
-        // Get lowercase filter once
-        let filter = self.level_filter_lowercase.as_deref().unwrap();
-
-        // Fast check based on level type
-        match filter {
-            "error" => line.contains("ERROR") || line.contains("error"),
-            "warn" => line.contains("WARN") || line.contains("warn") || line.contains("WARNING"),
-            "info" => line.contains("INFO") || line.contains("info"),
-            "debug" => line.contains("DEBUG") || line.contains("debug"),
-            "trace" => line.contains("TRACE") || line.contains("trace"),
-            _ => true, // For custom levels, we'll need regex
-        }
-    }
-
-    // Parse line once to extract all needed data (legacy method)
-    fn parse_line<'a>(
-        &self,
-        line: &'a str,
-        need_timestamp: bool,
-        need_stats: bool,
-    ) -> ParsedLine<'a> {
-        // Initialize with defaults
-        let mut parsed = ParsedLine {
-            level: "",
-            timestamp: None,
-            error_type: None,
-            message: None,
-        };
-
-        // Extract log level if present
-        if let Some(caps) = LEVEL_REGEX.captures(line) {
-            parsed.level = caps
-                .get(1)
-                .map_or_else(|| caps.get(0).map_or("", |m| m.as_str()), |m| m.as_str());
-        }
-
-        // Extract timestamp only if needed
-        if need_timestamp {
-            if let Some(caps) = TIMESTAMP_REGEX.captures(line) {
-                if let Some(timestamp) = caps.get(1) {
-                    let timestamp_str = timestamp.as_str();
-                    if timestamp_str.len() >= 13 {
-                        parsed.timestamp = Some(&timestamp_str[0..13]);
-                    } else {
-                        parsed.timestamp = Some(timestamp_str);
-                    }
-                }
-            }
-        }
-
-        // Extract message and error type only if collecting stats
-        if need_stats {
-            parsed.message = self.extract_message(line);
-
-            // Error type extraction - still needs a String due to formatting in some cases
-            if let Some(caps) = ERROR_TYPE_REGEX.captures(line) {
-                if let Some(error_type) = caps.get(1) {
-                    parsed.error_type = Some(error_type.as_str().to_string());
-                }
-            } else if line.contains("Failed to") {
-                // Extract the specific failure reason
-                let parts: Vec<&str> = line.split("Failed to ").collect();
-                if parts.len() > 1 {
-                    let action_parts: Vec<&str> = parts[1].split(':').collect();
-                    if !action_parts.is_empty() {
-                        let action = action_parts[0].trim();
-                        parsed.error_type = Some(format!("Failed to {}", action));
-                    }
-                }
-            }
-        }
-
-        parsed
-    }
-
-    // Extract message with string slices instead of new Strings
-    fn extract_message<'a>(&self, line: &'a str) -> Option<&'a str> {
-        let parts: Vec<&str> = line.splitn(3, " - ").collect();
-        if parts.len() >= 3 {
-            Some(parts[2])
-        } else if parts.len() == 2 {
-            Some(parts[1])
-        } else {
-            Some(line)
-        }
-    }
-
-    // For API compatibility - analyze a single line
+    // Update the analyze_line method
     pub fn analyze_line(
         &self,
         line: &str,
         pattern: Option<&Regex>,
         level_filter: Option<&str>,
         collect_trends: bool,
-        collect_stats: bool,
+        _collect_stats: bool,  // Note the underscore for unused variable
     ) -> Option<(String, String, Option<String>)> {
-        // Parse line once to extract all needed data
-        let parsed = self.parse_line(line, collect_trends, collect_stats);
+        // If a parser is set, use it first to parse the line
+        let parsed_line = if let Some(parser) = &self.parser {
+            parser.parse_line(line)
+        } else {
+            crate::parser::ParsedLogLine::default()
+        };
 
-        // Apply filters
+        // Determine the level
+        let level = parsed_line.level
+            .unwrap_or_else(|| {
+                LEVEL_REGEX.captures(line)
+                    .and_then(|caps|
+                        caps.get(1)
+                            .map_or_else(
+                                || caps.get(0).map(|m| m.as_str().to_uppercase()),
+                                |m| Some(m.as_str().to_uppercase())
+                            )
+                    )
+                    .unwrap_or_default()
+            });
+
+        // Apply level filter
         let level_matches = match level_filter {
             None => true,
             Some(filter_level) => {
-                !parsed.level.is_empty()
-                    && parsed.level.to_uppercase() == filter_level.to_uppercase()
+                !level.is_empty() &&
+                    level.to_uppercase() == filter_level.to_uppercase()
             }
         };
 
+        // Apply pattern matching
         let pattern_matches = match pattern {
             None => true,
             Some(re) => re.is_match(line),
         };
 
-        if level_matches && pattern_matches {
-            // Format timestamp for return value
-            let timestamp = parsed.timestamp.map(String::from);
+        // Check field filters if set
+        let field_matches = if !self.field_filters.is_empty() {
+            // Use clone to avoid partial move
+            self.matches_field_filters(line, &parsed_line)
+        } else {
+            true
+        };
 
-            return Some((line.to_string(), parsed.level.to_uppercase(), timestamp));
+        // Combine all filters
+        if level_matches && pattern_matches && field_matches {
+            // Determine timestamp
+            let timestamp = if collect_trends {
+                // Try to use parsed timestamp from JSON first
+                parsed_line.timestamp
+            } else {
+                None
+            };
+
+            Some((line.to_string(), level, timestamp))
+        } else {
+            None
         }
-
-        None
     }
 
-    pub fn extract_error_type(&self, line: &str) -> Option<String> {
-        let parsed = self.parse_line(line, false, true);
-        parsed.error_type
+    // New method for optimized configuration
+    pub fn configure_optimized(&mut self, pattern: Option<&str>, level_filter: Option<&str>) {
+        // Use the same logic as `configure`, but you can add SIMD-specific optimizations if needed
+        self.pattern_matcher = pattern.map(|p| {
+            // You can add SIMD-specific pattern matcher creation here if needed
+            if Self::is_complex_pattern(p) {
+                Box::new(RegexMatcher::new(p)) as Box<dyn PatternMatcher + Send + Sync>
+            } else {
+                Box::new(LiteralMatcher::new(p)) as Box<dyn PatternMatcher + Send + Sync>
+            }
+        });
+
+        // Store level filter in lowercase for fast comparison
+        self.level_filter_lowercase = level_filter.map(|l| l.to_lowercase());
     }
 
-    // Optimized line processing for chunks
+    // More comprehensive process_chunk_data method
     pub fn process_chunk_data(
         &self,
         data: &[u8],
@@ -325,7 +282,6 @@ impl LogAnalyzer {
         collect_trends: bool,
         collect_stats: bool,
     ) {
-        // Split data into lines
         for line in data.split(|&b| b == b'\n').filter(|l| !l.is_empty()) {
             // Convert line to string, skip if invalid UTF-8
             let line_str = match std::str::from_utf8(line) {
@@ -333,182 +289,71 @@ impl LogAnalyzer {
                 Err(_) => continue,
             };
 
-            // Fast pre-check for pattern match
+            // Check if line matches pattern matcher if set
             if let Some(matcher) = &self.pattern_matcher {
                 if !matcher.is_match(line_str) {
                     continue;
                 }
             }
 
-            // Fast pre-check for level filter
-            if !self.quick_level_match(line_str) {
-                continue;
-            }
-
-            // Parse the line if we have field filters or a parser is set
-            let parsed_line = if !self.field_filters.is_empty() && self.parser.is_some() {
-                // Parse the line using the configured parser
-                self.parser.as_ref().unwrap().parse_line(line_str)
+            // Try to parse the line using the configured parser
+            let parsed_line = if let Some(parser) = &self.parser {
+                parser.parse_line(line_str)
             } else {
-                // No field filtering needed, use empty ParsedLogLine
                 crate::parser::ParsedLogLine::default()
             };
 
-            // Apply field filters if any
-            if !self.field_filters.is_empty() && !self.matches_field_filters(&parsed_line) {
-                continue;
-            }
+            // Match line against all filters and conditions
+            if let Some((matched_line, level, timestamp)) = self.analyze_line(
+                line_str,
+                None,   // No specific regex pattern
+                self.level_filter_lowercase.as_deref(),
+                collect_trends,
+                collect_stats
+            ) {
+                // Increment count
+                result.count += 1;
 
-            // Apply full regex for level filtering if needed
-            let level = if self.level_filter_lowercase.is_some() || collect_stats {
-                // If we already parsed the line and it has a level, use that
-                if !self.field_filters.is_empty() && parsed_line.level.is_some() {
-                    parsed_line.level.unwrap_or("")
-                } else if let Some(caps) = LEVEL_REGEX.captures(line_str) {
-                    caps.get(1)
-                        .map_or_else(|| caps.get(0).map_or("", |m| m.as_str()), |m| m.as_str())
-                } else {
-                    ""
-                }
-            } else {
-                ""
-            };
+                // Manage line counts for deduplication
+                let line_count_entry = result.line_counts.entry(matched_line.clone()).or_insert(0);
+                *line_count_entry += 1;
 
-            // Skip if level doesn't match filter
-            if let Some(filter) = &self.level_filter_lowercase {
-                if level.to_lowercase() != *filter {
-                    continue;
-                }
-            }
-
-            // We have a match - increment count
-            result.count += 1;
-
-            // Store the line with deduplication
-            let line_string = line_str.to_string();
-            let entry = result.line_counts.entry(line_string.clone()).or_insert(0);
-            *entry += 1;
-
-            // Add to matched_lines if this is the first occurrence and we're within limits
-            let is_first_occurrence = *entry == 1;
-            let within_limit = result.matched_lines.len() < MAX_UNIQUE_LINES;
-
-            if is_first_occurrence && within_limit {
-                result.matched_lines.push(line_string);
-            }
-
-            // Extract additional information only if needed
-            if collect_stats || collect_trends {
-                // Extract timestamp for trends
-                let timestamp = if collect_trends {
-                    TIMESTAMP_REGEX.captures(line_str).and_then(|caps| {
-                        caps.get(1).map(|m| {
-                            let ts = m.as_str();
-                            if ts.len() >= 13 { &ts[0..13] } else { ts }
-                        })
-                    })
-                } else {
-                    None
-                };
-
-                // Add stats if requested
-                if collect_stats {
-                    // Add level count if we have a level
-                    if !level.is_empty() {
-                        let level_upper = level.to_uppercase();
-                        *result.levels_count.entry(level_upper).or_insert(0) += 1;
-                    }
-
-                    // Extract error type for stats
-                    let error_type = if let Some(caps) = ERROR_TYPE_REGEX.captures(line_str) {
-                        caps.get(1).map(|m| m.as_str().to_string())
-                    } else if line_str.contains("Failed to") {
-                        // Extract specific failure reason
-                        let parts: Vec<&str> = line_str.split("Failed to ").collect();
-                        if parts.len() > 1 {
-                            let action_parts: Vec<&str> = parts[1].split(':').collect();
-                            if !action_parts.is_empty() {
-                                let action = action_parts[0].trim();
-                                Some(format!("Failed to {}", action))
-                            } else {
-                                None
-                            }
-                        } else {
-                            None
-                        }
-                    } else {
-                        None
-                    };
-
-                    // Add error type to stats
-                    if let Some(error) = error_type {
-                        *result.error_types.entry(error).or_insert(0) += 1;
-                    }
-
-                    // Extract message for unique messages
-                    let message = {
-                        let parts: Vec<&str> = line_str.splitn(3, " - ").collect();
-                        if parts.len() >= 3 {
-                            parts[2]
-                        } else if parts.len() == 2 {
-                            parts[1]
-                        } else {
-                            line_str
-                        }
-                    };
-
-                    result.unique_messages.insert(message.to_string());
+                // Add to matched lines if within unique lines limit
+                if result.matched_lines.len() < MAX_UNIQUE_LINES {
+                    result.matched_lines.push(matched_line.clone());
                 }
 
-                // Add time trend if requested and timestamp found
+                // Collect time trends if requested
                 if collect_trends {
                     if let Some(ts) = timestamp {
-                        *result.time_trends.entry(ts.to_string()).or_insert(0) += 1;
+                        *result.time_trends.entry(ts).or_insert(0) += 1;
+                    }
+                }
+
+                // Collect stats if requested
+                if collect_stats {
+                    // Collect level counts
+                    *result.levels_count.entry(level).or_insert(0) += 1;
+
+                    // Collect error types
+                    if let Some(error_type) = self.extract_error_type(line_str) {
+                        *result.error_types.entry(error_type).or_insert(0) += 1;
+                    }
+
+                    // Collect unique messages
+                    if let Some(message) = parsed_line.message {
+                        result.unique_messages.insert(message.to_string());
                     }
                 }
             }
         }
     }
 
-    // Original method for iterative processing (legacy support)
-    pub fn analyze_lines<I>(
-        &mut self,
-        lines: I,
-        pattern: Option<&Regex>,
-        level_filter: Option<&str>,
-        collect_trends: bool,
-        collect_stats: bool,
-    ) -> AnalysisResult
-    where
-        I: Iterator<Item = String>,
-    {
-        // Configure with pattern if provided
-        if let Some(pat) = pattern {
-            self.configure(Some(&pat.to_string()), level_filter);
-        } else {
-            self.configure(None, level_filter);
-        }
-
-        // Initialize result
-        let mut result = AnalysisResult {
-            matched_lines: Vec::with_capacity(1000),
-            line_counts: FxHashMap::default(),
-            count: 0,
-            time_trends: FxHashMap::default(),
-            levels_count: FxHashMap::default(),
-            error_types: FxHashMap::default(),
-            unique_messages: FxHashSet::default(),
-            deduplicated: true,
-        };
-
-        // Process all lines
-        let lines_vec: Vec<String> = lines.collect();
-        let lines_bytes: Vec<u8> = lines_vec.join("\n").into_bytes();
-
-        // Process the data as a single chunk
-        self.process_chunk_data(&lines_bytes, &mut result, collect_trends, collect_stats);
-
-        result
+    // Helper method to extract error type (similar to existing method in regex detection)
+    fn extract_error_type(&self, line: &str) -> Option<String> {
+        ERROR_TYPE_REGEX.captures(line)
+            .map(|caps| caps.get(1).map(|m| m.as_str().to_string()))
+            .flatten()
     }
 
     // New SIMD-optimized version of analyze_lines
