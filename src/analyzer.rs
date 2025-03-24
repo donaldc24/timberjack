@@ -25,8 +25,7 @@ lazy_static! {
     ).unwrap();
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[derive(Default)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct AnalysisResult {
     pub matched_lines: Vec<String>,
     pub line_counts: FxHashMap<String, usize>,
@@ -37,7 +36,6 @@ pub struct AnalysisResult {
     pub unique_messages: FxHashSet<String>,
     pub deduplicated: bool,
 }
-
 
 // Pattern matcher trait for polymorphism
 pub trait PatternMatcher: Send + Sync {
@@ -128,8 +126,7 @@ impl LogAnalyzer {
     // New method: Configure using the optimized SIMD factory
     pub fn configure_optimized(&mut self, pattern: Option<&str>, level_filter: Option<&str>) {
         // Use pattern matcher factory to create the most optimized matcher
-        self.pattern_matcher =
-            pattern.map(crate::accelerated::PatternMatcherFactory::create);
+        self.pattern_matcher = pattern.map(crate::accelerated::PatternMatcherFactory::create);
 
         // Store level filter in lowercase for fast comparison
         self.level_filter_lowercase = level_filter.map(|l| l.to_lowercase());
