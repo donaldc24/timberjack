@@ -25,6 +25,7 @@ Where `<FILE>` is the path to the log file you want to analyze.
 | Option | Description | Example |
 |--------|-------------|---------|
 | `--level <LEVEL>` | Filter logs by level (ERROR, WARN, INFO, etc.) | `timber --level ERROR app.log` |
+| `-f, --field <FIELD=VALUE>` | Filter by field values (can be specified multiple times) | `timber -f service=api -f user_id=12345 app.log` |
 
 ### Analysis Options
 
@@ -70,11 +71,8 @@ timber --level WARN --trend app.log
 # Count ERROR logs related to database
 timber --count --level ERROR --chop "database" app.log
 
-# Get JSON output for all logs with statistical analysis
-timber --stats --json app.log
-
-# Get only top 3 error types
-timber --stats --top-errors 3 app.log
+# Filter JSON logs by field values
+timber --format json -f service=api -f user_id=12345 app.log
 ```
 
 ## Performance Considerations

@@ -1,8 +1,8 @@
-# Timber 🪓
+# TimberJack 🪓
 
-[![Rust CI](https://github.com/donaldc24/timber/workflows/Rust%20CI/badge.svg)](https://github.com/donaldc24/timber/actions)
-[![Crates.io](https://img.shields.io/crates/v/timber-rs.svg)](https://crates.io/crates/timber-rs)
-[![Security Audit](https://github.com/donaldc24/timber/workflows/Security%20audit/badge.svg)](https://github.com/donaldc24/timber/actions?query=workflow%3A%22Security+audit%22)
+[![Rust CI](https://github.com/donaldc24/timberjack/workflows/Rust%20CI/badge.svg)](https://github.com/donaldc24/timberjack/actions)
+[![Crates.io](https://img.shields.io/crates/v/timberjack.svg)](https://crates.io/crates/timberjack)
+[![Security Audit](https://github.com/donaldc24/timberjack/workflows/Security%20audit/badge.svg)](https://github.com/donaldc24/timberjack/actions?query=workflow%3A%22Security+audit%22)
 
 **Timber: Fell Your Logs Fast** - A lightning-fast CLI log analysis tool built in Rust.
 
@@ -25,13 +25,13 @@ Timber is a log-agnostic CLI tool that chops through noise to deliver patterns, 
 
 ### Cargo (Recommended)
 ```bash
-cargo install timber-rs
+cargo install timberjack
 ```
 
 ### From Source
 ```bash
 # Clone the repository
-git clone https://github.com/donaldc24/timber.git
+git clone https://github.com/donaldc24/timberjack.git
 cd timber
 
 # Build with Cargo
@@ -73,6 +73,9 @@ timber --chop "timeout|connection refused" --level ERROR path/to/logfile.log
 
 # Comprehensive analysis with trends and statistics
 timber --chop "database" --level ERROR --trend --stats path/to/logfile.log
+
+# Filter JSON logs by field values
+timber --format json -f service=api -f user_id=12345 path/to/logfile.log
 
 # Analyze a file with explicit parallel processing
 timber --parallel --stats large_logfile.log

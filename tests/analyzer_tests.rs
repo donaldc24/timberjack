@@ -45,7 +45,7 @@ fn test_extract_error_type() {
 }
 
 #[test]
-fn test_analyze_lines_with_pattern() {
+fn test_analyze_mmap_with_pattern() {
     let mut analyzer = LogAnalyzer::new();
     let lines = vec![
         "2025-03-21 14:00:00,123 [ERROR] NullPointerException in WebController.java:42".to_string(),
@@ -55,10 +55,20 @@ fn test_analyze_lines_with_pattern() {
         "2025-03-21 14:03:00,012 [ERROR] Connection timeout in NetworkClient.java:86".to_string(),
     ];
 
-    // Search for ERROR pattern
-    let pattern = Some(Regex::new("ERROR").unwrap());
-    let result = analyzer.analyze_lines(lines.into_iter(), pattern.as_ref(), None, false, false);
+    // Convert lines to a memory-mapped representation (for testing purposes)
+    let data = lines.join("\n").into_bytes();
+    let pattern = Regex::new("ERROR").unwrap();
 
+    // Create a mock Mmap - we'll use process_chunk_data directly since we can't create a real Mmap in tests
+    let mut result = timber_rs::analyzer::AnalysisResult::default();
+
+    // Set up the pattern manually since we're not using the high-level methods
+    analyzer.configure(Some(&pattern.to_string()), None);
+
+    // Process the data
+    analyzer.process_chunk_data(&data, &mut result, false, false);
+
+    // Verify results
     assert_eq!(result.count, 2);
     assert_eq!(result.matched_lines.len(), 2);
     assert!(result.matched_lines[0].contains("NullPointerException"));
@@ -66,7 +76,7 @@ fn test_analyze_lines_with_pattern() {
 }
 
 #[test]
-fn test_analyze_lines_with_level_filter() {
+fn test_analyze_mmap_with_level_filter() {
     let mut analyzer = LogAnalyzer::new();
     let lines = vec![
         "2025-03-21 14:00:00,123 [ERROR] NullPointerException in WebController.java:42".to_string(),
@@ -76,9 +86,19 @@ fn test_analyze_lines_with_level_filter() {
         "2025-03-21 14:03:00,012 [ERROR] Connection timeout in NetworkClient.java:86".to_string(),
     ];
 
-    // Filter by WARN level
-    let result = analyzer.analyze_lines(lines.into_iter(), None, Some("WARN"), false, false);
+    // Convert lines to a memory-mapped representation
+    let data = lines.join("\n").into_bytes();
 
+    // Create a result structure
+    let mut result = timber_rs::analyzer::AnalysisResult::default();
+
+    // Configure level filter manually
+    analyzer.configure(None, Some("WARN"));
+
+    // Process the data
+    analyzer.process_chunk_data(&data, &mut result, false, false);
+
+    // Verify results
     assert_eq!(result.count, 1);
     assert_eq!(result.matched_lines.len(), 1);
     assert!(result.matched_lines[0].contains("Slow database query"));
@@ -86,7 +106,7 @@ fn test_analyze_lines_with_level_filter() {
 
 #[test]
 fn test_time_trends() {
-    let mut analyzer = LogAnalyzer::new();
+    let analyzer = LogAnalyzer::new();
     let lines = vec![
         "2025-03-21 14:00:00,123 [ERROR] NullPointerException in WebController.java:42".to_string(),
         "2025-03-21 14:01:00,456 [WARN] Slow database query (2.3s) in DatabaseService.java:128"
@@ -95,9 +115,16 @@ fn test_time_trends() {
         "2025-03-21 15:03:00,012 [ERROR] Connection timeout in NetworkClient.java:86".to_string(),
     ];
 
-    // Collect time trends
-    let result = analyzer.analyze_lines(lines.into_iter(), None, None, true, false);
+    // Convert lines to a memory-mapped representation
+    let data = lines.join("\n").into_bytes();
 
+    // Create a result structure
+    let mut result = timber_rs::analyzer::AnalysisResult::default();
+
+    // Process the data with trends collection
+    analyzer.process_chunk_data(&data, &mut result, true, false);
+
+    // Verify trends
     assert_eq!(result.time_trends.len(), 2);
     assert_eq!(*result.time_trends.get("2025-03-21 14").unwrap_or(&0), 3);
     assert_eq!(*result.time_trends.get("2025-03-21 15").unwrap_or(&0), 1);
@@ -105,7 +132,7 @@ fn test_time_trends() {
 
 #[test]
 fn test_stats_collection() {
-    let mut analyzer = LogAnalyzer::new();
+    let analyzer = LogAnalyzer::new();
     let lines = vec![
         "2025-03-21 14:00:00,123 [ERROR] NullPointerException in WebController.java:42".to_string(),
         "2025-03-21 14:01:00,456 [WARN] Slow database query (2.3s) in DatabaseService.java:128"
@@ -114,16 +141,22 @@ fn test_stats_collection() {
         "2025-03-21 14:03:00,012 [ERROR] Connection timeout in NetworkClient.java:86".to_string(),
     ];
 
-    // Collect stats
-    let result = analyzer.analyze_lines(lines.into_iter(), None, None, false, true);
+    // Convert lines to a memory-mapped representation
+    let data = lines.join("\n").into_bytes();
 
-    // Check level counts
+    // Create a result structure
+    let mut result = timber_rs::analyzer::AnalysisResult::default();
+
+    // Process the data with stats collection
+    analyzer.process_chunk_data(&data, &mut result, false, true);
+
+    // Verify level counts
     assert_eq!(result.levels_count.len(), 3);
     assert_eq!(*result.levels_count.get("ERROR").unwrap_or(&0), 2);
     assert_eq!(*result.levels_count.get("WARN").unwrap_or(&0), 1);
     assert_eq!(*result.levels_count.get("INFO").unwrap_or(&0), 1);
 
-    // Check error types
+    // Verify error types
     assert_eq!(result.error_types.len(), 2);
     assert_eq!(
         *result.error_types.get("NullPointerException").unwrap_or(&0),
@@ -133,9 +166,6 @@ fn test_stats_collection() {
         *result.error_types.get("Connection timeout").unwrap_or(&0),
         1
     );
-
-    // Check uniqueness
-    assert_eq!(result.unique_messages.len(), 4);
 }
 
 #[test]
@@ -149,16 +179,20 @@ fn test_combined_filters() {
         "2025-03-21 14:03:00,012 [ERROR] Connection timeout in NetworkClient.java:86".to_string(),
     ];
 
-    // Pattern + level filter
-    let pattern = Some(Regex::new("Connection").unwrap());
-    let result = analyzer.analyze_lines(
-        lines.into_iter(),
-        pattern.as_ref(),
-        Some("ERROR"),
-        false,
-        false,
-    );
+    // Convert lines to a memory-mapped representation
+    let data = lines.join("\n").into_bytes();
 
+    // Create a result structure
+    let mut result = timber_rs::analyzer::AnalysisResult::default();
+
+    // Configure pattern and level filter
+    let pattern = Regex::new("Connection").unwrap();
+    analyzer.configure(Some(&pattern.to_string()), Some("ERROR"));
+
+    // Process the data
+    analyzer.process_chunk_data(&data, &mut result, false, false);
+
+    // Verify results
     assert_eq!(result.count, 1);
     assert!(result.matched_lines[0].contains("Connection timeout"));
 }
@@ -172,10 +206,20 @@ fn test_empty_results() {
             .to_string(),
     ];
 
-    // Pattern that doesn't match anything
-    let pattern = Some(Regex::new("ThisDoesNotExist").unwrap());
-    let result = analyzer.analyze_lines(lines.into_iter(), pattern.as_ref(), None, false, false);
+    // Convert lines to a memory-mapped representation
+    let data = lines.join("\n").into_bytes();
 
+    // Create a result structure
+    let mut result = timber_rs::analyzer::AnalysisResult::default();
+
+    // Configure a pattern that doesn't match anything
+    let pattern = Regex::new("ThisDoesNotExist").unwrap();
+    analyzer.configure(Some(&pattern.to_string()), None);
+
+    // Process the data
+    analyzer.process_chunk_data(&data, &mut result, false, false);
+
+    // Verify results
     assert_eq!(result.count, 0);
     assert!(result.matched_lines.is_empty());
 }

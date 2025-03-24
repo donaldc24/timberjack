@@ -2,10 +2,11 @@ use clap::Parser;
 
 #[derive(Parser, Debug)]
 #[clap(name = "timber")]
-#[clap(about = "Timber: Fell Your Logs Fast", long_about = None)]
+#[clap(about = "Timberjack: Fell Your Logs Fast", long_about = None)]
 #[clap(version = env!("CARGO_PKG_VERSION"))]
 pub struct Args {
     /// Log file to analyze
+    #[clap(help = "Note: Timberjack is the new name for this tool, but the command remains 'timber' for compatibility")]
     pub file: String,
 
     /// Pattern to search for
@@ -47,4 +48,12 @@ pub struct Args {
     /// Only output the total log count (fast mode)
     #[clap(long)]
     pub count: bool,
+
+    /// Log format (auto, json, apache, syslog)
+    #[clap(long, default_value = "auto")]
+    pub format: String,
+
+    /// Filter by field values (format: field=value)
+    #[clap(long, short = 'f', number_of_values = 1)]
+    pub field: Vec<String>,
 }
