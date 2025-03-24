@@ -1,7 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use std::sync::Arc;
-    use timber_rs::parser::{LogFormat, LogParser, ParserRegistry};
+    use timber_rs::parser::{LogFormat, ParserRegistry};
 
     #[test]
     fn test_generic_parser() {
@@ -11,9 +10,9 @@ mod tests {
         let line = "2025-03-21 14:00:00,123 [ERROR] Test error message";
         let parsed = generic_parser.parse_line(line);
 
-        assert_eq!(parsed.level, Some("ERROR"));
-        assert_eq!(parsed.timestamp, Some("2025-03-21 14"));
-        assert_eq!(parsed.message, Some(line));
+        assert_eq!(parsed.level, Some("ERROR".to_string()));
+        assert_eq!(parsed.timestamp, Some("2025-03-21 14".to_string()));
+        assert_eq!(parsed.message, Some(line.to_string()));
     }
 
     #[test]

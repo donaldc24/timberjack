@@ -62,9 +62,7 @@ fn main() -> std::io::Result<()> {
                 }
 
                 // Detect format using the sample lines
-                let (detected_format, _) = parser_registry.detect_format(
-                    &sample_lines.iter().map(|s| s.as_ref()).collect::<Vec<&str>>()
-                );
+                let (detected_format, _) = parser_registry.detect_format(&sample_lines.to_vec());
 
                 if !args.json && !args.count {
                     println!("Detected format: {:?}", detected_format);
@@ -244,25 +242,14 @@ fn process_with_mmap(
     let mmap = unsafe { MmapOptions::new().map(&file)? };
 
     // Process the mapped memory
-    if use_parallel && file_size > PARALLEL_THRESHOLD_BYTES {
-        // Use analyzer's parallel mmap processing method
-        Ok(analyzer.analyze_mmap_parallel(
-            &mmap,
-            pattern,
-            level_filter,
-            collect_trends,
-            collect_stats,
-        ))
-    } else {
-        // Use analyzer's sequential mmap processing method
-        Ok(analyzer.analyze_mmap(
-            &mmap,
-            pattern,
-            level_filter,
-            collect_trends,
-            collect_stats,
-        ))
-    }
+    Ok(analyzer.analyze_mmap(
+        &mmap,
+        pattern,
+        level_filter,
+        collect_trends,
+        collect_stats,
+        use_parallel,
+    ))
 }
 
 // Determine if parallel processing should be used based on file size

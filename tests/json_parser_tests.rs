@@ -1,7 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use std::sync::Arc;
-    use timber_rs::parser::{LogFormat, LogParser, ParserRegistry};
+    use timber_rs::parser::{LogFormat, ParserRegistry};
 
     #[test]
     fn test_json_detection() {
@@ -26,9 +25,15 @@ mod tests {
 
         let parsed = json_parser.parse_line(line);
 
-        assert_eq!(parsed.timestamp, Some("2025-03-21T14:00:00.123Z"));
-        assert_eq!(parsed.level, Some("ERROR"));
-        assert_eq!(parsed.message, Some("Database connection failed"));
+        assert_eq!(
+            parsed.timestamp,
+            Some("2025-03-21T14:00:00.123Z".to_string())
+        );
+        assert_eq!(parsed.level, Some("ERROR".to_string()));
+        assert_eq!(
+            parsed.message,
+            Some("Database connection failed".to_string())
+        );
 
         // Check fields
         assert!(parsed.fields.contains_key("timestamp"));
@@ -51,7 +56,7 @@ mod tests {
         let parsed = json_parser.parse_line(line);
 
         // The message should be set to the entire line
-        assert_eq!(parsed.message, Some(line));
+        assert_eq!(parsed.message, Some(line.to_string()));
         // But no fields should be extracted
         assert_eq!(parsed.timestamp, None);
         assert_eq!(parsed.level, None);

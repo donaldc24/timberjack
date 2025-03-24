@@ -37,10 +37,10 @@ impl LogParser for JsonLogParser {
     }
 
     fn parse_line(&self, line: &str) -> ParsedLogLine {
-        let mut parsed = ParsedLogLine::default();
-
-        // Always set the full line as the default message
-        parsed.message = Some(line.to_string());
+        let mut parsed = ParsedLogLine {
+            message: Some(line.to_string()),
+            ..Default::default()
+        };
 
         // Try to parse as JSON
         if let Ok(json) = serde_json::from_str::<Value>(line.trim()) {

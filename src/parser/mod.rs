@@ -37,6 +37,12 @@ pub struct ParserRegistry {
     parsers: Vec<(LogFormat, Arc<dyn LogParser>)>,
 }
 
+impl Default for ParserRegistry {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ParserRegistry {
     /// Create a new parser registry with default parsers
     pub fn new() -> Self {
@@ -66,7 +72,7 @@ impl ParserRegistry {
         let sample = if sample_lines.len() < 5 {
             sample_lines
         } else {
-            &sample_lines[..5]  // Take first 5 lines for detection
+            &sample_lines[..5] // Take first 5 lines for detection
         };
 
         // First, try JSON parser explicitly for more common JSON log scenarios
