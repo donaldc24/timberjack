@@ -1,9 +1,9 @@
 // src/parser/json.rs - Corrected implementation
 
 use super::{LogParser, ParsedLogLine};
+use lazy_static::lazy_static;
 use serde_json::Value;
 use std::collections::HashMap;
-use lazy_static::lazy_static;
 
 lazy_static! {
     // Timestamp keys to search for in JSON logs
@@ -53,31 +53,32 @@ impl JsonLogParser {
 
                     match value {
                         Value::Object(_) | Value::Array(_) => {
-                            if result.len() < 100 { // Limit to prevent explosion
+                            if result.len() < 100 {
+                                // Limit to prevent explosion
                                 self.extract_fields(value, &new_prefix, result);
                             }
-                        },
+                        }
                         Value::String(s) => {
                             result.insert(new_prefix, s.clone());
-                        },
+                        }
                         Value::Number(n) => {
                             result.insert(new_prefix, n.to_string());
-                        },
+                        }
                         Value::Bool(b) => {
                             result.insert(new_prefix, b.to_string());
-                        },
+                        }
                         Value::Null => {
                             result.insert(new_prefix, "null".to_string());
-                        },
+                        }
                     }
                 }
-            },
+            }
             Value::Array(arr) => {
                 for (i, item) in arr.iter().enumerate() {
                     let new_prefix = format!("{}[{}]", prefix, i);
                     self.extract_fields(item, &new_prefix, result);
                 }
-            },
+            }
             _ => {} // Not a container type, nothing to extract
         }
     }
@@ -130,7 +131,8 @@ impl LogParser for JsonLogParser {
             parsed.level = self.find_first_value(&json, &LEVEL_KEYS);
 
             // Try to extract message
-            parsed.message = self.find_first_value(&json, &MESSAGE_KEYS)
+            parsed.message = self
+                .find_first_value(&json, &MESSAGE_KEYS)
                 .or_else(|| Some(line.to_string()));
 
             // Extract all fields for filtering
@@ -173,9 +175,15 @@ mod tests {
 
         let parsed = parser.parse_line(line);
 
-        assert_eq!(parsed.timestamp, Some("2025-03-21T14:00:00.123Z".to_string()));
+        assert_eq!(
+            parsed.timestamp,
+            Some("2025-03-21T14:00:00.123Z".to_string())
+        );
         assert_eq!(parsed.level, Some("ERROR".to_string()));
-        assert_eq!(parsed.message, Some("Database connection failed".to_string()));
+        assert_eq!(
+            parsed.message,
+            Some("Database connection failed".to_string())
+        );
 
         // Check fields map
         assert!(parsed.fields.contains_key("timestamp"));
@@ -200,6 +208,9 @@ mod tests {
         assert!(parsed.fields.contains_key("context.request.url"));
         assert_eq!(parsed.fields.get("user.id"), Some(&"12345".to_string()));
         assert_eq!(parsed.fields.get("user.name"), Some(&"John".to_string()));
-        assert_eq!(parsed.fields.get("context.request.url"), Some(&"/api/users".to_string()));
+        assert_eq!(
+            parsed.fields.get("context.request.url"),
+            Some(&"/api/users".to_string())
+        );
     }
 }

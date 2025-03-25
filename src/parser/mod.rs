@@ -1,5 +1,5 @@
-use std::sync::Arc;
 use std::collections::HashMap;
+use std::sync::Arc;
 
 /// Trait defining the interface for all log format parsers
 pub trait LogParser: Send + Sync {
