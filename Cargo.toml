@@ -49,3 +49,16 @@ harness = false
 name = "simd_benchmarks"
 harness = false
 path = "benches/simd_benchmarks.rs"
+
+[profile.release]
+codegen-units = 1
+lto = true
+strip = true
+panic = "abort"
+
+[profile.bench]
+codegen-units = 1
+lto = true
+debug = false
+debug-assertions = false
+opt-level = 3

@@ -8,7 +8,7 @@
 
 ## 📋 Overview
 
-Timber is a log-agnostic CLI tool that chops through noise to deliver patterns, trends, and stats from your logs. It's designed to be portable, requiring no servers or complex setup, and works with logs from any source—Java, Rust, Python, or any text-based logs.
+Timberjack is a log-agnostic CLI tool that chops through noise to deliver patterns, trends, and stats from your logs. It's designed to be portable, requiring no servers or complex setup, and works with logs from any source—Java, Rust, Python, or any text-based logs.
 
 ## ✨ Features
 
@@ -16,6 +16,8 @@ Timber is a log-agnostic CLI tool that chops through noise to deliver patterns, 
 - **Log Level Filtering**: Focus on specific severity levels (ERROR, WARN, INFO, etc.)
 - **Time-based Trend Analysis**: See how log patterns change over time
 - **Statistical Summaries**: Get insights on log levels, error types, and message uniqueness
+- **Format Detection**: Automatically identify and parse common log formats (JSON, plaintext)
+- **Field-based Filtering**: Filter JSON logs by specific field values
 - **Efficient Processing**: Handles large log files with minimal resource usage
 - **High Performance**: Competitive with specialized tools like grep and ripgrep
 - **Memory-Mapped Processing**: Efficient handling of large files
@@ -32,7 +34,7 @@ cargo install timberjack
 ```bash
 # Clone the repository
 git clone https://github.com/donaldc24/timberjack.git
-cd timber
+cd timberjack
 
 # Build with Cargo
 cargo build --release
@@ -86,6 +88,29 @@ timber --stats --top-errors 10 path/to/logfile.log
 # Show unique messages in the stats output
 timber --stats --show-unique path/to/logfile.log
 ```
+
+### JSON Log Analysis
+
+Timberjack provides specialized support for JSON-formatted logs:
+
+```bash
+# Process JSON logs with automatic detection
+timber app.log
+
+# Explicitly specify JSON format
+timber --format json app.log
+
+# Filter by JSON field values
+timber --format json -f service=payment -f status=failed app.log
+
+# Extract errors from a specific service
+timber --format json -f service=api --level ERROR app.log
+
+# Complex JSON field filtering
+timber --format json -f "response_time>1000" app.log
+```
+
+For more detailed information on JSON log analysis, see [JSON Log Analysis Documentation](docs/json-log-analysis.md).
 
 ### JSON Output
 
@@ -146,6 +171,8 @@ Example JSON output for `--stats --json`:
 | `--top-errors <N>` | Number of top error types to show (default: 5) |
 | `--parallel` | Force parallel processing (auto-detected by default) |
 | `--sequential` | Force sequential processing (for debugging) |
+| `--format <FORMAT>` | Specify log format explicitly (`json`, `auto`) |
+| `-f, --field <FIELD=VALUE>` | Filter by field values (for JSON logs) |
 | `--help` | Display help information |
 | `--version` | Display version information |
 
@@ -159,7 +186,7 @@ Example JSON output for `--stats --json`:
 
 Felled: 2 logs
 
-Timber finished chopping the log! 🪵
+Timberjack finished chopping the log! 🪵
 ```
 
 ### With Stats
@@ -182,7 +209,7 @@ Stats summary:
   Unique messages: 2
   Repetition ratio: 0.0%
 
-Timber finished chopping the log! 🪵
+Timberjack finished chopping the log! 🪵
 ```
 
 ### With Time Trends
@@ -197,86 +224,33 @@ Time trends:
   2025-03-21 14 - 1 log occurred during this hour
   2025-03-21 15 - 1 log occurred during this hour
 
-Timber finished chopping the log! 🪵
+Timberjack finished chopping the log! 🪵
 ```
 
-### Count Mode
-
-```bash
-# Count all logs
-$ timber --count app.log
-1245
-
-# Count ERROR logs
-$ timber --count --level ERROR app.log
-42
-
-# Count pattern matches
-$ timber --count --chop "NullPointerException" app.log
-5
-```
-
-### JSON Output
-
-```bash
-# JSON output with stats
-$ timber --stats --json app.log
-
-{
-  "matched_lines": [
-    "2025-03-21 14:00:00,123 [ERROR] NullPointerException in WebController.java:42",
-    "2025-03-21 14:03:00,012 [ERROR] Connection timeout in NetworkClient.java:86"
-  ],
-  "total_count": 2,
-  "time_trends": null,
-  "stats": {
-    "log_levels": [
-      {"level": "ERROR", "count": 2}
-    ],
-    "error_types": [
-      {"error_type": "NullPointerException", "count": 1, "rank": 1},
-      {"error_type": "Connection timeout", "count": 1, "rank": 2}
-    ],
-    "unique_messages_count": 2,
-    "repetition_ratio": 0.0,
-    "unique_messages": null
-  },
-  "deduplicated": false
-}
-```
-
-### JSON With Unique Messages
-
-```bash
-# Include unique messages in JSON output
-$ timber --stats --show-unique --json app.log
-
-{
-  "matched_lines": [...],
-  "total_count": 2,
-  "stats": {
-    "log_levels": [...],
-    "error_types": [...],
-    "unique_messages_count": 2,
-    "repetition_ratio": 0.0,
-    "unique_messages": [
-      "NullPointerException in WebController.java:42",
-      "Connection timeout in NetworkClient.java:86"
-    ]
-  },
-  "deduplicated": false
-}
-```
-
-### Count Only Mode
+### JSON Log Analysis
 
 ```
-2
+{"timestamp":"2025-03-21T14:00:00.123Z","level":"ERROR","service":"api","user_id":"12345","message":"Database connection failed"}
+
+Felled: 1 logs
+
+Stats summary:
+
+  Log levels:
+    ERROR: 1 log
+
+  Top error types:
+    No error types detected
+
+  Unique messages: 1
+  Repetition ratio: 0.0%
+
+Timberjack finished chopping the log! 🪵
 ```
 
 ## ⚡ Performance
 
-Timber is designed for speed and efficiency:
+Timberjack is designed for speed and efficiency:
 
 - **Memory-mapped file processing**: Fast access to files of any size
 - **SIMD acceleration**: Uses CPU vector instructions for faster pattern matching
@@ -294,30 +268,20 @@ Timber is designed for speed and efficiency:
 | timber --chop | 0.169s | 0.239s | 0.640s |
 | timber --stats | 0.258s | 0.444s | 2.735s |
 
-For counting and pattern matching operations, Timber is competitive with specialized tools like grep and ripgrep while providing much richer analysis capabilities.
+For counting and pattern matching operations, Timberjack is competitive with specialized tools like grep and ripgrep while providing much richer analysis capabilities.
 
 ## 📚 Documentation
 
 - [Command Line Interface](docs/CLI.md) - Comprehensive guide to all CLI options and examples
+- [JSON Log Analysis](docs/json-log-analysis.md) - Detailed guide for working with JSON logs
 - [Performance Optimizations](docs/PERFORMANCE.md) - Technical details on performance features and optimization tips
 - [CHANGELOG](CHANGELOG.md) - Detailed version history and changes
 
 ## 📝 Roadmap
 
-### Short-term Goals
-- [x] Basic log file analysis
-- [x] Pattern searching
-- [x] Log level filtering
-- [x] Time-based trend analysis
-- [x] Statistical summaries
-- [x] Memory-mapped file processing
-- [x] SIMD acceleration
-- [x] Parallel processing
-- [x] Count mode
-
 ### Upcoming Features
-- Format-specific parsers
-- Package manager distributions
+- Enhanced JSON log parsing
+- Package manager distributions (Homebrew, apt, etc.)
 - VS Code extension
 - Multi-file analysis
 - Interactive TUI mode
@@ -335,7 +299,7 @@ Contributions are welcome! Please read our [Contributing Guidelines](CONTRIBUTIN
 
 ## 🐛 Reporting Issues
 
-Found a bug or have a feature request? Please open an issue on our [GitHub Issues](https://github.com/donaldc24/timber/issues) page.
+Found a bug or have a feature request? Please open an issue on our [GitHub Issues](https://github.com/donaldc24/timberjack/issues) page.
 
 ## 📜 License
 
