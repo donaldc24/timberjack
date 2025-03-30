@@ -24,10 +24,40 @@ WITH_LARGE=false       # Whether to include large (10M line) tests
 SEQUENTIAL_ONLY=false  # Run benchmarks sequentially
 PROCESS_NICE=-10       # Process priority (lower = higher priority)
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+CLEANUP_ONLY=false     # Only cleanup previous results
 
 mkdir -p $BENCH_DIR
 mkdir -p $BENCH_DIR/reports
 mkdir -p $BENCH_DIR/reports/$TIMESTAMP
+
+# Function to clean up previous benchmark results
+cleanup_previous_results() {
+    echo "Cleaning up previous benchmark results..."
+
+    # Keep the most recent N reports
+    KEEP_LATEST=3
+
+    # Get a list of all report directories sorted by date (oldest first)
+    REPORT_DIRS=$(find "$BENCH_DIR/reports" -mindepth 1 -maxdepth 1 -type d | sort)
+
+    # Count total reports
+    TOTAL_REPORTS=$(echo "$REPORT_DIRS" | wc -l)
+
+    # Calculate how many to delete
+    DELETE_COUNT=$((TOTAL_REPORTS - KEEP_LATEST))
+
+    if [[ $DELETE_COUNT -le 0 ]]; then
+        echo "No reports to delete (keeping the latest $KEEP_LATEST)."
+        return 0
+    fi
+
+    echo "Deleting $DELETE_COUNT old report(s) (keeping the latest $KEEP_LATEST)..."
+
+    # Delete the oldest reports
+    echo "$REPORT_DIRS" | head -n $DELETE_COUNT | xargs rm -rf
+
+    echo "Cleanup complete."
+}
 
 # Function to stabilize system resources
 stabilize_system() {
@@ -607,518 +637,163 @@ run_large_file_benchmarks() {
     fi
 }
 
-# Generate reports from benchmark results
+# Generate reports from benchmark results - now simply calls the external script
 generate_reports() {
     echo "Generating benchmark reports..."
-
-    # Create analysis script
-    cat > "$BENCH_DIR/reports/$TIMESTAMP/analyze_benchmarks.py" << 'EOFA'
-import os
-import sys
-import pandas as pd
-import matplotlib.pyplot as plt
-import numpy as np
-from tabulate import tabulate
-
-# Load benchmark results
-results_file = "benchmark_results.csv"
-if not os.path.exists(results_file):
-    print(f"Error: Results file {results_file} not found")
-    sys.exit(1)
-
-# Read CSV with column names
-df = pd.read_csv(results_file, names=[
-    "category", "tool", "file", "lines", "time_seconds",
-    "time_stdev", "memory_mb", "memory_stdev", "throughput", "outliers"
-])
-
-# Add size class column for better grouping
-df['size'] = df['file'].str.extract(r'(\d+[km])')
-size_order = ['10k', '100k', '1m', '10m']
-size_map = {s: i for i, s in enumerate(size_order)}
-df['size_order'] = df['size'].map(size_map)
-df = df.sort_values(['category', 'size_order', 'time_seconds'])
-
-# Function to generate comparison charts for a category
-def generate_category_charts(category_df, category_name):
-    print(f"\nAnalyzing {category_name} benchmarks...")
-
-    # List of size classes in this category
-    sizes = category_df['size'].unique()
-
-    for size in sizes:
-        size_df = category_df[category_df['size'] == size].copy()
-
-        # Calculate relative performance compared to fastest tool
-        min_time = size_df['time_seconds'].min()
-        size_df['relative_speed'] = min_time / size_df['time_seconds']
-        size_df['is_timber'] = size_df['tool'].str.startswith('timber')
-
-        # Sort by time (ascending)
-        size_df = size_df.sort_values('time_seconds')
-
-        # Print table of results
-        print(f"\nResults for {size} lines ({category_name}):")
-        table_df = size_df[['tool', 'time_seconds', 'memory_mb', 'throughput', 'relative_speed']].copy()
-        table_df.columns = ['Tool', 'Time (s)', 'Memory (MB)', 'Lines/second', 'Relative Speed']
-        table_df['Time (s)'] = table_df['Time (s)'].map('{:.4f}'.format)
-        table_df['Memory (MB)'] = table_df['Memory (MB)'].map('{:.2f}'.format)
-        table_df['Lines/second'] = table_df['Lines/second'].map('{:.0f}'.format)
-        table_df['Relative Speed'] = table_df['Relative Speed'].map('{:.2f}x'.format)
-        print(tabulate(table_df, headers='keys', tablefmt='grid', showindex=False))
-
-        # Generate time comparison chart
-        plt.figure(figsize=(10, 6))
-        bars = plt.barh(
-            size_df['tool'],
-            size_df['time_seconds'],
-            xerr=size_df['time_stdev'],
-            color=[('royalblue' if is_timber else 'lightgray') for is_timber in size_df['is_timber']],
-            alpha=0.7
-        )
-        plt.xlabel('Time (seconds)')
-        plt.title(f'{category_name} Performance Comparison ({size} lines)')
-        plt.grid(axis='x', linestyle='--', alpha=0.7)
-
-        # Add values on bars
-        for i, bar in enumerate(bars):
-            plt.text(
-                bar.get_width() + bar.get_xerr() + 0.01,
-                bar.get_y() + bar.get_height()/2,
-                f"{size_df['time_seconds'].iloc[i]:.3f}s",
-                va='center'
-            )
-
-        plt.tight_layout()
-        plt.savefig(f"{category_name.lower().replace(' ', '_')}_{size}_time.png", dpi=300)
-        plt.close()
-
-        # Generate memory comparison chart
-        plt.figure(figsize=(10, 6))
-        bars = plt.barh(
-            size_df['tool'],
-            size_df['memory_mb'],
-            xerr=size_df['memory_stdev'],
-            color=[('darkgreen' if is_timber else 'lightgray') for is_timber in size_df['is_timber']],
-            alpha=0.7
-        )
-        plt.xlabel('Memory (MB)')
-        plt.title(f'{category_name} Memory Usage ({size} lines)')
-        plt.grid(axis='x', linestyle='--', alpha=0.7)
-
-        # Add values on bars
-        for i, bar in enumerate(bars):
-            plt.text(
-              bar.get_width() + bar.get_xerr() + 0.01,
-                              bar.get_y() + bar.get_height()/2,
-                              f"{size_df['memory_mb'].iloc[i]:.1f}MB",
-                              va='center'
-                          )
-
-                      plt.tight_layout()
-                      plt.savefig(f"{category_name.lower().replace(' ', '_')}_{size}_memory.png", dpi=300)
-                      plt.close()
-
-                      # Generate throughput comparison chart
-                      plt.figure(figsize=(10, 6))
-                      bars = plt.barh(
-                          size_df['tool'],
-                          size_df['throughput'],
-                          color=[('purple' if is_timber else 'lightgray') for is_timber in size_df['is_timber']],
-                          alpha=0.7
-                      )
-                      plt.xlabel('Lines processed per second')
-                      plt.title(f'{category_name} Throughput ({size} lines)')
-                      plt.grid(axis='x', linestyle='--', alpha=0.7)
-
-                      # Add values on bars
-                      for i, bar in enumerate(bars):
-                          plt.text(
-                              bar.get_width() + 0.01,
-                              bar.get_y() + bar.get_height()/2,
-                              f"{size_df['throughput'].iloc[i]:.0f}",
-                              va='center'
-                          )
-
-                      plt.tight_layout()
-                      plt.savefig(f"{category_name.lower().replace(' ', '_')}_{size}_throughput.png", dpi=300)
-                      plt.close()
-
-                      # Save results to CSV for reference
-                      size_df.to_csv(f"{category_name.lower().replace(' ', '_')}_{size}_results.csv", index=False)
-
-              # Generate scaling comparison across file sizes
-              def generate_scaling_charts(df):
-                  print("\nAnalyzing scaling behavior across file sizes...")
-
-                  # Get all unique tools and categories
-                  tools = df['tool'].unique()
-                  categories = df['category'].unique()
-
-                  for category in categories:
-                      category_df = df[df['category'] == category].copy()
-
-                      # Skip if fewer than 2 size classes
-                      if len(category_df['size'].unique()) < 2:
-                          continue
-
-                      # Create scaling chart
-                      plt.figure(figsize=(12, 8))
-
-                      for tool in tools:
-                          tool_df = category_df[category_df['tool'] == tool]
-
-                          # Skip tools with insufficient data
-                          if len(tool_df) < 2:
-                              continue
-
-                          # Sort by size
-                          tool_df = tool_df.sort_values('size_order')
-
-                          # Plot lines for each tool
-                          plt.plot(
-                              tool_df['lines'],
-                              tool_df['time_seconds'],
-                              'o-',
-                              label=tool,
-                              linewidth=2,
-                              markersize=8
-                          )
-
-                      plt.xlabel('File Size (lines)')
-                      plt.ylabel('Processing Time (seconds)')
-                      plt.title(f'{category} Scaling Behavior')
-                      plt.xscale('log')
-                      plt.yscale('log')
-                      plt.grid(True, which='both', linestyle='--', alpha=0.7)
-                      plt.legend(title='Tool')
-
-                      plt.tight_layout()
-                      plt.savefig(f"{category.lower()}_scaling.png", dpi=300)
-                      plt.close()
-
-                      # Calculate scaling factors
-                      print(f"\nScaling factors for {category}:")
-                      scaling_data = []
-
-                      for tool in tools:
-                          tool_df = category_df[category_df['tool'] == tool].sort_values('lines')
-
-                          if len(tool_df) >= 2:
-                              for i in range(1, len(tool_df)):
-                                  size_ratio = tool_df['lines'].iloc[i] / tool_df['lines'].iloc[i-1]
-                                  time_ratio = tool_df['time_seconds'].iloc[i] / tool_df['time_seconds'].iloc[i-1]
-                                  scaling_factor = time_ratio / size_ratio
-
-                                  scaling_data.append({
-                                      'Tool': tool,
-                                      'Size Change': f"{tool_df['size'].iloc[i-1]} → {tool_df['size'].iloc[i]}",
-                                      'Lines Ratio': f"{size_ratio:.1f}x",
-                                      'Time Ratio': f"{time_ratio:.2f}x",
-                                      'Scaling Factor': f"{scaling_factor:.3f}"
-                                  })
-
-                      # Print scaling analysis
-                      scaling_df = pd.DataFrame(scaling_data)
-                      print(tabulate(scaling_df, headers='keys', tablefmt='grid', showindex=False))
-                      scaling_df.to_csv(f"{category.lower()}_scaling_factors.csv", index=False)
-
-              # Generate timber-focused analysis
-              def generate_timber_analysis(df):
-                  timber_df = df[df['tool'].str.startswith('timber')].copy()
-
-                  if len(timber_df) == 0:
-                      print("No Timberjack data found for analysis")
-                      return
-
-                  print("\nTimberjack Performance Analysis:")
-
-                  # Group by category and tool
-                  grouped = timber_df.groupby(['category', 'tool', 'size'])
-
-                  # Calculate average performance metrics
-                  metrics = grouped.agg({
-                      'time_seconds': 'mean',
-                      'memory_mb': 'mean',
-                      'throughput': 'mean'
-                  }).reset_index()
-
-                  # Format the metrics for display
-                  metrics['time_seconds'] = metrics['time_seconds'].map('{:.4f}'.format)
-                  metrics['memory_mb'] = metrics['memory_mb'].map('{:.2f}'.format)
-                  metrics['throughput'] = metrics['throughput'].map('{:.0f}'.format)
-
-                  # Print and save the metrics
-                  print(tabulate(metrics, headers=['Category', 'Tool', 'Size', 'Time (s)', 'Memory (MB)', 'Lines/s'],
-                                tablefmt='grid', showindex=False))
-                  metrics.to_csv('timber_performance_summary.csv', index=False)
-
-                  # Create feature vs performance visualization
-                  feature_perf = timber_df.pivot_table(
-                      index='tool',
-                      columns='size',
-                      values='throughput',
-                      aggfunc='mean'
-                  ).reset_index()
-
-                  # Sort by feature complexity (number of operations)
-                  feature_order = [
-                      'timber-chop-count',
-                      'timber-level-count',
-                      'timber-chop',
-                      'timber-level',
-                      'timber-json-count',
-                      'timber-json-level',
-                      'timber-json-service',
-                      'timber-json-multi',
-                      'timber-stats',
-                      'timber-stats-level',
-                      'timber-stats-trend',
-                      'timber-json-stats',
-                      'timber-json-stats-field'
-                  ]
-
-                  # Filter to only include tools in feature_order
-                  feature_perf = feature_perf[feature_perf['tool'].isin(feature_order)]
-                  feature_perf['order'] = feature_perf['tool'].map({tool: i for i, tool in enumerate(feature_order)})
-                  feature_perf = feature_perf.sort_values('order')
-
-                  # Create a heatmap of features vs performance
-                  plt.figure(figsize=(12, 10))
-
-                  # Extract just the data columns (size classes)
-                  heatmap_data = feature_perf.drop(['tool', 'order'], axis=1)
-
-                  # Create normalized version for better visualization
-                  max_val = heatmap_data.max().max()
-                  normalized_data = heatmap_data.div(max_val)
-
-                  # Plot heatmap
-                  plt.imshow(normalized_data, cmap='viridis', aspect='auto')
-
-                  # Add labels
-                  plt.colorbar(label='Relative Throughput')
-                  plt.yticks(range(len(feature_perf)), feature_perf['tool'])
-                  plt.xticks(range(len(heatmap_data.columns)), heatmap_data.columns, rotation=45)
-                  plt.title('Timberjack Feature Performance by File Size')
-                  plt.tight_layout()
-                  plt.savefig('timber_feature_performance.png', dpi=300)
-                  plt.close()
-
-              # Execute analysis functions
-              print("Analyzing benchmark results...")
-
-              # Process by category
-              for category in df['category'].unique():
-                  category_df = df[df['category'] == category]
-                  generate_category_charts(category_df, category)
-
-              # Generate scaling analysis
-              generate_scaling_charts(df)
-
-              # Generate Timberjack-specific analysis
-              generate_timber_analysis(df)
-
-              print(f"\nAnalysis complete. Charts saved in current directory.")
-EOFA
-
-                  # Run the analysis script
-                  cd $BENCH_DIR/reports/$TIMESTAMP
-                  python3 analyze_benchmarks.py || python analyze_benchmarks.py
-
-                  echo "Benchmark reports generated:"
-                  echo "  $BENCH_DIR/reports/$TIMESTAMP/"
-
-                  # Create index.html to view results
-                  cat > $BENCH_DIR/reports/$TIMESTAMP/index.html << HTML
-              <!DOCTYPE html>
-              <html>
-              <head>
-                  <title>Timberjack Benchmark Results</title>
-                  <style>
-                      body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; }
-                      h1, h2, h3 { color: #2c3e50; }
-                      .container { max-width: 1200px; margin: 0 auto; }
-                      .chart-container { margin-bottom: 30px; border: 1px solid #eee; padding: 10px; }
-                      img { max-width: 100%; height: auto; }
-                      table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
-                      th, td { text-align: left; padding: 8px; border-bottom: 1px solid #ddd; }
-                      th { background-color: #f2f2f2; }
-                      tr:hover { background-color: #f5f5f5; }
-                      .summary { background-color: #f8f9fa; padding: 15px; border-radius: 4px; margin-bottom: 20px; }
-                  </style>
-              </head>
-              <body>
-                  <div class="container">
-                      <h1>Timberjack Benchmark Results</h1>
-                      <div class="summary">
-                          <h2>Summary</h2>
-                          <p>Benchmark run on $(date)</p>
-                          <p>Each test was run $BENCH_RUNS times with $BENCH_CACHE_MODE cache</p>
-                      </div>
-
-                      <h2>Pattern Matching Performance</h2>
-                      <div class="chart-container">
-                          <img src="pattern_10k_time.png" alt="Pattern Matching 10K">
-                          <img src="pattern_100k_time.png" alt="Pattern Matching 100K">
-                          <img src="pattern_1m_time.png" alt="Pattern Matching 1M">
-                      </div>
-
-                      <h2>Log Level Filtering Performance</h2>
-                      <div class="chart-container">
-                          <img src="level_10k_time.png" alt="Level Filtering 10K">
-                          <img src="level_100k_time.png" alt="Level Filtering 100K">
-                          <img src="level_1m_time.png" alt="Level Filtering 1M">
-                      </div>
-
-                      <h2>JSON Processing Performance</h2>
-                      <div class="chart-container">
-                          <img src="json_10k_time.png" alt="JSON Processing 10K">
-                          <img src="json_100k_time.png" alt="JSON Processing 100K">
-                          <img src="json_1m_time.png" alt="JSON Processing 1M">
-                      </div>
-
-                      <h2>Statistical Analysis Performance</h2>
-                      <div class="chart-container">
-                          <img src="stats_10k_time.png" alt="Stats Analysis 10K">
-                          <img src="stats_100k_time.png" alt="Stats Analysis 100K">
-                          <img src="stats_1m_time.png" alt="Stats Analysis 1M">
-                      </div>
-
-                      <h2>Scaling Behavior</h2>
-                      <div class="chart-container">
-                          <img src="pattern_scaling.png" alt="Pattern Scaling">
-                          <img src="json_scaling.png" alt="JSON Scaling">
-                          <img src="stats_scaling.png" alt="Stats Scaling">
-                      </div>
-
-                      <h2>Timberjack Feature Performance</h2>
-                      <div class="chart-container">
-                          <img src="timber_feature_performance.png" alt="Feature Performance">
-                      </div>
-                  </div>
-              </body>
-              </html>
-HTML
-
-                  echo "View results at: $BENCH_DIR/reports/$TIMESTAMP/index.html"
-              }
-
-              # Main function to orchestrate the benchmarking
-              run_benchmarks() {
-                  echo "Running benchmarks..."
-
-                  # Clear previous results
-                  echo "category,tool,file,lines,time_seconds,time_stdev,memory_mb,memory_stdev,throughput,outliers" > $BENCH_DIR/reports/$TIMESTAMP/benchmark_results.csv
-                  echo "timestamp,cpu,memory" > $BENCH_DIR/reports/$TIMESTAMP/system_stats.log
-
-                  cargo build --release
-
-                  # Find the timber executable
-                 if is_windows; then
-                     TIMBER_PATH="$(pwd)/target/release/timber.exe"
-                     # Convert the path to Windows-style
-                     TIMBER_PATH=$(cygpath -w "$TIMBER_PATH")
-                 else
-                     TIMBER_PATH="$(pwd)/target/release/timber"
-                 fi
-
-
-                  if [ ! -f "$TIMBER_PATH" ]; then
-                      echo "Error: timber executable not found at $TIMBER_PATH"
-                      exit 1
-                  fi
-
-                  # Stabilize system before benchmarking
-                  stabilize_system
-
-                  # Run different benchmark categories
-                  run_pattern_matching_benchmarks
-                  run_level_filtering_benchmarks
-                  run_json_benchmarks
-                  run_stats_benchmarks
-
-                  # Only run large file benchmarks if enabled
-                  if $WITH_LARGE; then
-                      run_large_file_benchmarks
-                  fi
-
-                  echo "Benchmarking complete. Generating reports..."
-                  generate_reports
-              }
-
-              # Parse command line arguments
-              parse_args() {
-                  while [[ $# -gt 0 ]]; do
-                      case $1 in
-                          --with-large)
-                              WITH_LARGE=true
-                              shift
-                              ;;
-                          --sequential)
-                              SEQUENTIAL_ONLY=true
-                              shift
-                              ;;
-                          --runs=*)
-                              BENCH_RUNS="${1#*=}"
-                              shift
-                              ;;
-                          --cache=*)
-                              BENCH_CACHE_MODE="${1#*=}"
-                              shift
-                              ;;
-                          --cooldown=*)
-                              BENCH_COOLDOWN="${1#*=}"
-                              shift
-                              ;;
-                          --no-warmup)
-                              BENCH_WARMUP=false
-                              shift
-                              ;;
-                          --help)
-                              echo "Timberjack Benchmark Script"
-                              echo ""
-                              echo "Usage: $0 [options]"
-                              echo ""
-                              echo "Options:"
-                              echo "  --with-large        Include large file (10M line) tests"
-                              echo "  --sequential        Run benchmarks sequentially (no parallel)"
-                              echo "  --runs=N            Number of benchmark runs (default: 5)"
-                              echo "  --cache=warm|cold   Cache mode (default: warm)"
-                              echo "  --cooldown=N        Seconds to wait between runs (default: 1)"
-                              echo "  --no-warmup         Skip warmup runs"
-                              echo "  --help              Show this help message"
-                              exit 0
-                              ;;
-                          *)
-                              echo "Unknown option: $1"
-                              echo "Use --help for usage information."
-                              exit 1
-                              ;;
-                      esac
-                  done
-              }
-
-              # Main script
-              main() {
-                  echo "=== Timberjack Comprehensive Benchmarking Tool ==="
-                  echo "Timestamp: $(date)"
-
-                  # Parse command line arguments
-                  parse_args "$@"
-
-                  # Check dependencies
-                  check_dependencies
-
-                  # Create test datasets
-                  create_datasets
-
-                  # Run benchmarks
-                  run_benchmarks
-
-                  echo "Benchmarking completed successfully!"
-                  echo "See results in $BENCH_DIR/reports/$TIMESTAMP/"
-              }
-
-              # Execute the main function with all arguments
-              main "$@"
+    # Fix for Windows Unicode encoding issues
+    if is_windows; then
+        # Set UTF-8 encoding for Python
+        export PYTHONIOENCODING=utf-8
+
+        # Also modify the Size Change column in analyze_benchmarks.py to use ASCII arrow instead of Unicode
+        # This addresses the error: UnicodeEncodeError: 'charmap' codec can't encode character '\u2192'
+        sed -i 's/f"{tool_df\['\''size'\''\].iloc\[i-1\]} → {tool_df\['\''size'\''\].iloc\[i\]}"/f"{tool_df['\''size'\''].iloc[i-1]} -> {tool_df['\''size'\''].iloc[i]}"/g' "$BENCH_DIR/reports/$TIMESTAMP/analyze_benchmarks.py"
+    fi
+    # Check if the report generation script exists and is executable
+    REPORT_SCRIPT="$SCRIPT_DIR/generate_report_only.sh"
+
+    if [ -x "$REPORT_SCRIPT" ]; then
+        echo "Running report generation script: $REPORT_SCRIPT"
+        "$REPORT_SCRIPT"
+    else
+        echo "Warning: Report generation script not found or not executable: $REPORT_SCRIPT"
+        echo "Please make sure the script exists and is executable (chmod +x $REPORT_SCRIPT)"
+        echo "Using default report generation method..."
+
+        # Fallback to simpler report generation
+        cd $BENCH_DIR/reports/$TIMESTAMP
+        echo "View results at: $BENCH_DIR/reports/$TIMESTAMP/"
+    fi
+}
+
+# Main function to orchestrate the benchmarking
+run_benchmarks() {
+    echo "Running benchmarks..."
+
+    # Clear previous results
+    echo "category,tool,file,lines,time_seconds,time_stdev,memory_mb,memory_stdev,throughput,outliers" > $BENCH_DIR/reports/$TIMESTAMP/benchmark_results.csv
+    echo "timestamp,cpu,memory" > $BENCH_DIR/reports/$TIMESTAMP/system_stats.log
+
+    cargo build --release
+
+    # Find the timber executable
+    if is_windows; then
+        TIMBER_PATH="$(pwd)/target/release/timber.exe"
+        # Convert the path to Windows-style
+        TIMBER_PATH=$(cygpath -w "$TIMBER_PATH")
+    else
+        TIMBER_PATH="$(pwd)/target/release/timber"
+    fi
+
+    if [ ! -f "$TIMBER_PATH" ]; then
+        echo "Error: timber executable not found at $TIMBER_PATH"
+        exit 1
+    fi
+
+    # Stabilize system before benchmarking
+    stabilize_system
+
+    # Run different benchmark categories
+    run_pattern_matching_benchmarks
+    run_level_filtering_benchmarks
+    run_json_benchmarks
+    run_stats_benchmarks
+
+    # Only run large file benchmarks if enabled
+    if $WITH_LARGE; then
+        run_large_file_benchmarks
+    fi
+
+    echo "Benchmarking complete. Generating reports..."
+    generate_reports
+}
+
+# Parse command line arguments
+parse_args() {
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            --cleanup)
+                CLEANUP_ONLY=true
+                shift
+                ;;
+            --with-large)
+                WITH_LARGE=true
+                shift
+                ;;
+            --sequential)
+                SEQUENTIAL_ONLY=true
+                shift
+                ;;
+            --runs=*)
+                BENCH_RUNS="${1#*=}"
+                shift
+                ;;
+            --cache=*)
+                BENCH_CACHE_MODE="${1#*=}"
+                shift
+                ;;
+            --cooldown=*)
+                BENCH_COOLDOWN="${1#*=}"
+                shift
+                ;;
+            --no-warmup)
+                BENCH_WARMUP=false
+                shift
+                ;;
+            --help)
+                echo "Timberjack Benchmark Script"
+                echo ""
+                echo "Usage: $0 [options]"
+                echo ""
+                echo "Options:"
+                echo "  --cleanup          Clean up old benchmark results (keeps latest 3)"
+                echo "  --with-large       Include large file (10M line) tests"
+                echo "  --sequential       Run benchmarks sequentially (no parallel)"
+                echo "  --runs=N           Number of benchmark runs (default: 5)"
+                echo "  --cache=warm|cold  Cache mode (default: warm)"
+                echo "  --cooldown=N       Seconds to wait between runs (default: 1)"
+                echo "  --no-warmup        Skip warmup runs"
+                echo "  --help             Show this help message"
+                exit 0
+                ;;
+            *)
+                echo "Unknown option: $1"
+                echo "Use --help for usage information."
+                exit 1
+                ;;
+        esac
+    done
+}
+
+# Main script
+main() {
+    echo "=== Timberjack Comprehensive Benchmarking Tool ==="
+    echo "Timestamp: $(date)"
+
+    # Parse command line arguments
+    parse_args "$@"
+
+    # Check if cleanup only
+    if $CLEANUP_ONLY; then
+        cleanup_previous_results
+        exit 0
+    fi
+
+    # Check dependencies
+    check_dependencies
+
+    # Create test datasets
+    create_datasets
+
+    # Run benchmarks
+    run_benchmarks
+
+    # Clean up old benchmark results (keeping the latest 3)
+    cleanup_previous_results
+
+    echo "Benchmarking completed successfully!"
+    echo "See results in $BENCH_DIR/reports/$TIMESTAMP/"
+}
+
+# Execute the main function with all arguments
+main "$@"

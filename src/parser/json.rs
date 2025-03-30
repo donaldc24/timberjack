@@ -17,6 +17,12 @@ lazy_static! {
 /// Parser for JSON formatted logs
 pub struct JsonLogParser;
 
+impl Default for JsonLogParser {
+    fn default() -> Self {
+        JsonLogParser::new()
+    }
+}
+
 impl JsonLogParser {
     /// Create a new JSON parser
     pub fn new() -> Self {
@@ -41,7 +47,7 @@ impl JsonLogParser {
     }
 
     /// Extract all fields from a JSON object (including nested)
-    fn extract_fields(&self, json: &Value, prefix: &str, result: &mut HashMap<String, String>) {
+    fn extract_fields(json: &Value, prefix: &str, result: &mut HashMap<String, String>) {
         match json {
             Value::Object(map) => {
                 for (key, value) in map {
@@ -55,7 +61,7 @@ impl JsonLogParser {
                         Value::Object(_) | Value::Array(_) => {
                             if result.len() < 100 {
                                 // Limit to prevent explosion
-                                self.extract_fields(value, &new_prefix, result);
+                                Self::extract_fields(value, &new_prefix, result);
                             }
                         }
                         Value::String(s) => {
@@ -76,7 +82,7 @@ impl JsonLogParser {
             Value::Array(arr) => {
                 for (i, item) in arr.iter().enumerate() {
                     let new_prefix = format!("{}[{}]", prefix, i);
-                    self.extract_fields(item, &new_prefix, result);
+                    Self::extract_fields(item, &new_prefix, result);
                 }
             }
             _ => {} // Not a container type, nothing to extract
@@ -136,7 +142,7 @@ impl LogParser for JsonLogParser {
                 .or_else(|| Some(line.to_string()));
 
             // Extract all fields for filtering
-            self.extract_fields(&json, "", &mut parsed.fields);
+            JsonLogParser::extract_fields(&json, "", &mut parsed.fields);
         }
 
         parsed
