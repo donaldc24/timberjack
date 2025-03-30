@@ -647,7 +647,7 @@ generate_reports() {
 
         # Also modify the Size Change column in analyze_benchmarks.py to use ASCII arrow instead of Unicode
         # This addresses the error: UnicodeEncodeError: 'charmap' codec can't encode character '\u2192'
-        sed -i 's/f"{tool_df\['\''size'\''\].iloc\[i-1\]} → {tool_df\['\''size'\''\].iloc\[i\]}"/f"{tool_df['\''size'\''].iloc[i-1]} -> {tool_df['\''size'\''].iloc[i]}"/g' "$BENCH_DIR/reports/$TIMESTAMP/analyze_benchmarks.py"
+        sed -i 's/f"{tool_df\['\''size'\''\].iloc\[i-1\]} → {tool_df\['\''size'\''\].iloc\[i\]}"/f"{tool_df['\''size'\''].iloc[i-1]} -> {tool_df['\''size'\''].iloc[i]}"/g' "$BENCH_DIR/benchmark/analyze_results.py"
     fi
     # Check if the report generation script exists and is executable
     REPORT_SCRIPT="$SCRIPT_DIR/generate_report_only.sh"
