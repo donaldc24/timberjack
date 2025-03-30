@@ -218,6 +218,11 @@ impl LogAnalyzer {
             crate::parser::ParsedLogLine::default()
         };
 
+        // Apply field filters
+        if !self.matches_field_filters(line, &parsed_line) {
+            return None;
+        }
+
         // Determine the level
         let level = parsed_line
             .level
