@@ -302,16 +302,6 @@ fn count_total_logs(
     pattern: Option<&Regex>,
     level_filter: Option<&str>,
 ) -> std::io::Result<usize> {
-    let path = file_path.ok_or_else(|| {
-        std::io::Error::new(
-            std::io::ErrorKind::InvalidInput,
-            "No file path provided".to_string(),
-        )
-    })?;
-
-    let file = File::open(path)?;
-    let mmap = unsafe { MmapOptions::new().map(&file)? };
-
     let mut total_count = 0;
     let mut analyzer = LogAnalyzer::new();
 
@@ -321,6 +311,34 @@ fn count_total_logs(
     } else {
         analyzer.configure(None, level_filter);
     }
+
+    // Check if using stdin
+    if file_path.is_none() && atty::isnt(Stream::Stdin) {
+        // Read from stdin
+        let stdin = io::stdin();
+        let reader = stdin.lock();
+
+        for line_result in reader.lines() {
+            let line = line_result?;
+            if analyzer.analyze_line(&line, None, analyzer.get_level_filter(), false, false).is_some()
+            {
+                total_count += 1;
+            }
+        }
+
+        return Ok(total_count);
+    }
+
+    // If a file path is provided, use memory mapping
+    let path = file_path.ok_or_else(|| {
+        std::io::Error::new(
+            std::io::ErrorKind::InvalidInput,
+            "No file path provided".to_string(),
+        )
+    })?;
+
+    let file = File::open(path)?;
+    let mmap = unsafe { MmapOptions::new().map(&file)? };
 
     // Fast counting using chunk processing
     const FAST_CHUNK_SIZE: usize = 1_048_576; // 1MB
