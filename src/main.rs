@@ -1,11 +1,12 @@
+use atty::Stream;
 use clap::Parser;
 use memmap2::MmapOptions;
 use regex::Regex;
 use std::fs::File;
-use std::time::Instant;
-use atty::Stream;
 use std::io;
 use std::io::BufRead;
+use std::io::BufReader;
+use std::time::Instant;
 
 use timberjack::analyzer::LogAnalyzer;
 use timberjack::cli::Args;
@@ -40,49 +41,54 @@ fn main() -> std::io::Result<()> {
     // Determine format to use
     let format = match args.format.to_lowercase().as_str() {
         "auto" => {
-            // Open the file for sampling
-            let file = File::open(&args.file)?;
-            if file.metadata()?.len() == 0 {
-                LogFormat::Generic
-            } else {
-                // Memory map just the beginning of the file for sampling
-                let mmap = unsafe { MmapOptions::new().map(&file)? };
+            if let Some(file_path) = &args.file {
+                // Open the file for sampling
+                let file = File::open(file_path)?;
+                if file.metadata()?.len() == 0 {
+                    LogFormat::Generic
+                } else {
+                    // Memory map just the beginning of the file for sampling
+                    let mmap = unsafe { MmapOptions::new().map(&file)? };
 
-                // Extract sample lines for format detection (first ~10 lines)
-                let mut sample_lines = Vec::with_capacity(10);
-                let mut start = 0;
-                let mut line_count = 0;
+                    // Extract sample lines for format detection (first ~10 lines)
+                    let mut sample_lines = Vec::with_capacity(10);
+                    let mut start = 0;
+                    let mut line_count = 0;
 
-                // Get up to 10 lines or 4KB, whichever comes first
-                let max_sample = std::cmp::min(4096, mmap.len());
+                    // Get up to 10 lines or 4KB, whichever comes first
+                    let max_sample = std::cmp::min(4096, mmap.len());
 
-                for i in 0..max_sample {
-                    if i == mmap.len() - 1 || mmap[i] == b'\n' {
-                        if i > start {
-                            // Extract a line - handle UTF-8 encoding properly
-                            if let Ok(line) = std::str::from_utf8(&mmap[start..i]) {
-                                let trimmed_line = line.trim();
-                                if !trimmed_line.is_empty() {
-                                    sample_lines.push(trimmed_line);
-                                    line_count += 1;
-                                    if line_count >= 10 {
-                                        break;
+                    for i in 0..max_sample {
+                        if i == mmap.len() - 1 || mmap[i] == b'\n' {
+                            if i > start {
+                                // Extract a line - handle UTF-8 encoding properly
+                                if let Ok(line) = std::str::from_utf8(&mmap[start..i]) {
+                                    let trimmed_line = line.trim();
+                                    if !trimmed_line.is_empty() {
+                                        sample_lines.push(trimmed_line);
+                                        line_count += 1;
+                                        if line_count >= 10 {
+                                            break;
+                                        }
                                     }
                                 }
                             }
+                            start = i + 1;
                         }
-                        start = i + 1;
                     }
+
+                    // Detect format using the sample lines
+                    let (detected_format, _) =
+                        parser_registry.detect_format(&sample_lines.to_vec());
+
+                    if !args.json && !args.count {
+                        println!("Detected format: {:?}", detected_format);
+                    }
+
+                    detected_format
                 }
-
-                // Detect format using the sample lines
-                let (detected_format, _) = parser_registry.detect_format(&sample_lines.to_vec());
-
-                if !args.json && !args.count {
-                    println!("Detected format: {:?}", detected_format);
-                }
-
-                detected_format
+            } else {
+                LogFormat::Generic
             }
         }
         "json" => LogFormat::Json,
@@ -141,18 +147,17 @@ fn main() -> std::io::Result<()> {
         true
     } else {
         // Auto-detect based on file size
-        should_use_parallel(&args.file)
+        should_use_parallel(args.file.as_deref())
     };
 
     // If only count is needed, use a fast counting method
     if args.count {
-        let count = count_total_logs(&args.file, pattern.as_ref(), level)?;
+        let count = count_total_logs(args.file.as_deref(), pattern.as_ref(), level)?;
         println!("{}", count);
         return Ok(());
     }
 
     let result = if using_stdin {
-
         // Process from stdin
         process_from_stdin(
             &mut analyzer,
@@ -161,12 +166,10 @@ fn main() -> std::io::Result<()> {
             args.trend,
             args.stats,
         )?
-
-    } else if let Some(file_path) = &args.file {
-
+    } else if args.file.is_some() {
         // Process from file (your existing code)
         process_with_mmap(
-            &args.file,
+            args.file.as_deref(),
             &mut analyzer,
             pattern.as_ref(),
             level,
@@ -174,7 +177,6 @@ fn main() -> std::io::Result<()> {
             args.stats,
             use_parallel,
         )?
-
     } else {
         // This shouldn't happen due to the earlier check
         unreachable!()
@@ -184,9 +186,16 @@ fn main() -> std::io::Result<()> {
     let elapsed = start_time.elapsed();
     if !args.json {
         if using_stdin {
-            println!("Analysis completed in {:.2}s (source: stdin)", elapsed.as_secs_f32());
+            println!(
+                "Analysis completed in {:.2}s (source: stdin)",
+                elapsed.as_secs_f32()
+            );
         } else if let Some(file) = &args.file {
-            println!("Analysis completed in {:.2}s (source: {})", elapsed.as_secs_f32(), file);
+            println!(
+                "Analysis completed in {:.2}s (source: {})",
+                elapsed.as_secs_f32(),
+                file
+            );
         }
     }
 
@@ -231,12 +240,12 @@ fn process_from_stdin(
     let reader = BufReader::new(stdin);
 
     // Process Lines Directly
-    for line in reader.lines() {
-        let line = line?;
+    for line_result in reader.lines() {
+        let line = line_result?;
         if let Some((matched_line, level, timestamp)) = analyzer.analyze_line(
             &line,
             None,
-            analyzer.level_filter_lowercase.as_deref(),
+            analyzer.get_level_filter(),
             collect_trends,
             collect_stats,
         ) {
@@ -274,7 +283,8 @@ fn process_from_stdin(
                 }
 
                 // Update unique messages
-                if let Some(message) = matched_line.split(']').nth(1).map(|s| s.trim().to_string()) {
+                if let Some(message) = matched_line.split(']').nth(1).map(|s| s.trim().to_string())
+                {
                     result.unique_messages.insert(message);
                 } else {
                     result.unique_messages.insert(matched_line);
@@ -288,11 +298,18 @@ fn process_from_stdin(
 
 // Fast method to count total logs with optional filtering
 fn count_total_logs(
-    file_path: &str,
+    file_path: Option<&str>,
     pattern: Option<&Regex>,
     level_filter: Option<&str>,
 ) -> std::io::Result<usize> {
-    let file = File::open(file_path)?;
+    let path = file_path.ok_or_else(|| {
+        std::io::Error::new(
+            std::io::ErrorKind::InvalidInput,
+            "No file path provided".to_string(),
+        )
+    })?;
+
+    let file = File::open(path)?;
     let mmap = unsafe { MmapOptions::new().map(&file)? };
 
     let mut total_count = 0;
@@ -330,7 +347,7 @@ fn count_total_logs(
 
 // Process file using memory mapping
 fn process_with_mmap(
-    file_path: &str,
+    file_path: Option<&str>,
     analyzer: &mut LogAnalyzer,
     pattern: Option<&Regex>,
     level_filter: Option<&str>,
@@ -338,11 +355,18 @@ fn process_with_mmap(
     collect_stats: bool,
     use_parallel: bool,
 ) -> std::io::Result<timberjack::analyzer::AnalysisResult> {
-    let path = std::path::Path::new(file_path);
+    let path_str = file_path.ok_or_else(|| {
+        std::io::Error::new(
+            std::io::ErrorKind::InvalidInput,
+            "No file path provided".to_string(),
+        )
+    })?;
+
+    let path = std::path::Path::new(path_str);
     if !path.exists() {
         return Err(std::io::Error::new(
             std::io::ErrorKind::NotFound,
-            format!("File not found: {}", file_path),
+            format!("File not found: {}", path_str),
         ));
     }
 
@@ -369,12 +393,15 @@ fn process_with_mmap(
 }
 
 // Determine if parallel processing should be used based on file size
-fn should_use_parallel(file_path: &str) -> bool {
-    match std::fs::metadata(file_path) {
-        Ok(metadata) => {
-            let size = metadata.len();
-            size > PARALLEL_THRESHOLD_BYTES
-        }
-        Err(_) => false, // If we can't determine file size, assume small
+fn should_use_parallel(file_path: Option<&str>) -> bool {
+    match file_path {
+        Some(path) => match std::fs::metadata(path) {
+            Ok(metadata) => {
+                let size = metadata.len();
+                size > PARALLEL_THRESHOLD_BYTES
+            }
+            Err(_) => false,
+        },
+        None => false,
     }
 }

@@ -106,6 +106,11 @@ impl LogAnalyzer {
         }
     }
 
+    /// Get level filter
+    pub fn get_level_filter(&self) -> Option<&str> {
+        self.level_filter_lowercase.as_deref()
+    }
+
     /// Set field filters from command line arguments in format "field=value"
     pub fn set_field_filters(&mut self, field_filters: Vec<String>) {
         for filter in field_filters {
