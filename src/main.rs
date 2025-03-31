@@ -1,4 +1,3 @@
-use atty::Stream;
 use clap::Parser;
 use memmap2::MmapOptions;
 use regex::Regex;
@@ -6,6 +5,7 @@ use std::fs::File;
 use std::io;
 use std::io::BufRead;
 use std::io::BufReader;
+use std::io::IsTerminal;
 use std::time::Instant;
 
 use timberjack::analyzer::LogAnalyzer;
@@ -19,7 +19,7 @@ const MAX_UNIQUE_LINES: usize = 10000;
 
 fn main() -> std::io::Result<()> {
     let args = Args::parse();
-    let using_stdin = args.file.is_none() && atty::isnt(Stream::Stdin);
+    let using_stdin = args.file.is_none() && !std::io::stdin().is_terminal();
 
     if !using_stdin && args.file.is_none() {
         eprintln!("Error: No input source. Provide a file or pipe data to stdin.");
@@ -313,7 +313,7 @@ fn count_total_logs(
     }
 
     // Check if using stdin
-    if file_path.is_none() && atty::isnt(Stream::Stdin) {
+    if file_path.is_none() && !std::io::stdin().is_terminal() {
         // Read from stdin
         let stdin = io::stdin();
         let reader = stdin.lock();

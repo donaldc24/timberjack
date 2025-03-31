@@ -1,6 +1,6 @@
 [package]
 name = "timberjack"
-version = "0.1.0-alpha.4"
+version = "0.1.0-beta.1"
 edition = "2024"
 description = "A CLI tool that fells log files with speed and insight"
 license = "MIT"
@@ -34,7 +34,6 @@ rayon = "1.10.0"
 memmap2 = "0.9.5"
 lazy_static = "1.4.0"
 memchr = "2.7.0"   # SIMD-accelerated string search
-atty = "0.2.14"
 
 [dev-dependencies]
 assert_cmd = "2.0"
