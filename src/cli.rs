@@ -5,11 +5,9 @@ use clap::Parser;
 #[clap(about = "Timberjack: Fell Your Logs Fast", long_about = None)]
 #[clap(version = env!("CARGO_PKG_VERSION"))]
 pub struct Args {
-    /// Log file to analyze
-    #[clap(
-        help = "Note: Timberjack is the new name for this tool, but the command remains 'timber' for compatibility"
-    )]
-    pub file: String,
+    /// Log file to analyze (or use stdin if not provided)
+    #[clap(help = "Log file to analyze (omit to read from stdin)")]
+    pub file: Option<String>,
 
     /// Pattern to search for
     #[clap(short, long)]

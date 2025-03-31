@@ -18,12 +18,37 @@ Timberjack is a log-agnostic CLI tool that chops through noise to deliver patter
 - **Statistical Analysis**: Get insights on log levels, error types, and message uniqueness
 - **Memory Efficiency**: Low memory footprint even with large log files
 - **Automatic Format Detection**: Intelligently handles both plaintext and JSON logs
+- **Stdin Support**: Seamless piping and streaming log analysis
 
 ## 🚀 Installation
 
 ```bash
 cargo install timberjack
 ```
+
+## 🌐 Stdin and Piping Superpowers
+
+Timberjack now supports stdin input, making log analysis incredibly flexible:
+
+```bash
+# Pipe logs from any source
+cat system.log | timber --level ERROR
+docker logs mycontainer | timber --chop "connection"
+journalctl | timber --stats
+
+# Quick counting
+cat large_log.log | timber --count
+cat access.log | grep "404" | timber --count
+
+# Advanced analysis
+kubectl logs pod/web-server | timber --json --trend
+```
+
+**Pro Tips:**
+- Automatically detects log formats from stdin
+- Supports compressed logs via zcat/gunzip
+- Memory-mapped processing for large input streams
+- Works with JSON, plaintext, and mixed log formats
 
 ## 🔨 Quick Examples
 
