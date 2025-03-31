@@ -19,7 +19,7 @@ const MAX_UNIQUE_LINES: usize = 10000;
 
 fn main() -> std::io::Result<()> {
     let args = Args::parse();
-    let using_stdin = atty::isnt(Stream::Stdin);
+    let using_stdin = args.file.is_none() && atty::isnt(Stream::Stdin);
 
     if !using_stdin && args.file.is_none() {
         eprintln!("Error: No input source. Provide a file or pipe data to stdin.");
