@@ -320,7 +320,9 @@ fn count_total_logs(
 
         for line_result in reader.lines() {
             let line = line_result?;
-            if analyzer.analyze_line(&line, None, analyzer.get_level_filter(), false, false).is_some()
+            if analyzer
+                .analyze_line(&line, None, analyzer.get_level_filter(), false, false)
+                .is_some()
             {
                 total_count += 1;
             }
