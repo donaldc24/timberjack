@@ -3,6 +3,9 @@ use memmap2::MmapOptions;
 use regex::Regex;
 use std::fs::File;
 use std::time::Instant;
+use atty::Stream;
+use std::io;
+use std::io::BufRead;
 
 use timberjack::analyzer::LogAnalyzer;
 use timberjack::cli::Args;
@@ -11,16 +14,24 @@ use timberjack::parser::{LogFormat, ParserRegistry};
 
 // Threshold for using parallel processing (in bytes)
 const PARALLEL_THRESHOLD_BYTES: u64 = 10 * 1024 * 1024; // 10MB
+const MAX_UNIQUE_LINES: usize = 10000;
 
 fn main() -> std::io::Result<()> {
     let args = Args::parse();
+    let using_stdin = atty::isnt(Stream::Stdin);
 
-    // Skip the banner when using JSON output or count for cleaner output
+    if !using_stdin && args.file.is_none() {
+        eprintln!("Error: No input source. Provide a file or pipe data to stdin.");
+        std::process::exit(1);
+    }
+
+    // Skip the banner when using JSON output, or count
     if !args.json && !args.count {
-        println!(
-            "\nWaking LumberJacks...Timberjack is chopping: {}\n",
-            args.file
-        );
+        if using_stdin {
+            println!("\nWaking LumberJacks...Timberjack is chopping from stdin\n");
+        } else if let Some(file) = &args.file {
+            println!("\nWaking LumberJacks...Timberjack is chopping: {}\n", file);
+        }
     }
 
     // Create parser registry
@@ -140,21 +151,43 @@ fn main() -> std::io::Result<()> {
         return Ok(());
     }
 
-    // Process the file using memory mapping
-    let result = process_with_mmap(
-        &args.file,
-        &mut analyzer,
-        pattern.as_ref(),
-        level,
-        args.trend,
-        args.stats,
-        use_parallel,
-    )?;
+    let result = if using_stdin {
+
+        // Process from stdin
+        process_from_stdin(
+            &mut analyzer,
+            pattern.as_ref(),
+            level,
+            args.trend,
+            args.stats,
+        )?
+
+    } else if let Some(file_path) = &args.file {
+
+        // Process from file (your existing code)
+        process_with_mmap(
+            &args.file,
+            &mut analyzer,
+            pattern.as_ref(),
+            level,
+            args.trend,
+            args.stats,
+            use_parallel,
+        )?
+
+    } else {
+        // This shouldn't happen due to the earlier check
+        unreachable!()
+    };
 
     // Print processing time if not in JSON mode
     let elapsed = start_time.elapsed();
     if !args.json {
-        println!("Analysis completed in {:.2}s", elapsed.as_secs_f32());
+        if using_stdin {
+            println!("Analysis completed in {:.2}s (source: stdin)", elapsed.as_secs_f32());
+        } else if let Some(file) = &args.file {
+            println!("Analysis completed in {:.2}s (source: {})", elapsed.as_secs_f32(), file);
+        }
     }
 
     if !args.json {
@@ -171,6 +204,86 @@ fn main() -> std::io::Result<()> {
     );
 
     Ok(())
+}
+
+fn process_from_stdin(
+    analyzer: &mut LogAnalyzer,
+    pattern: Option<&Regex>,
+    level_filter: Option<&str>,
+    collect_trends: bool,
+    collect_stats: bool,
+) -> std::io::Result<timberjack::analyzer::AnalysisResult> {
+    // Configure analyzer with pattern if included
+    if let Some(pat) = pattern {
+        analyzer.configure(Some(&pat.to_string()), level_filter);
+    } else if level_filter.is_some() {
+        analyzer.configure(None, level_filter);
+    }
+
+    // Create result object to collect analysis
+    let mut result = timberjack::analyzer::AnalysisResult {
+        deduplicated: true,
+        ..Default::default()
+    };
+
+    // Process Line by Line from stdin
+    let stdin = io::stdin();
+    let reader = BufReader::new(stdin);
+
+    // Process Lines Directly
+    for line in reader.lines() {
+        let line = line?;
+        if let Some((matched_line, level, timestamp)) = analyzer.analyze_line(
+            &line,
+            None,
+            analyzer.level_filter_lowercase.as_deref(),
+            collect_trends,
+            collect_stats,
+        ) {
+            result.count += 1;
+
+            if result.matched_lines.len() < MAX_UNIQUE_LINES {
+                let line_count_entry = result.line_counts.entry(matched_line.clone()).or_insert(0);
+                *line_count_entry += 1;
+
+                if !result.matched_lines.contains(&matched_line) {
+                    result.matched_lines.push(matched_line.clone());
+                }
+            }
+
+            // Update trends if requested
+            if collect_trends {
+                if let Some(ts) = timestamp {
+                    let hour = if ts.len() >= 13 {
+                        ts[0..13].to_string()
+                    } else {
+                        ts
+                    };
+                    *result.time_trends.entry(hour).or_insert(0) += 1;
+                }
+            }
+
+            // Update stats if requested
+            if collect_stats {
+                // Update level counts
+                *result.levels_count.entry(level.clone()).or_insert(0) += 1;
+
+                // Update error types
+                if let Some(error_type) = analyzer.extract_error_type(&matched_line) {
+                    *result.error_types.entry(error_type).or_insert(0) += 1;
+                }
+
+                // Update unique messages
+                if let Some(message) = matched_line.split(']').nth(1).map(|s| s.trim().to_string()) {
+                    result.unique_messages.insert(message);
+                } else {
+                    result.unique_messages.insert(matched_line);
+                }
+            }
+        }
+    }
+
+    Ok(result)
 }
 
 // Fast method to count total logs with optional filtering
