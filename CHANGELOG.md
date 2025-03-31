@@ -5,37 +5,65 @@ All notable changes to Timberjack will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-[0.1.0-alpha.4] - 2025-03-24
-🔄 Rebranding Release
-Name Change
+## [0.1.0-beta.1] - 2025-04-01
+### Added
 
-Project Renamed: From "Timber" to "Timberjack" to avoid naming conflicts with existing tools
+- Full stdin support for log processing
+- Ability to pipe logs from other commands
+- Automatic log format detection for stdin input
+- Stdin-specific performance optimizations
+- Support for compressed log streams via zcat/gunzip
+- Memory-mapped processing for stdin streams larger than 10MB
+
+### Enhanced
+
+- Improved memory efficiency for streaming log inputs
+- Optimized parallel processing for stdin-based logs
+- Better error handling for different input stream scenarios
+
+### Changed
+
+- Updated CLI to seamlessly handle file and stdin inputs
+- Expanded command-line examples to showcase stdin capabilities
+
+### Performance
+
+- Minimal overhead when processing streamed logs
+- Automatic thread scaling for large stdin inputs
+- Efficient memory management for log streams
+
+## [0.1.0-alpha.4] - 2025-03-24
+### 🔄 Rebranding Release
+
+- Name Change
+
+    - Project Renamed: From "Timber" to "Timberjack" to avoid naming conflicts with existing tools
 Package Renamed: Now published as timberjack on crates.io (previously timber-rs)
 Repository Renamed: GitHub repository now at donaldc24/timberjack
 
-Command Line Experience
+- Command Line Experience
 
-Preserved CLI Command: The binary name remains timber for backward compatibility
+    - Preserved CLI Command: The binary name remains timber for backward compatibility
 Updated CLI Help Text: Help documentation now references the new name
 Updated Banner: Startup messages now reference Timberjack
 Added Note: Informative note about the rebranding in help text
 
-Documentation & Branding
+- Documentation & Branding
 
-Updated README: All documentation updated to reflect new name
+    - Updated README: All documentation updated to reflect new name
 Added Migration Guide: New MIGRATING.md file explains the transition
 New Visual Identity: Refreshed logo and color scheme
 New Domains: Secured timberjack.dev and timberjack.rs
 
-Internal Changes
+- Internal Changes
 
-Updated Package Metadata: All package identifiers updated to reflect Timberjack
+    - Updated Package Metadata: All package identifiers updated to reflect Timberjack
 Code References: Internal code references to project name updated
 Build System: Updated CI/CD pipelines to reflect new name
 
-Deprecated
+- Deprecated
 
-The timber-rs crate is now deprecated in favor of timberjack
+    - The timber-rs crate is now deprecated in favor of timberjack
 
 ## [0.1.0-alpha.3] - 2025-03-23
 
