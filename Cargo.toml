@@ -38,7 +38,7 @@ memchr = "2.7.0"   # SIMD-accelerated string search
 [dev-dependencies]
 assert_cmd = "2.0"
 predicates = "3.1"
-tempfile = "3.3"
+tempfile = "3.20"
 criterion = "0.5"
 
 [[bench]]
