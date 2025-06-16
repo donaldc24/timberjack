@@ -33,7 +33,7 @@ serde_json = "1.0.140"
 rayon = "1.10.0"
 memmap2 = "0.9.5"
 lazy_static = "1.4.0"
-memchr = "2.7.0"   # SIMD-accelerated string search
+memchr = "2.7.5"   # SIMD-accelerated string search
 
 [dev-dependencies]
 assert_cmd = "2.0"
